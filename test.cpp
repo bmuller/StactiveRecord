@@ -13,12 +13,13 @@ public:
 
 int main() {
   Test t(0);
-  //t.set("one", "two");
+  //t.set("one", "three");
   //t.save();
-  cout << "id: " << t.id << "\n";
+  //cout << "id: " << t.id << "\n";
   string value;
   t.get("one", value);
   cout << "one: " << value << "\n";
+  //t.set("one", "three");
   delete Sar_Dbi::dbi;
   return 0;
 };

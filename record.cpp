@@ -7,6 +7,7 @@ namespace stactiverecord {
       throw Sar_NoSuchObjectException("Cannot update an object with id of -1");
     else {
       _db->get(id, classname, svalues);
+      //_db->get(id, classname, ivalues);
     }
   };
 
@@ -16,11 +17,26 @@ namespace stactiverecord {
       // everything will now be inserts
       _db->set(id, classname, svalues, true);
     } else if(dirty) {
-      // determine what's an insert and what's an update
+      SarVector<string> propkeys;
+      SarMap<string> propvalues;
+
+      // new strings
+      get_new(propkeys, STRING);
+      svalues.submap(propkeys, propvalues);
+      _db->set(id, classname, propvalues, true);
+
+      // changed strings
+      get_changed(propkeys, STRING);
+      svalues.submap(propkeys, propvalues);
+      _db->set(id, classname, propvalues, false);      
     }
   };
 
-  void Record::set(string key, string value) {
+  void Record::set(string key, string value) { 
+    if(svalues.has_key(key)) 
+      register_change(key, STRING);
+    else
+      register_new(key, STRING);
     svalues[key] = value;
     dirty = true;
   };
@@ -48,5 +64,8 @@ namespace stactiverecord {
   void Record::get(string key, Record& value) {
 
   };
+
+  void Record::del(string key) {};
+  void Record::del() {};
 
 };

@@ -3,8 +3,6 @@
 namespace stactiverecord {
   using namespace std;
 
-  enum coltype { INTEGER, STRING, RECORD };
-
   class Sar_Dbi {
   public:
     static Sar_Dbi* makeStorage(string config);
@@ -18,6 +16,7 @@ namespace stactiverecord {
     virtual void get(int id, string classname, SarMap<int>& values) {};
     virtual void set(int id, string classname, SarMap<string> values, bool insert) {};
     virtual void set(int id, string classname, SarMap<int> values, bool insert) {};
+    virtual void del(int id, string classname, SarVector<string> keys, coltype ct) {};
     bool table_is_initialized(string tablename);
   };
 
@@ -38,6 +37,7 @@ namespace stactiverecord {
     void get(int id, string classname, SarMap<int>& values);
     void set(int id, string classname, SarMap<string> values, bool insert);
     void set(int id, string classname, SarMap<int> values, bool insert);
+    void del(int id, string classname, SarVector<string> keys, coltype ct);
   };
 
   /*

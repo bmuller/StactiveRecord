@@ -33,6 +33,7 @@ namespace stactiverecord {
   int SQLiteStorage::next_id(string classname) {
     sqlite3_stmt *pSelect;
     string query = "SELECT id FROM id_maximums WHERE classname = \"" + classname + "\"";
+    debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){
       throw Sar_DBException("error preparing sql query: " + query);
@@ -85,6 +86,7 @@ namespace stactiverecord {
     string id_s;
     int_to_string(id, id_s);
     string query = "SELECT keyname,value FROM " + tablename + " WHERE id = " + id_s;
+    debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){
       throw Sar_DBException("error preparing sql query: " + query);
@@ -107,6 +109,7 @@ namespace stactiverecord {
     string id_s;
     int_to_string(id, id_s);
     string query = "SELECT keyname,value FROM " + tablename + " WHERE id = " + id_s;
+    debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){
       throw Sar_DBException("error preparing sql query: " + query);
@@ -159,6 +162,14 @@ namespace stactiverecord {
 	execute(query);
       }
     }
+  };
+
+  void SQLiteStorage::del(int id, string classname, SarVector<string> keys, coltype ct) {
+    string tablename = (ct == STRING) ? classname+"_s" : classname+"_i";
+    string id_s;
+    int_to_string(id, id_s);
+    for(unsigned int i=0; i < keys.size(); i++)
+      execute("DELETE FROM " + tablename + " WHERE id = " + id_s + " AND keyname = \"" + keys[i] + "\"");
   };
 
   void SQLiteStorage::execute(string query) {
