@@ -7,7 +7,7 @@ namespace stactiverecord {
   };
 
   bool Sar_Dbi::table_is_initialized(string tablename) { 
-    return in_vector(tablename, initialized_tables); 
+    return initialized_tables.includes(tablename);
   };
 
 };

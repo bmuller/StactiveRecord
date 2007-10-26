@@ -49,11 +49,4 @@ namespace stactiverecord {
     return ret;
   }
 
-  bool in_vector(string s, vector<string> v) {
-    for(vector<string>::size_type i=0; i < v.size()-1; i++)
-      if(v[i] == s)
-	return true;
-    return false;
-  };
-
 };

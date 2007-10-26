@@ -41,11 +41,14 @@ namespace stactiverecord {
     if(rc != SQLITE_ROW){
       debug("could not find max id int for " + classname + " - starting at 0");
       rc = sqlite3_finalize(pSelect);
+      query = "INSERT INTO id_maximums (id,classname) VALUES(0, \"" + classname + "\")";
+      execute(query);
+      return 0;
     }
     int maxid = sqlite3_column_int(pSelect, 0) + 1;
     string maxid_s;
     int_to_string(maxid, maxid_s);
-    execute("UPDATE id_maximums SET id = " + maxid_s + " WHERE name = \"" + classname + "\"");
+    execute("UPDATE id_maximums SET id = " + maxid_s + " WHERE classname = \"" + classname + "\"");
     return maxid;
   };
 
@@ -69,10 +72,11 @@ namespace stactiverecord {
     tablename = classname + "_i";
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
-      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT");
+      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT)");
       initialized_tables.push_back(tablename);
     }
 
+    debug("Finished initializing tables for class " + classname);
   };
 
   void SQLiteStorage::get(int id, string classname, SarMap<string>& values) {
@@ -86,12 +90,13 @@ namespace stactiverecord {
       throw Sar_DBException("error preparing sql query: " + query);
     }
     rc = sqlite3_step(pSelect);
+    char c_key[255];
+    char c_value[VALUE_MAX_SIZE + 1];
     while(rc == SQLITE_ROW){
-      char c_key[255];
-      char c_value[VALUE_MAX_SIZE + 1];
       snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
       snprintf(c_value, VALUE_MAX_SIZE, "%s", sqlite3_column_text(pSelect, 1));
       values[string(c_key)] = string(c_value);
+      rc = sqlite3_step(pSelect);
     }    
     rc = sqlite3_finalize(pSelect);
   };
@@ -112,6 +117,7 @@ namespace stactiverecord {
       snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
       int value = sqlite3_column_int(pSelect, 1);
       values[string(c_key)] = value;
+      rc = sqlite3_step(pSelect);
     }    
     rc = sqlite3_finalize(pSelect);
   };

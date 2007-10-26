@@ -11,7 +11,6 @@ namespace stactiverecord {
   void int_to_string(int i, string& s);
   void debug(string s);
   void check_classname(string classname);
-  bool in_vector(string s, vector<string> v);
   vector<string> explode(string s, string e);
 };
   

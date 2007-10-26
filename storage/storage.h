@@ -9,7 +9,7 @@ namespace stactiverecord {
   public:
     static Sar_Dbi* makeStorage(string config);
     static Sar_Dbi* dbi;
-    vector<string> initialized_tables;
+    SarVector<string> initialized_tables;
     Sar_Dbi() : initialized_tables() {};
     virtual void delete_record(int id, string classname) {};
     virtual void initialize_tables(string classname) {};
