@@ -1,15 +1,14 @@
 #include <sqlite3.h>
+#include <mysql/mysql.h>
 
 namespace stactiverecord {
   using namespace std;
-
-  enum coltype { INTEGER, STRING, RECORD };
 
   class Sar_Dbi {
   public:
     static Sar_Dbi* makeStorage(string config);
     static Sar_Dbi* dbi;
-    vector<string> initialized_tables;
+    SarVector<string> initialized_tables;
     Sar_Dbi() : initialized_tables() {};
     virtual void delete_record(int id, string classname) {};
     virtual void initialize_tables(string classname) {};
@@ -18,6 +17,7 @@ namespace stactiverecord {
     virtual void get(int id, string classname, SarMap<int>& values) {};
     virtual void set(int id, string classname, SarMap<string> values, bool insert) {};
     virtual void set(int id, string classname, SarMap<int> values, bool insert) {};
+    virtual void del(int id, string classname, SarVector<string> keys, coltype ct) {};
     bool table_is_initialized(string tablename);
   };
 
@@ -38,6 +38,7 @@ namespace stactiverecord {
     void get(int id, string classname, SarMap<int>& values);
     void set(int id, string classname, SarMap<string> values, bool insert);
     void set(int id, string classname, SarMap<int> values, bool insert);
+    void del(int id, string classname, SarVector<string> keys, coltype ct);
   };
 
   /*
@@ -49,4 +50,22 @@ namespace stactiverecord {
   };
   */
 
+  class MySQLStorage : public Sar_Dbi {
+  private:
+    void close();
+    MYSQL *db;
+    bool is_closed;
+    void test_result(int result, const string& context);
+    void execute(string query);
+  public:
+    MySQLStorage(string config);
+    ~MySQLStorage() { close(); };
+    int next_id(string classname);
+    void delete_record(int id, string classname);
+    void initialize_tables(string classname);
+    void get(int id, string classname, SarMap<string>& values);
+    void get(int id, string classname, SarMap<int>& values);
+    void set(int id, string classname, SarMap<string> values, bool insert);
+    void set(int id, string classname, SarMap<int> values, bool insert);
+  };
 };

@@ -50,7 +50,7 @@ namespace stactiverecord {
   }
 
   bool in_vector(string s, vector<string> v) {
-    for(vector<string>::size_type i=0; i < v.size()-1; i++)
+    for(vector<string>::size_type i=0; i < v.size(); i++)
       if(v[i] == s)
 	return true;
     return false;

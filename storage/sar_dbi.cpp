@@ -3,11 +3,14 @@
 namespace stactiverecord {
 
   Sar_Dbi * Sar_Dbi::makeStorage(string config) {
-    return new SQLiteStorage("./somefile.db");
+    if (config == "sqlite")
+	  return new SQLiteStorage("./somefile.db");
+    else if (config=="mysql")
+	  return new MySQLStorage("");
   };
 
   bool Sar_Dbi::table_is_initialized(string tablename) { 
-    return in_vector(tablename, initialized_tables); 
+    return initialized_tables.includes(tablename);
   };
 
 };

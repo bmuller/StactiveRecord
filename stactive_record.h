@@ -4,8 +4,13 @@
 #include <map>
 #include <exception>
 
+namespace stactiverecord {
+  enum coltype { INTEGER, STRING, RECORD };
+};
+
 #include "utils.h"
 #include "types.h"
+#include "cud_property_register.h"
 #include "exception.h"
 #include "storage/storage.h"
 #include "record.h"
