@@ -19,6 +19,15 @@ namespace stactiverecord {
         cout << this->at(i) << ", ";
       cout << "\n";
     };
+    void remove(T value) {
+      // terribly inefficient ... fix this later
+      for(unsigned int i=0; i < this->size(); i++) {
+	if(this->at(i) == value) {
+	  this->erase(this->begin() + i + 1);
+	  remove(value);
+	}
+      }
+    };
   };
   
   template <class T>
@@ -39,6 +48,12 @@ namespace stactiverecord {
     void submap(SarVector<string> keys, SarMap<T>& submap) {
       for(unsigned int i=0; i < keys.size(); i++)
 	submap[keys[i]] = this->operator[](keys[i]);
+    };
+    void remove(string key) {
+      for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) {
+	if(string((*i).first) == key) 
+	  this->erase(i);
+      }
     };
   };
 

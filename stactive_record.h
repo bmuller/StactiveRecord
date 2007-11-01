@@ -5,7 +5,7 @@
 #include <exception>
 
 namespace stactiverecord {
-  enum coltype { INTEGER, STRING, RECORD };
+  enum coltype { NONE, INTEGER, STRING, RECORD };
 };
 
 #include "utils.h"

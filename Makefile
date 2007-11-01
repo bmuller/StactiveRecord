@@ -11,4 +11,4 @@ record.o:
 sqlite_storage.o:
 	g++ storage/sqlite_storage.cpp -o storage/sqlite_storage.o -c
 clean:
-	rm -rf *.o ./storage/*.o ./types/*.o test
+	rm -rf *.o ./storage/*.o ./types/*.o test *.db

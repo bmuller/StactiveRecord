@@ -24,6 +24,7 @@ namespace stactiverecord {
     int id;
 
     void save();
+    coltype get_col_type(string colname);
 
     void set(string key, string value);
     void set(string key, int value);
