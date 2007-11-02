@@ -24,6 +24,7 @@ namespace stactiverecord {
     void get_deleted(SarVector<string>& v, coltype ct);
 
     void clear_registers();
+    void dump_registers();
   };
 
 };

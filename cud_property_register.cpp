@@ -67,4 +67,19 @@ namespace stactiverecord {
       (*i).second.clear();
   };
 
+  void CUDPropertyRegister::dump_registers() {
+    cout << "New props:\n";
+    cout << "Strings: ";
+    newprop[STRING].dump();
+    newprop[INTEGER].dump();
+
+    cout << "Changed props:\n";
+    changedprop[STRING].dump();
+    changedprop[INTEGER].dump();
+
+    cout << "Deleted props:\n";
+    deletedprop[STRING].dump();
+    deletedprop[INTEGER].dump();
+  };
+
 };

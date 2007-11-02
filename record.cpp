@@ -44,10 +44,12 @@ namespace stactiverecord {
       SarMap<string> propvalues;
 
       // new strings
+      dump_registers();
       get_new(propkeys, STRING);
       svalues.submap(propkeys, propvalues);
+      dump_registers();
       _db->set(id, classname, propvalues, true);
-
+      return;
       // changed strings
       propkeys.clear();
       get_changed(propkeys, STRING);
