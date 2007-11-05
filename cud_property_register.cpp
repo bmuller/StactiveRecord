@@ -19,17 +19,17 @@ namespace stactiverecord {
   };
 
   void CUDPropertyRegister::get_new(SarVector<string>& v, coltype ct) {
-    for(unsigned int i=0; i < newprop.size(); i++)
+    for(unsigned int i=0; i < newprop[ct].size(); i++)
       v.push_back(newprop[ct][i]);
   };
 
   void CUDPropertyRegister::get_changed(SarVector<string>& v, coltype ct) {
-    for(unsigned int i=0; i < changedprop.size(); i++)
+    for(unsigned int i=0; i < changedprop[ct].size(); i++)
       v.push_back(changedprop[ct][i]);
   };
 
   void CUDPropertyRegister::get_deleted(SarVector<string>& v, coltype ct) {
-    for(unsigned int i=0; i < deletedprop.size(); i++)
+    for(unsigned int i=0; i < deletedprop[ct].size(); i++)
       v.push_back(deletedprop[ct][i]);
   };
 
@@ -71,14 +71,19 @@ namespace stactiverecord {
     cout << "New props:\n";
     cout << "Strings: ";
     newprop[STRING].dump();
+    cout << "Integers: ";
     newprop[INTEGER].dump();
 
-    cout << "Changed props:\n";
+    cout << "\nChanged props:\n";
+    cout << "Strings: ";
     changedprop[STRING].dump();
+    cout << "Integers: ";
     changedprop[INTEGER].dump();
 
-    cout << "Deleted props:\n";
+    cout << "\nDeleted props:\n";
+    cout << "Strings: ";
     deletedprop[STRING].dump();
+    cout << "Integers: ";
     deletedprop[INTEGER].dump();
   };
 

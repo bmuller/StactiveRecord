@@ -6,6 +6,7 @@
 
 namespace stactiverecord {
   enum coltype { NONE, INTEGER, STRING, RECORD };
+  enum scoltype { "NONE", "INTEGER", "STRING", "RECORD" };
 };
 
 #include "utils.h"

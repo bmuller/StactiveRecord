@@ -30,7 +30,7 @@ namespace stactiverecord {
       throw Sar_NoSuchObjectException("Cannot update an object with id of -1");
     else {
       _db->get(id, classname, svalues);
-      //_db->get(id, classname, ivalues);
+      _db->get(id, classname, ivalues);
     }
   };
 
@@ -41,24 +41,40 @@ namespace stactiverecord {
       _db->set(id, classname, svalues, true);
     } else if(dirty) {
       SarVector<string> propkeys;
-      SarMap<string> propvalues;
+      SarMap<string> spropvalues;
+      SarMap<int> ipropvalues;
 
       // new strings
-      dump_registers();
       get_new(propkeys, STRING);
-      svalues.submap(propkeys, propvalues);
-      dump_registers();
-      _db->set(id, classname, propvalues, true);
-      return;
+      svalues.submap(propkeys, spropvalues);
+      _db->set(id, classname, spropvalues, true);
+
       // changed strings
       propkeys.clear();
       get_changed(propkeys, STRING);
-      svalues.submap(propkeys, propvalues);
-      _db->set(id, classname, propvalues, false);      
+      svalues.submap(propkeys, spropvalues);
+      _db->set(id, classname, spropvalues, false);      
 
       // deleted strings
       propkeys.clear();
       get_deleted(propkeys, STRING);
+      _db->del(id, classname, propkeys, STRING);
+
+      // new ints
+      propkeys.clear();
+      get_new(propkeys, INTEGER);
+      ivalues.submap(propkeys, ipropvalues);
+      _db->set(id, classname, ipropvalues, true);
+
+      // changed ints
+      propkeys.clear();
+      get_changed(propkeys, INTEGER);
+      ivalues.submap(propkeys, ipropvalues);
+      _db->set(id, classname, ipropvalues, false);      
+
+      // deleted ints
+      propkeys.clear();
+      get_deleted(propkeys, INTEGER);
       _db->del(id, classname, propkeys, STRING);
 
       clear_registers();
@@ -66,6 +82,7 @@ namespace stactiverecord {
   };
 
   void Record::set(string key, string value) { 
+    clear_other_values(STRING);
     if(svalues.has_key(key)) {
       register_change(key, STRING);
     } else if(is_registered_deleted(key, STRING)) {
@@ -80,7 +97,17 @@ namespace stactiverecord {
   };
 
   void Record::set(string key, int value) {
-
+    clear_other_values(INTEGER);
+    if(ivalues.has_key(key)) {
+      register_change(key, INTEGER);
+    } else if(is_registered_deleted(key, INTEGER)) {
+      // in this case it's now a modify
+      unregister_delete(key, INTEGER);
+      register_change(key, INTEGER);
+    } else {
+      register_new(key, INTEGER);
+    }
+    ivalues[key] = value;
     dirty = true;
   };
 
@@ -114,19 +141,48 @@ namespace stactiverecord {
       register_delete(key, ct);
     }
 
-    if(svalues.has_key(key)) 
-      svalues.remove(key); 
+    switch(ct) {
+      case INTEGER:
+	ivalues.remove(colname);
+	break;
+      case STRING:
+	svalues.remove(colname);
+	break;
+    };
   };
 
   // Return coltype if found, NONE if not found
   coltype Record::get_col_type(string colname) {
     if(svalues.has_key(colname) || is_registered_new(colname, STRING))
       return STRING;
-    //if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
-    //return INTEGER;
+    if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
+      return INTEGER;
     return NONE;
   };
 
   void Record::del() {};
+
+  // Delete any previous values for key that isn't coltype ct
+  // this is done to prevent two concurrent types for any key value
+  coltype Record::clear_other_values(string colname, coltype ct) {
+    coltype existing_ct = get_col_type(colname);
+    if(existing_ct != NONE && existing_ct != ct) {
+      debug("getting rid of old value for " + colname + " and type " + scoltype[existing_ct]);
+      if(is_registered_new(colname, existing_ct)) {
+	unregister_new(colname, ct);
+      } else if(is_registered_changed(colname, existing_ct)) {
+	unregister_changed(colname, existing_ct);
+      }
+      register_delete(colname, existing_ct);
+      switch(ct) {
+        case INTEGER:
+	  ivalues.remove(colname);
+	  break;
+        case STRING:
+	  svalues.remove(colname);
+	  break;
+      };
+    }
+  };
 
 };

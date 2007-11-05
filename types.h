@@ -35,7 +35,7 @@ namespace stactiverecord {
   public:
     SarMap() : map<string,T>() {};
     bool has_key(string key) {
-      for(SarMap<string>::iterator i=this->begin(); i!=this->end(); ++i) 
+      for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
 	if(string((*i).first) == key) {
 	  return true;
 	}
@@ -46,6 +46,8 @@ namespace stactiverecord {
 	cout << (*i).first << ": " << (*i).second << "\n";
     };
     void submap(SarVector<string> keys, SarMap<T>& submap) {
+      // clear the submap first...
+      submap.clear();
       for(unsigned int i=0; i < keys.size(); i++)
 	submap[keys[i]] = this->operator[](keys[i]);
     };
