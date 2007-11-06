@@ -16,7 +16,6 @@ namespace stactiverecord {
 #include "storage/storage.h"
 #include "record.h"
 
-
 #define false 0
 #define true 1
 

@@ -2,7 +2,7 @@
 
 using namespace stactiverecord;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("hello");
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://./sqlitedb.db");
 
 class Test : public Record {
 public:

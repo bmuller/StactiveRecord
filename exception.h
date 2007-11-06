@@ -23,4 +23,9 @@ namespace stactiverecord {
   public:
     Sar_NoSuchPropertyException(string s) : Sar_Exception(s) {};
   };  
+
+  class Sar_InvalidConfigurationException : public Sar_Exception {
+  public:
+    Sar_InvalidConfigurationException(string s) : Sar_Exception(s) {};
+  };  
 };

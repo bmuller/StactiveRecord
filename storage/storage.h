@@ -1,4 +1,5 @@
 #include <sqlite3.h>
+#include <mysql/mysql.h>
 
 namespace stactiverecord {
   using namespace std;
@@ -38,6 +39,25 @@ namespace stactiverecord {
     void set(int id, string classname, SarMap<string> values, bool insert);
     void set(int id, string classname, SarMap<int> values, bool insert);
     void del(int id, string classname, SarVector<string> keys, coltype ct);
+  };
+
+  class MySQLStorage : public Sar_Dbi {
+  private:
+    void close();
+    MYSQL *db;
+    bool is_closed;
+    void test_result(int result, const string& context);
+    void execute(string query);
+  public:
+    MySQLStorage(string config);
+    ~MySQLStorage() { close(); };
+    int next_id(string classname);
+    void delete_record(int id, string classname);
+    void initialize_tables(string classname);
+    void get(int id, string classname, SarMap<string>& values);
+    void get(int id, string classname, SarMap<int>& values);
+    void set(int id, string classname, SarMap<string> values, bool insert);
+    void set(int id, string classname, SarMap<int> values, bool insert);
   };
 
   /*
