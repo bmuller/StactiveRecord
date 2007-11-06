@@ -164,7 +164,10 @@ namespace stactiverecord {
     return NONE;
   };
 
-  void Record::del() {};
+  void Record::del() {
+    if(id != -1)
+      _db->delete_record(id, classname);
+  };
 
   // Delete any previous values for key that isn't coltype ct
   // this is done to prevent two concurrent types for any key value

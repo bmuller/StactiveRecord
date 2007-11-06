@@ -21,6 +21,8 @@ int main() {
   f.save();
   f.save();
 
+  f.del();
+
   //cout << "Saved one as integer 1\n";
 
   //Test t(f.id);
