@@ -12,6 +12,15 @@ public:
 
 
 int main() {
+  Test t;
+  t.save();
+  Test f;
+  f.save();
+  ObjGroup g;
+  g << f;
+  g << t;
+  g.get_ids().dump();
+  /*
   Test f;
   f.set("one", "blah");
   f.save();
@@ -22,7 +31,7 @@ int main() {
   f.save();
 
   f.del();
-
+  */
   //cout << "Saved one as integer 1\n";
 
   //Test t(f.id);

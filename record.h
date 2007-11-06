@@ -8,6 +8,7 @@ namespace stactiverecord {
     bool dirty;
     SarMap<string> svalues;
     SarMap<int> ivalues;    
+    SarMap< SarVector<Record> > rvalues;
     coltype clear_other_values(string colname, coltype ct);
   protected:
     Record(string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
@@ -29,8 +30,10 @@ namespace stactiverecord {
 
     void set(string key, string value);
     void set(string key, int value);
-    void set(string key, Record r);
-
+    template <class T> void set(Record r);
+    template <class T> void setMany(SarVector<Record> og);
+    template <class T> Record get();
+    template <class T> SarVector<Record> getMany();
     void get(string key, string& value);
     int get(string key);
     void get(string key, Record& value);

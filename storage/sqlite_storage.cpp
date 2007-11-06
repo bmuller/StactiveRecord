@@ -77,6 +77,14 @@ namespace stactiverecord {
       initialized_tables.push_back(tablename);
     }
 
+    // make table for string values
+    tablename = classname + "_o";
+    if(!table_is_initialized(tablename)) {
+      debug("initializing table " + tablename);
+      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
+      initialized_tables.push_back(tablename);
+    }
+
     debug("Finished initializing tables for class " + classname);
   };
 
@@ -194,5 +202,71 @@ namespace stactiverecord {
     tablename = classname + "_i";
     execute("DELETE FROM " + tablename + " WHERE id = " + id_s);
   };
- 
+
+  void SQLiteStorage::set(int id, string classname, SarVector<int> related, string related_classname) {
+    string tablename = classname + "_o";
+    string s_id, related_id;
+    int_to_string(id, s_id);
+    debug("Adding related " + related_classname + "s to a " + classname);
+    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
+    for(SarVector<int>::size_type i=0; i<related.size(); i++) {
+      int_to_string(related[i], related_id);
+      if(swap)
+	execute("INSERT INTO " + tablename + " (class_one, class_one_id, class_two, class_two_id) VALUES(\"" + \
+		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
+      else
+	execute("INSERT INTO " + tablename + " (class_two, class_two_id, class_one, class_one_id) VALUES(\"" + \
+		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
+    }
+  };
+
+  void SQLiteStorage::get(int id, string classname, string related_classname, SarVector<int>& related) {
+    sqlite3_stmt *pSelect;
+    string tablename = classname + "_o";
+    string s_id, query;
+    int_to_string(id, s_id);
+    debug("Getting related " + related_classname + "s to a " + classname);
+    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
+    if(swap)
+      query = "SELECT class_one_id WHERE class_one = \"" + related_classname + "\" AND class_two_id = " 
+	+ s_id + " AND class_two = \"" + classname + "\"";
+    else
+      query = "SELECT class_two_id WHERE class_two = \"" + related_classname + "\" AND class_one_id = " 
+	+ s_id + " AND class_one = \"" + classname + "\"";
+
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      related << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+  };
+
+  void SQLiteStorage::del(int id, string classname, SarVector<int> related, string related_classname) {
+    string tablename = classname + "_o";
+    string s_id, related_id;
+    int_to_string(id, s_id);
+    debug("Deleting some related " + related_classname + "s to a " + classname);
+    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
+
+    string idlist = "(";
+    for(SarVector<int>::size_type i=0; i<related.size(); i++) {
+      int_to_string(related[i], related_id);
+      if(i!=(related.size() - 1))
+	idlist += ",";
+    }
+    idlist += ")";
+
+    if(swap)
+      execute("DELETE FROM " + tablename + " WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id \
+	      + " AND class_one=\"" + related_classname + "\" and class_one_id IN " + idlist);
+    else
+      execute("DELETE FROM " + tablename + " WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id \
+	      + " AND class_two=\"" + related_classname + "\" and class_two_id IN " + idlist);
+  };
 };

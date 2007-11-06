@@ -13,11 +13,26 @@ namespace stactiverecord {
     virtual void delete_record(int id, string classname) {};
     virtual void initialize_tables(string classname) {};
     virtual int next_id(string classname) {};
+
+    // get string values
     virtual void get(int id, string classname, SarMap<string>& values) {};
+    // get int values
     virtual void get(int id, string classname, SarMap<int>& values) {};
+    // get record relations
+    virtual void get(int id, string classname, string related_classname, SarVector<int>& related) {};
+
+    // insert/modify string values
     virtual void set(int id, string classname, SarMap<string> values, bool insert) {};
+    // insert/modify int values
     virtual void set(int id, string classname, SarMap<int> values, bool insert) {};
+    // insert record relations
+    virtual void set(int id, string classname, SarVector<int> related, string related_classname) {};
+
+    // delete string / int value
     virtual void del(int id, string classname, SarVector<string> keys, coltype ct) {};
+    // delete record relations
+    virtual void del(int id, string classname, SarVector<int> related, string related_classname) {};
+
     bool table_is_initialized(string tablename);
   };
 
@@ -39,6 +54,9 @@ namespace stactiverecord {
     void set(int id, string classname, SarMap<string> values, bool insert);
     void set(int id, string classname, SarMap<int> values, bool insert);
     void del(int id, string classname, SarVector<string> keys, coltype ct);
+    void set(int id, string classname, SarVector<int> related, string related_classname);
+    void get(int id, string classname, string related_classname, SarVector<int>& related);
+    void del(int id, string classname, SarVector<int> related, string related_classname);
   };
 
   class MySQLStorage : public Sar_Dbi {

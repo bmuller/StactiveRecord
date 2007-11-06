@@ -113,11 +113,6 @@ namespace stactiverecord {
     dirty = true;
   };
 
-  void Record::set(string key, Record r) {
-
-    dirty = true;
-  };
-
   void Record::get(string key, string& value) {
     if(svalues.has_key(key))
       value = svalues[key];
@@ -130,10 +125,6 @@ namespace stactiverecord {
     throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };
   
-  void Record::get(string key, Record& value) {
-
-  };
-
   void Record::del(string key) {
     coltype ct = get_col_type(key);
     if(ct == NONE) return;
@@ -194,4 +185,37 @@ namespace stactiverecord {
     }
   };
 
+  // Assuming here that r is of type T
+  template <class T> void Record::set(Record r) {
+    string key = r.classname;
+    ObjGroup values;
+    if(rvalues.has_key(key)) {
+      values = ObjGroup(rvalues[key]);
+    } else {
+      SarVector<Record> records;
+      rvalues[key] = records;
+      values = ObjGroup(rvalues[key]);
+    }
+
+    // if the following is not true, then no change is being made
+    if(!values.has_id(r.id)) {
+      rvalues[key] << r;
+      register_new(key, RECORD);
+    }
+  };
+
+  // Assuming here that each r is of type T
+  template <class T> void Record::setMany(SarVector<Record> og) {
+    for(unsigned int i=0; i<og.size(); i++)
+      set<T>(og[i]);
+  };
+
+  template <class T> Record Record::get() {
+
+  };
+
+  template <class T> SarVector<Record> Record::getMany() {
+    ObjGroup og;
+    return og;
+  };
 };
