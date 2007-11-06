@@ -105,7 +105,7 @@ namespace stactiverecord {
 
   void SQLiteStorage::get(int id, string classname, SarMap<int>& values) {
     sqlite3_stmt *pSelect;
-    string tablename = classname + "_s";
+    string tablename = classname + "_i";
     string id_s;
     int_to_string(id, id_s);
     string query = "SELECT keyname,value FROM " + tablename + " WHERE id = " + id_s;

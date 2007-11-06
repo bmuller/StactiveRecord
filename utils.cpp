@@ -7,11 +7,16 @@ namespace stactiverecord {
     
   };
 
+  void coltype_to_name(coltype ct, string& name) {
+    string scoltype[] = { "NONE", "INTEGER", "STRING", "RECORD" };
+    name = scoltype[ct];
+  };
+
   void int_to_string(int i, string& s) {
     char c_int[100];
     sprintf(c_int, "%ld", i);
     s = string(c_int);
-  }
+  };
 
   void debug(string s) {
 #ifdef DEBUG

@@ -35,11 +35,12 @@ namespace stactiverecord {
   };
 
   void Record::save() {
-    if(id == -1) {
-      id = _db->next_id(classname);
-      // everything will now be inserts
-      _db->set(id, classname, svalues, true);
-    } else if(dirty) {
+    // only save if a value was changed, or if this object has never 
+    // been saved before (if the id is -1)
+    if(dirty || id == -1) {
+      if(id == -1) 
+	id = _db->next_id(classname);
+
       SarVector<string> propkeys;
       SarMap<string> spropvalues;
       SarMap<int> ipropvalues;
@@ -78,11 +79,11 @@ namespace stactiverecord {
       _db->del(id, classname, propkeys, STRING);
 
       clear_registers();
+      dirty = false;
     }
   };
 
   void Record::set(string key, string value) { 
-    clear_other_values(STRING);
     if(svalues.has_key(key)) {
       register_change(key, STRING);
     } else if(is_registered_deleted(key, STRING)) {
@@ -90,14 +91,14 @@ namespace stactiverecord {
       unregister_delete(key, STRING);
       register_change(key, STRING);
     } else {
+      clear_other_values(key, STRING);
       register_new(key, STRING);
     }
     svalues[key] = value;
     dirty = true;
   };
 
-  void Record::set(string key, int value) {
-    clear_other_values(INTEGER);
+  void Record::set(string key, int value) {   
     if(ivalues.has_key(key)) {
       register_change(key, INTEGER);
     } else if(is_registered_deleted(key, INTEGER)) {
@@ -105,6 +106,7 @@ namespace stactiverecord {
       unregister_delete(key, INTEGER);
       register_change(key, INTEGER);
     } else {
+      clear_other_values(key, INTEGER);
       register_new(key, INTEGER);
     }
     ivalues[key] = value;
@@ -123,7 +125,9 @@ namespace stactiverecord {
   };
 
   int Record::get(string key) {
-
+    if(ivalues.has_key(key))
+      return ivalues[key];
+    throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };
   
   void Record::get(string key, Record& value) {
@@ -143,10 +147,10 @@ namespace stactiverecord {
 
     switch(ct) {
       case INTEGER:
-	ivalues.remove(colname);
+	ivalues.remove(key);
 	break;
       case STRING:
-	svalues.remove(colname);
+	svalues.remove(key);
 	break;
     };
   };
@@ -167,11 +171,13 @@ namespace stactiverecord {
   coltype Record::clear_other_values(string colname, coltype ct) {
     coltype existing_ct = get_col_type(colname);
     if(existing_ct != NONE && existing_ct != ct) {
-      debug("getting rid of old value for " + colname + " and type " + scoltype[existing_ct]);
+      string coltypename;
+      coltype_to_name(existing_ct, coltypename);
+      debug("getting rid of old value for " + colname + " and type " + coltypename);
       if(is_registered_new(colname, existing_ct)) {
 	unregister_new(colname, ct);
       } else if(is_registered_changed(colname, existing_ct)) {
-	unregister_changed(colname, existing_ct);
+	unregister_change(colname, existing_ct);
       }
       register_delete(colname, existing_ct);
       switch(ct) {

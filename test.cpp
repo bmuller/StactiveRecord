@@ -13,11 +13,18 @@ public:
 
 int main() {
   Test f;
-  f.set("one", 1);
+  f.set("one", "blah");
   f.save();
 
-  Test t(f.id);
-  cout << "value should be 1: " << t.get("one") << "\n";
+  f.set("one", 1);  
+  f.save();
+  f.save();
+  f.save();
+
+  //cout << "Saved one as integer 1\n";
+
+  //Test t(f.id);
+  //cout << "value should be 1: " << t.get("one") << "\n";
   /*
   t.del("one");
   t.set("one", "four");

@@ -8,6 +8,7 @@ namespace stactiverecord {
     bool dirty;
     SarMap<string> svalues;
     SarMap<int> ivalues;    
+    coltype clear_other_values(string colname, coltype ct);
   protected:
     Record(string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
       check_classname(classname);

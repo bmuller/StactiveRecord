@@ -12,5 +12,6 @@ namespace stactiverecord {
   void debug(string s);
   void check_classname(string classname);
   vector<string> explode(string s, string e);
+  void coltype_to_name(coltype ct, string& name);
 };
   

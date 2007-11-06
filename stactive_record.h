@@ -5,8 +5,8 @@
 #include <exception>
 
 namespace stactiverecord {
+  // Note that a change here means editing coltype_to_name in utils too
   enum coltype { NONE, INTEGER, STRING, RECORD };
-  enum scoltype { "NONE", "INTEGER", "STRING", "RECORD" };
 };
 
 #include "utils.h"
