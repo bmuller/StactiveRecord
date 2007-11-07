@@ -102,6 +102,7 @@ namespace stactiverecord {
 	_db->del(id, classname, deleted_ids, related_classname);	
       }
 
+      // reset registers and make ourselves clean
       clear_registers();
       dirty = false;
     }
@@ -208,7 +209,4 @@ namespace stactiverecord {
       };
     }
   };
-
-  SarVector<Record> Record::makeContainer() { return ObjGroup(); };
-  SarVector<Record> Record::makeContainer(SarVector<Record> sr) { return ObjGroup(sr); };
 };

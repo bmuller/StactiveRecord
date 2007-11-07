@@ -38,11 +38,9 @@ int main() {
   Test x;
   x.set("name", "yourmamma");
   x.save();
-  secondog << t;
   secondog << x;
 
   f.setMany<Test>(secondog);
-  cout << "\n\n\n";
   f.save();
 
   TestTwo ff(f.id);
@@ -53,7 +51,8 @@ int main() {
   oogg[1].get("name", n2);
   cout << n1 << " " << n2 << "\n";
 
-  
+  ff.del<Test>();
+  ff.save();
 
 
   /*

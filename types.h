@@ -23,7 +23,7 @@ namespace stactiverecord {
       // terribly inefficient ... fix this later
       for(unsigned int i=0; i < this->size(); i++) {
 	if(this->at(i) == value) {
-	  this->erase(this->begin() + i + 1);
+	  this->erase(this->begin() + i);
 	  remove(value);
 	}
       }

@@ -38,8 +38,6 @@ namespace stactiverecord {
     void get(string key, Record& value);
     void del(string key);
     void del();
-    SarVector<Record> makeContainer();
-    SarVector<Record> makeContainer(SarVector<Record> sr);
 
     // Assuming here that r is of type T
     template <class T> void set(Record r) {
@@ -57,8 +55,31 @@ namespace stactiverecord {
 
     // Assuming here that each r is of type T
     template <class T> void setMany(SarVector<Record> og) {
-      for(unsigned int i=0; i<og.size(); i++)
+      // Set each one individuall, and make list of ids
+      SarVector<int> og_ids;
+      for(unsigned int i=0; i<og.size(); i++) {
 	set<T>(og[i]);
+	og_ids << og[i].id;
+      }
+
+      // Determine which should be removed, and remove them
+      string classname = T().classname;
+      SarVector<int> to_delete = og_ids.get_new(rvalues[classname]);
+      for(unsigned int i=0; i<to_delete.size(); i++) {
+	rvalues[classname].remove(to_delete[i]);
+      }
+      rvalues[classname].dump();
+      if(rvalues.size() > 0)
+	register_change(classname, RECORD);
+    };
+
+    template <class T> void del() {
+      string related_classname = T().classname;
+      if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
+	rvalues[related_classname] = SarVector<int>();
+	register_change(related_classname, RECORD);
+	dirty = true;
+      }
     };
 
     template <class T> void get(T& record) {
@@ -71,10 +92,8 @@ namespace stactiverecord {
     template <class T> void getMany(SarVector<Record>& og) {
       string related_classname = T().classname;
       if(rvalues.has_key(related_classname)) {
-	//SarVector<Record> og = makeContainer();
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
-	//return og;
       } else throw Sar_RecordNotFoundException("Could not find related records \"" + related_classname + "\"");
     };
 

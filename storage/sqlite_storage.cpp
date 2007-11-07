@@ -290,6 +290,7 @@ namespace stactiverecord {
     string idlist = "(";
     for(SarVector<int>::size_type i=0; i<related.size(); i++) {
       int_to_string(related[i], related_id);
+      idlist += related_id;
       if(i!=(related.size() - 1))
 	idlist += ",";
     }
