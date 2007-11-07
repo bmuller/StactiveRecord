@@ -25,7 +25,7 @@ int main() {
   tt.set("name", "fred");
   tt.save();
 
-  ObjGroup og;
+  ObjGroup<Test> og;
   og << t;
   og << tt;
 
@@ -33,7 +33,7 @@ int main() {
   f.setMany<Test>(og);
   f.save();
 
-  ObjGroup secondog;
+  ObjGroup<Test> secondog;
   secondog << t;
   Test x;
   x.set("name", "yourmamma");
@@ -44,18 +44,16 @@ int main() {
   f.save();
 
   TestTwo ff(f.id);
-  ObjGroup oogg;
-  ff.getMany<Test>(oogg);
+  ObjGroup<Test> oogg = ff.getMany<Test>();
   string n1, n2;
   oogg[0].get("name", n1);
   oogg[1].get("name", n2);
   cout << n1 << " " << n2 << "\n";
 
+  /*
   ff.del<Test>();
   ff.save();
-
-
-  /*
+  
   Test f;
   f.set("one", "blah");
   f.save();

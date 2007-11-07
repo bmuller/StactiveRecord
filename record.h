@@ -54,7 +54,7 @@ namespace stactiverecord {
     };
 
     // Assuming here that each r is of type T
-    template <class T> void setMany(SarVector<Record> og) {
+    template <class T> void setMany(ObjGroup<T> og) {
       // Set each one individuall, and make list of ids
       SarVector<int> og_ids;
       for(unsigned int i=0; i<og.size(); i++) {
@@ -89,13 +89,26 @@ namespace stactiverecord {
       } else throw Sar_RecordNotFoundException("Could not find related record \"" + related_classname + "\"");
     };
 
-    template <class T> void getMany(SarVector<Record>& og) {
+    template <class T> ObjGroup<T> getMany() {
+      ObjGroup<T> og;
       string related_classname = T().classname;
       if(rvalues.has_key(related_classname)) {
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
       } else throw Sar_RecordNotFoundException("Could not find related records \"" + related_classname + "\"");
+      return og;
     };
+
+    // some static search stuff
+    template <class T> static ObjGroup<T> find_by(string key, string value) {
+      string classname = T().classname;
+    }
+
+    template <class T> static ObjGroup<T> all() {
+      string classname = T().classname;
+      SarVector<int> results;
+      Sar_Dbi::dbi->get(classname, results);
+    }
 
   };
 

@@ -303,4 +303,109 @@ namespace stactiverecord {
       execute("DELETE FROM relationships WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id \
 	      + " AND class_two=\"" + related_classname + "\" and class_two_id IN " + idlist);
   };
+  
+  // some searching stuff
+  void SQLiteStorage::get(string classname, SarVector<int>& results) {
+    sqlite3_stmt *pSelect;
+    SarVector<int> others;
+    string tablename = classname + "_s";
+    debug("Getting all objects of type " + classname);
+    string query = "SELECT DISTINCT id FROM " + tablename;
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      results << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+   
+    tablename = classname + "_i";
+    query = "SELECT DISTINCT id FROM " + tablename;
+    debug(query);
+    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      others << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+    results.unionize(others);
+    others.clear();
+
+    query = "SELECT DISTINCT class_one_id FROM relationships WHERE class_one = \"" + classname + "\"";
+    debug(query);
+    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      others << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+    results.unionize(others);
+    others.clear();
+
+    query = "SELECT DISTINCT class_two_id FROM relationships WHERE class_two = \"" + classname + "\"";
+    debug(query);
+    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      others << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+    results.unionize(others);
+    others.clear();
+  };
+
+  void SQLiteStorage::get(string classname, string key, string value, SarVector<int>& results) {
+    sqlite3_stmt *pSelect;
+    string tablename = classname + "_s";
+    debug("Getting all objects of type " + classname + " with key " + key + " and value " + value);
+    string query = "SELECT id FROM " + tablename + " WHERE keyname=\"" + key + "\" AND value=\"" + value +"\"";
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      results << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+  };
+
+  void SQLiteStorage::get(string classname, string key, int value, SarVector<int>& results) {
+    sqlite3_stmt *pSelect;
+    string tablename = classname + "_s";
+    string svalue;
+    int_to_string(value, svalue);
+    debug("Getting all objects of type " + classname + " with key " + key + " and value " + svalue);
+    string query = "SELECT id FROM " + tablename + " WHERE keyname=\"" + key + "\" AND value=" + svalue;
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      results << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+  };
+
 };

@@ -15,7 +15,6 @@ namespace stactiverecord {
 #include "exception.h"
 #include "storage/storage.h"
 #include "record.h"
-#include "obj_group.h"
 
 #define false 0
 #define true 1

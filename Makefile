@@ -1,8 +1,8 @@
-main: utils.o obj_group.o cud_property_register.o sar_dbi.o record.o mysql_storage.o sqlite_storage.o
-	g++ test.cpp cud_property_register.o obj_group.o utils.o storage/sar_dbi.o \
+main: utils.o cud_property_register.o sar_dbi.o record.o mysql_storage.o sqlite_storage.o
+	g++ test.cpp cud_property_register.o utils.o storage/sar_dbi.o \
 	record.o storage/mysql_storage.o storage/sqlite_storage.o -o test -lsqlite3 -lmysqlpp
-obj_group.o:
-	g++ obj_group.cpp -o obj_group.o -c
+#obj_group.o:
+#	g++ obj_group.cpp -o obj_group.o -c
 cud_property_register.o:
 	g++ cud_property_register.cpp -o cud_property_register.o -c
 utils.o:

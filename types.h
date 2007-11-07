@@ -36,6 +36,19 @@ namespace stactiverecord {
 	  newones << others[i];
       return newones;
     };
+    void unionize(SarVector<T> others) {
+      for(unsigned int i=0; i < others.size(); i++)
+	if(!this->includes(others[i]))
+	  this->push_back(others[i]);
+    };
+    void operator+(SarVector<T> others) {
+      for(unsigned int i=0; i < others.size(); i++)
+	this->push_back(others[i]);      
+    };
+    void operator-(SarVector<T> others) {
+      for(unsigned int i=0; i < others.size(); i++)
+	this->remove(others[i]);
+    };
   };
   
   template <class T>
@@ -67,4 +80,30 @@ namespace stactiverecord {
     };
   };
 
+  template <class T>
+  class ObjGroup : public SarVector<T> {
+  public:
+    ObjGroup() : SarVector<T>() {};
+    ObjGroup(SarVector<T>& sr) : SarVector<T>() {
+      for(unsigned int i=0; i<sr.size(); i++)
+	push_back(sr[i]);
+    };
+    SarVector<int> get_ids() {
+      SarVector<int> sv;
+      for(unsigned int i=0; i < this->size(); i++)
+	sv.push_back(this->at(i).id);
+      return sv;
+    };
+    bool has_id(int id) {
+      return get_ids().includes(id);
+    };
+    bool has(T r) {
+      for(unsigned int i=0; i < this->size(); i++)
+	if(this->at(i) == r)
+	  return true;
+      return false;
+    };
+  };
 };
+
+
