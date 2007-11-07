@@ -20,6 +20,7 @@ namespace stactiverecord {
     virtual void get(int id, string classname, SarMap<int>& values) {};
     // get record relations
     virtual void get(int id, string classname, string related_classname, SarVector<int>& related) {};
+    virtual void get(int id, string classname, SarMap< SarVector<int> >& sm) {};
 
     // insert/modify string values
     virtual void set(int id, string classname, SarMap<string> values, bool insert) {};
@@ -57,6 +58,7 @@ namespace stactiverecord {
     void set(int id, string classname, SarVector<int> related, string related_classname);
     void get(int id, string classname, string related_classname, SarVector<int>& related);
     void del(int id, string classname, SarVector<int> related, string related_classname);
+    void get(int id, string classname, SarMap< SarVector<int> >& sm);
   };
 
   class MySQLStorage : public Sar_Dbi {

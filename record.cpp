@@ -31,6 +31,7 @@ namespace stactiverecord {
     else {
       _db->get(id, classname, svalues);
       _db->get(id, classname, ivalues);
+      _db->get(id, classname, rvalues);
     }
   };
 
@@ -77,6 +78,21 @@ namespace stactiverecord {
       propkeys.clear();
       get_deleted(propkeys, INTEGER);
       _db->del(id, classname, propkeys, STRING);
+
+      // added / deleted related records
+      propkeys.clear();
+      get_changed(propkeys, RECORD);
+      SarVector<int> related_ids;
+      string related_classname;
+      for(unsigned int i=0; i<propkeys.size(); i++) {
+	related_ids.clear();
+	related_classname = propkeys[i];
+	_db->get(id, classname, related_classname, related_ids);
+	SarVector<int> new_ids = related_ids.get_new(rvalues[related_classname]);
+	SarVector<int> deleted_ids = rvalues[related_classname].get_new(related_ids);
+	_db->set(id, classname, new_ids, related_classname);
+	_db->del(id, classname, deleted_ids, related_classname);	
+      }
 
       clear_registers();
       dirty = false;
@@ -185,37 +201,6 @@ namespace stactiverecord {
     }
   };
 
-  // Assuming here that r is of type T
-  template <class T> void Record::set(Record r) {
-    string key = r.classname;
-    ObjGroup values;
-    if(rvalues.has_key(key)) {
-      values = ObjGroup(rvalues[key]);
-    } else {
-      SarVector<Record> records;
-      rvalues[key] = records;
-      values = ObjGroup(rvalues[key]);
-    }
-
-    // if the following is not true, then no change is being made
-    if(!values.has_id(r.id)) {
-      rvalues[key] << r;
-      register_new(key, RECORD);
-    }
-  };
-
-  // Assuming here that each r is of type T
-  template <class T> void Record::setMany(SarVector<Record> og) {
-    for(unsigned int i=0; i<og.size(); i++)
-      set<T>(og[i]);
-  };
-
-  template <class T> Record Record::get() {
-
-  };
-
-  template <class T> SarVector<Record> Record::getMany() {
-    ObjGroup og;
-    return og;
-  };
+  SarVector<Record> Record::makeContainer() { return ObjGroup(); };
+  SarVector<Record> Record::makeContainer(SarVector<Record> sr) { return ObjGroup(sr); };
 };

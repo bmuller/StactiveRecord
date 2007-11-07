@@ -10,16 +10,27 @@ public:
   Test(int id) : Record("test", id) {};
 };
 
+class TestTwo : public Record {
+public:
+  TestTwo() : Record("testtwo") {};
+  TestTwo(int id) : Record("testtwo", id) {};
+};
 
 int main() {
   Test t;
+  t.set("name", "bob");
   t.save();
-  Test f;
+
+  TestTwo f;
+  f.set<Test>(t);
   f.save();
-  ObjGroup g;
-  g << f;
-  g << t;
-  g.get_ids().dump();
+
+  TestTwo ff(f.id);
+  Test x;
+  ff.get<Test>(x);
+  string name;
+  x.get("name", name);
+  cout << name << "\n";
   /*
   Test f;
   f.set("one", "blah");

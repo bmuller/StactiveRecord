@@ -8,10 +8,9 @@ namespace stactiverecord {
     int rc = sqlite3_open(location.c_str(), &db);
     char *errMsg;
     test_result(rc, "problem opening database");
-    string query = "CREATE TABLE IF NOT EXISTS id_maximums "
-      "(id INT, classname VARCHAR(255), valuetype INT)";
-    rc = sqlite3_exec(db, query.c_str(), NULL, 0, &errMsg);
-    test_result(rc, "problem creating table if it didn't exist already");
+    execute("CREATE TABLE IF NOT EXISTS id_maximums (id INT, classname VARCHAR(255), valuetype INT)");
+    execute("CREATE TABLE IF NOT EXISTS relationships (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
+    debug("sqlite database opened successfully");
   };
 
   void SQLiteStorage::close() {
@@ -74,14 +73,6 @@ namespace stactiverecord {
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
       execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT)");
-      initialized_tables.push_back(tablename);
-    }
-
-    // make table for string values
-    tablename = classname + "_o";
-    if(!table_is_initialized(tablename)) {
-      debug("initializing table " + tablename);
-      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
       initialized_tables.push_back(tablename);
     }
 
@@ -204,7 +195,6 @@ namespace stactiverecord {
   };
 
   void SQLiteStorage::set(int id, string classname, SarVector<int> related, string related_classname) {
-    string tablename = classname + "_o";
     string s_id, related_id;
     int_to_string(id, s_id);
     debug("Adding related " + related_classname + "s to a " + classname);
@@ -212,26 +202,25 @@ namespace stactiverecord {
     for(SarVector<int>::size_type i=0; i<related.size(); i++) {
       int_to_string(related[i], related_id);
       if(swap)
-	execute("INSERT INTO " + tablename + " (class_one, class_one_id, class_two, class_two_id) VALUES(\"" + \
+	execute("INSERT INTO relationships (class_one, class_one_id, class_two, class_two_id) VALUES(\"" + \
 		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
       else
-	execute("INSERT INTO " + tablename + " (class_two, class_two_id, class_one, class_one_id) VALUES(\"" + \
+	execute("INSERT INTO relationships (class_two, class_two_id, class_one, class_one_id) VALUES(\"" + \
 		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
     }
   };
 
   void SQLiteStorage::get(int id, string classname, string related_classname, SarVector<int>& related) {
     sqlite3_stmt *pSelect;
-    string tablename = classname + "_o";
     string s_id, query;
     int_to_string(id, s_id);
     debug("Getting related " + related_classname + "s to a " + classname);
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
     if(swap)
-      query = "SELECT class_one_id WHERE class_one = \"" + related_classname + "\" AND class_two_id = " 
+      query = "SELECT class_one_id FROM relationships WHERE class_one = \"" + related_classname + "\" AND class_two_id = " 
 	+ s_id + " AND class_two = \"" + classname + "\"";
     else
-      query = "SELECT class_two_id WHERE class_two = \"" + related_classname + "\" AND class_one_id = " 
+      query = "SELECT class_two_id FROM relationships WHERE class_two = \"" + related_classname + "\" AND class_one_id = " 
 	+ s_id + " AND class_one = \"" + classname + "\"";
 
     debug(query);
@@ -246,9 +235,53 @@ namespace stactiverecord {
     }
     rc = sqlite3_finalize(pSelect);
   };
+  
+  void SQLiteStorage::get(int id, string classname, SarMap< SarVector<int> >& sm) {
+    sqlite3_stmt *pSelect;
+    string s_id, query, key;
+    int_to_string(id, s_id);
+    debug("Getting all related objects to a " + classname);
+
+    query = "SELECT class_one, class_one_id FROM relationships WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id;
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      char c_key[255];
+      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
+      key = string(c_key);
+      if(!sm.has_key(key))
+	sm[key] = SarVector<int>();
+      sm[key] << sqlite3_column_int(pSelect, 1);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);    
+
+    query = "SELECT class_two, class_two_id FROM relationships WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id;
+    debug(query);
+    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      char c_key[255];
+      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
+      key = string(c_key);
+      if(!sm.has_key(key))
+	sm[key] = SarVector<int>();
+      sm[key] << sqlite3_column_int(pSelect, 1);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);    
+  };
 
   void SQLiteStorage::del(int id, string classname, SarVector<int> related, string related_classname) {
-    string tablename = classname + "_o";
+    if(related.size() == 0)
+      return;
     string s_id, related_id;
     int_to_string(id, s_id);
     debug("Deleting some related " + related_classname + "s to a " + classname);
@@ -263,10 +296,10 @@ namespace stactiverecord {
     idlist += ")";
 
     if(swap)
-      execute("DELETE FROM " + tablename + " WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id \
+      execute("DELETE FROM relationships WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id \
 	      + " AND class_one=\"" + related_classname + "\" and class_one_id IN " + idlist);
     else
-      execute("DELETE FROM " + tablename + " WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id \
+      execute("DELETE FROM relationships WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id \
 	      + " AND class_two=\"" + related_classname + "\" and class_two_id IN " + idlist);
   };
 };

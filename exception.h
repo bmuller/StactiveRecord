@@ -28,4 +28,9 @@ namespace stactiverecord {
   public:
     Sar_InvalidConfigurationException(string s) : Sar_Exception(s) {};
   };  
+
+  class Sar_RecordNotFoundException : public Sar_Exception {
+  public:
+    Sar_RecordNotFoundException(string s) : Sar_Exception(s) {};
+  };  
 };

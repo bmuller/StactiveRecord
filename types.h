@@ -28,6 +28,14 @@ namespace stactiverecord {
 	}
       }
     };
+    // return a vector containing any new values in others
+    SarVector<T> get_new(SarVector<T> others) {
+      SarVector<T> newones;
+      for(unsigned int i=0; i < others.size(); i++)
+	if(!this->includes(others[i]))
+	  newones << others[i];
+      return newones;
+    };
   };
   
   template <class T>
