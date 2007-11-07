@@ -8,5 +8,6 @@ namespace stactiverecord {
     };
     SarVector<int> get_ids();
     bool has_id(int id);
+    bool has(Record r);
   };
 };

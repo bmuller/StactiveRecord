@@ -35,6 +35,14 @@ namespace stactiverecord {
     }
   };
 
+  bool Record::operator==(const Record& other) const {
+    return (this->id == other.id && this->classname == other.classname);
+  };
+
+  bool Record::operator!=(const Record &other) const {
+    return !(*this == other);
+  }
+
   void Record::save() {
     // only save if a value was changed, or if this object has never 
     // been saved before (if the id is -1)

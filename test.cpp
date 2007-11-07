@@ -21,16 +21,41 @@ int main() {
   t.set("name", "bob");
   t.save();
 
+  Test tt;
+  tt.set("name", "fred");
+  tt.save();
+
+  ObjGroup og;
+  og << t;
+  og << tt;
+
   TestTwo f;
-  f.set<Test>(t);
+  f.setMany<Test>(og);
+  f.save();
+
+  ObjGroup secondog;
+  secondog << t;
+  Test x;
+  x.set("name", "yourmamma");
+  x.save();
+  secondog << t;
+  secondog << x;
+
+  f.setMany<Test>(secondog);
+  cout << "\n\n\n";
   f.save();
 
   TestTwo ff(f.id);
-  Test x;
-  ff.get<Test>(x);
-  string name;
-  x.get("name", name);
-  cout << name << "\n";
+  ObjGroup oogg;
+  ff.getMany<Test>(oogg);
+  string n1, n2;
+  oogg[0].get("name", n1);
+  oogg[1].get("name", n2);
+  cout << n1 << " " << n2 << "\n";
+
+  
+
+
   /*
   Test f;
   f.set("one", "blah");

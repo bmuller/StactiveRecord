@@ -13,5 +13,12 @@ namespace stactiverecord {
   bool ObjGroup::has_id(int id) {
     return get_ids().includes(id);
   };
+
+  bool ObjGroup::has(Record r) {
+    for(unsigned int i=0; i < this->size(); i++)
+      if(this->at(i) == r)
+	return true;
+    return false;
+  };
 };
 

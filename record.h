@@ -28,6 +28,9 @@ namespace stactiverecord {
     void save();
     coltype get_col_type(string colname);
 
+    bool operator==(const Record& other) const;
+    bool operator!=(const Record& other) const;
+
     void set(string key, string value);
     void set(string key, int value);
     void get(string key, string& value);
@@ -65,13 +68,13 @@ namespace stactiverecord {
       } else throw Sar_RecordNotFoundException("Could not find related record \"" + related_classname + "\"");
     };
 
-    template <class T> SarVector<Record> getMany() {
+    template <class T> void getMany(SarVector<Record>& og) {
       string related_classname = T().classname;
       if(rvalues.has_key(related_classname)) {
-	SarVector<Record> og = makeContainer();
+	//SarVector<Record> og = makeContainer();
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
-	return og;
+	//return og;
       } else throw Sar_RecordNotFoundException("Could not find related records \"" + related_classname + "\"");
     };
 
