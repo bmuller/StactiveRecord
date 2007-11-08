@@ -19,6 +19,7 @@ int main() {
   db->initialize_tables(classname);
   
   // test id creation
+  debug("testing id creation");
   assert(db->next_id(classname) == 0, "next_id incrementing");
   assert(db->next_id(classname) == 1, "next_id incrementing");
   assert(db->next_id(classname) == 2, "next_id incrementing");
@@ -34,6 +35,7 @@ int main() {
   SarMap< SarVector<int> > all_relationships;
 
   // test inserts
+  debug("testing inserts");
   svalues["foo"] = "bar";
   svalues["baz"] = "bang";
   ivalues["bar"] = 55;
@@ -48,6 +50,7 @@ int main() {
   assert(iresults == ivalues, "storing/retrieving int values");
 
   // now test updates
+  debug("testing updates");
   svalues["foo"] = "oof";
   svalues["baz"] = "foo";
   ivalues["bar"] = 998;
@@ -64,6 +67,7 @@ int main() {
   assert(iresults == ivalues, "updating/retrieving int values");
 
   // now test record relations
+  debug("testing record relations");
   ovalues << 4;
   ovalues << 5;
   ovalues << 6;
@@ -74,11 +78,13 @@ int main() {
   assert(all_relationships[related_classname] == ovalues, "storing/retrieving all object relationships");
 
   // now test backwards finding of relation
+  debug("test backwards finding of relation");
   oresults.clear();
   db->get(4, related_classname, classname, oresults);
   assert((oresults.size() == 1 && oresults[0] == id), "retrieving object relationships backwards");
 
   // test deleting values
+  debug("testing deleting values");
   svalues.remove("foo");
   sresults.clear();
   SarVector<string> toremove;
@@ -96,6 +102,7 @@ int main() {
   assert(iresults == ivalues, "deleting int value");
 
   // test deleting association
+  debug("testing deleting association");
   SarVector<int> itoremove;
   itoremove << 4;
   ovalues.remove(4);
@@ -105,6 +112,7 @@ int main() {
   assert(oresults == ovalues, "deleting object relationship");
 
   // test searching
+  debug("testing searching");
   // get all
   oresults.clear();
   db->get(classname, oresults);
@@ -119,12 +127,14 @@ int main() {
   assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching int prop value");
 
   // test delete record
+  debug("testing deleting record");
   db->delete_record(id, classname);
   oresults.clear();
   db->get(classname, oresults);
   assert((oresults.size() == 0), "deleting one object");
 
   // test delete all records
+  debug("testing deleting all records");
   db->set(id, classname, svalues, true);
   oresults.clear();
   db->delete_records(classname);
