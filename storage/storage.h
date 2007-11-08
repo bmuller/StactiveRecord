@@ -21,8 +21,9 @@ namespace stactiverecord {
     virtual void get(int id, string classname, SarMap<string>& values) {};
     // get int values
     virtual void get(int id, string classname, SarMap<int>& values) {};
-    // get record relations
+    // get record relations (of a specific class)
     virtual void get(int id, string classname, string related_classname, SarVector<int>& related) {};
+    // get all related classes
     virtual void get(int id, string classname, SarMap< SarVector<int> >& sm) {};
 
     // insert/modify string values
@@ -42,6 +43,7 @@ namespace stactiverecord {
     virtual void get(string classname, SarVector<int>& results) {};
     // get all objets with key and value
     virtual void get(string classname, string key, string value, SarVector<int>& results) {}; 
+    // get all objets with key and value
     virtual void get(string classname, string key, int value, SarVector<int>& results) {}; 
 
     bool table_is_initialized(string tablename);

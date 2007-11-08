@@ -152,7 +152,8 @@ namespace stactiverecord {
       }
     } else {
       for(map<string,string>::iterator i=values.begin(); i!=values.end(); ++i) {
-	query = "UPDATE " + tablename + " SET keyname=\"" + string((*i).first) + "\", value=\"" + string((*i).second) + "\" WHERE id=" + id_s;
+	query = "UPDATE " + tablename + " SET value=\"" + string((*i).second) + "\" WHERE id=" + id_s \
+	  + " AND keyname=\"" + string((*i).first) + "\"";
 	execute(query);
       }
     }
@@ -173,7 +174,8 @@ namespace stactiverecord {
     } else {
       for(map<string,int>::iterator i=values.begin(); i!=values.end(); ++i) {
 	int_to_string((*i).second, value_s);
-	query = "UPDATE " + tablename + " SET keyname=\"" + string((*i).first) + "\", value=" + value_s + " WHERE id=" + id_s;
+	query = "UPDATE " + tablename + " SET  value=" + value_s + " WHERE id=" + id_s \
+	  + " AND keyname=\"" + string((*i).first) + "\"";
 	execute(query);
       }
     }
@@ -208,6 +210,9 @@ namespace stactiverecord {
     // delete all int values
     tablename = classname + "_i";
     execute("DELETE FROM " + tablename + " WHERE id = " + id_s);
+
+    execute("DELETE FROM relationships WHERE class_one = \"" + classname + "\" AND class_one_id=" + id_s);
+    execute("DELETE FROM relationships WHERE class_two = \"" + classname + "\" AND class_two_id=" + id_s);
   };
 
   void SQLiteStorage::delete_records(string classname) {
@@ -217,11 +222,11 @@ namespace stactiverecord {
 
     // delete string values table
     tablename = classname + "_s";
-    execute("DROP TABLE " + tablename);
+    execute("DELETE FROM " + tablename);
 
     // delete int values table
     tablename = classname + "_i";
-    execute("DROP TABLE " + tablename);
+    execute("DELETE FROM " + tablename);
 
     // delete entries from relationships
     execute("DELETE FROM relationships WHERE class_one = \"" + classname + "\" OR class_two = \"" + classname + "\"");
@@ -426,7 +431,7 @@ namespace stactiverecord {
 
   void SQLiteStorage::get(string classname, string key, int value, SarVector<int>& results) {
     sqlite3_stmt *pSelect;
-    string tablename = classname + "_s";
+    string tablename = classname + "_i";
     string svalue;
     int_to_string(value, svalue);
     debug("Getting all objects of type " + classname + " with key " + key + " and value " + svalue);

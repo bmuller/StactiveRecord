@@ -28,6 +28,13 @@ namespace stactiverecord {
 	}
       }
     };
+    int count(T value) {
+      int count = 0;
+      for(unsigned int i=0; i < this->size(); i++) 
+	if(this->at(i) == value) 
+	  count++;
+      return count;
+    };
     // return a vector containing any new values in others
     SarVector<T> get_new(SarVector<T> others) {
       SarVector<T> newones;
@@ -49,15 +56,16 @@ namespace stactiverecord {
       for(unsigned int i=0; i < others.size(); i++)
 	this->remove(others[i]);
     };
-    void operator==(const SarVector<T>& others) const {
+    // if order doesn't matter, consider equality
+    bool operator==(SarVector<T>& others) {
       if(this->size() != others.size())
 	return false;
       for(unsigned int i=0; i < others.size(); i++)
-	if(this->at(i) != others[i])
+	if(others.count(this->at(i)) != 1)
 	  return false;
       return true;
     };
-    void operator!=(const SarVector<T>& others) const {
+    bool operator!=(SarVector<T>& others) {
       return !(*this == others);
     };
   };
@@ -95,7 +103,7 @@ namespace stactiverecord {
 	keys << string((*i).first);      
       return keys;
     };
-    void operator==(const SarMap<T>& others) const {
+    bool operator==(SarMap<T>& others) {
       if(this->size() != others.size() || this->keys() != others.keys())
 	return false;
       string key;
@@ -106,7 +114,7 @@ namespace stactiverecord {
       }
       return true;
     };
-    void operator!=(const SarMap<T>& others) const {
+    bool operator!=(SarMap<T>& others) const {
       return !(*this == others);
     };
   };

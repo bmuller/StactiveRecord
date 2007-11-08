@@ -5,6 +5,8 @@ main: ${PREREQ}
 	g++ test.cpp ${LIBS} -o test 
 db_test: ${PREREQ}
 	g++ tests/db_test.cpp ${LIBS} -o tests/db_test
+query_test: ${PREREQ}
+	g++ tests/query_test.cpp ${LIBS} -o tests/query_test
 cud_property_register.o:
 	g++ cud_property_register.cpp -o cud_property_register.o -c
 utils.o:

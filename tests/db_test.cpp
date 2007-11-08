@@ -9,20 +9,11 @@ void assert(bool v, string msg) {
   throw Sar_AssertionFailedException("Failed when testing " + msg);
 }
 
-class TestClass : public Record {
-public:
-  TestClass() : Record("testclass") {};
-  TestClass(int id) : Record("testclass", id) {};
-};
-
-
 int main() {
   debug("Testing sqlite..."); 
   Sar_Dbi *db = Sar_Dbi::dbi;
   string classname = "testclass";
-
-  // delete all preexisting
-  Record::delete_all<TestClass>();
+  string related_classname = "testclass_related";
 
   // recreate tables;
   db->initialize_tables(classname);
@@ -33,9 +24,116 @@ int main() {
   assert(db->next_id(classname) == 2, "next_id incrementing");
   assert(db->current_id(classname) == 2, "getting current id");
   
+  int id = 2;
   SarMap<string> svalues;
   SarMap<int> ivalues;
-  
+  SarMap<string> sresults;
+  SarMap<int> iresults;
+  SarVector<int> ovalues;
+  SarVector<int> oresults;
+  SarMap< SarVector<int> > all_relationships;
+
+  // test inserts
+  svalues["foo"] = "bar";
+  svalues["baz"] = "bang";
+  ivalues["bar"] = 55;
+  ivalues["zoop"] = 1234;
+
+  db->set(id, classname, svalues, true);
+  db->set(id, classname, ivalues, true);
+
+  db->get(id, classname, sresults);
+  db->get(id, classname, iresults);
+  assert(sresults == svalues, "storing/retrieving string values");
+  assert(iresults == ivalues, "storing/retrieving int values");
+
+  // now test updates
+  svalues["foo"] = "oof";
+  svalues["baz"] = "foo";
+  ivalues["bar"] = 998;
+  ivalues["zoop"] = 5364;
+
+  db->set(id, classname, svalues, false);
+  db->set(id, classname, ivalues, false);
+
+  sresults.clear();
+  iresults.clear();
+  db->get(id, classname, sresults);
+  db->get(id, classname, iresults);
+  assert(sresults == svalues, "updating/retrieving string values");
+  assert(iresults == ivalues, "updating/retrieving int values");
+
+  // now test record relations
+  ovalues << 4;
+  ovalues << 5;
+  ovalues << 6;
+  db->set(id, classname, ovalues, related_classname);
+  db->get(id, classname, related_classname, oresults);
+  assert(oresults == ovalues, "storing/retrieving object relationship");
+  db->get(id, classname, all_relationships);
+  assert(all_relationships[related_classname] == ovalues, "storing/retrieving all object relationships");
+
+  // now test backwards finding of relation
+  oresults.clear();
+  db->get(4, related_classname, classname, oresults);
+  assert((oresults.size() == 1 && oresults[0] == id), "retrieving object relationships backwards");
+
+  // test deleting values
+  svalues.remove("foo");
+  sresults.clear();
+  SarVector<string> toremove;
+  toremove << "foo";
+  db->del(id, classname, toremove, STRING);
+  db->get(id, classname, sresults);
+  assert(sresults == svalues, "deleting string value");
+
+  ivalues.remove("zoop");
+  iresults.clear();
+  toremove.clear();
+  toremove << "zoop";
+  db->del(id, classname, toremove, INTEGER);
+  db->get(id, classname, iresults);
+  assert(iresults == ivalues, "deleting int value");
+
+  // test deleting association
+  SarVector<int> itoremove;
+  itoremove << 4;
+  ovalues.remove(4);
+  oresults.clear();
+  db->del(id, classname, itoremove, related_classname);
+  db->get(id, classname, related_classname, oresults);
+  assert(oresults == ovalues, "deleting object relationship");
+
+  // test searching
+  // get all
+  oresults.clear();
+  db->get(classname, oresults);
+  assert((oresults.size() == 1 && oresults[0] == id), "getting all objects of a type");
+  // get all with string value
+  oresults.clear();
+  db->get(classname, "baz", "foo", oresults);
+  assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching string prop value");
+  // get all with int value
+  oresults.clear();
+  db->get(classname, "bar", 998, oresults);
+  assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching int prop value");
+
+  // test delete record
+  db->delete_record(id, classname);
+  oresults.clear();
+  db->get(classname, oresults);
+  assert((oresults.size() == 0), "deleting one object");
+
+  // test delete all records
+  db->set(id, classname, svalues, true);
+  oresults.clear();
+  db->delete_records(classname);
+  db->get(classname, oresults);
+  assert((oresults.size() == 0), "deleting all objects of a type");
+
   delete Sar_Dbi::dbi;
+
+  debug("If you're at this point, no errors were found.");
+
   return 0;
 }
