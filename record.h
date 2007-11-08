@@ -39,6 +39,11 @@ namespace stactiverecord {
     void del(string key);
     void del();
 
+    template <class T> static void delete_all() {
+      string classname = T().classname;
+      Sar_Dbi::dbi->delete_records(classname);
+    };
+
     // Assuming here that r is of type T
     template <class T> void set(Record r) {
       string key = r.classname;

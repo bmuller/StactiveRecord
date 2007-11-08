@@ -10,9 +10,12 @@ namespace stactiverecord {
     static Sar_Dbi* dbi;
     SarVector<string> initialized_tables;
     Sar_Dbi() : initialized_tables() {};
-    virtual void delete_record(int id, string classname) {};
+ 
     virtual void initialize_tables(string classname) {};
     virtual int next_id(string classname) {};
+    virtual int current_id(string classname) {};
+    virtual void delete_record(int id, string classname) {};
+    virtual void delete_records(string classname) {};
 
     // get string values
     virtual void get(int id, string classname, SarMap<string>& values) {};
@@ -55,7 +58,9 @@ namespace stactiverecord {
     SQLiteStorage(string location);
     ~SQLiteStorage() { close(); };
     int next_id(string classname);
+    int current_id(string classname);
     void delete_record(int id, string classname);
+    void delete_records(string classname);
     void initialize_tables(string classname);
     void get(int id, string classname, SarMap<string>& values);
     void get(int id, string classname, SarMap<int>& values);

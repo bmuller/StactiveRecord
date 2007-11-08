@@ -49,6 +49,17 @@ namespace stactiverecord {
       for(unsigned int i=0; i < others.size(); i++)
 	this->remove(others[i]);
     };
+    void operator==(const SarVector<T>& others) const {
+      if(this->size() != others.size())
+	return false;
+      for(unsigned int i=0; i < others.size(); i++)
+	if(this->at(i) != others[i])
+	  return false;
+      return true;
+    };
+    void operator!=(const SarVector<T>& others) const {
+      return !(*this == others);
+    };
   };
   
   template <class T>
@@ -77,6 +88,26 @@ namespace stactiverecord {
 	if(string((*i).first) == key) 
 	  this->erase(i);
       }
+    };
+    SarVector<string> keys() {
+      SarVector<string> keys;
+      for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
+	keys << string((*i).first);      
+      return keys;
+    };
+    void operator==(const SarMap<T>& others) const {
+      if(this->size() != others.size() || this->keys() != others.keys())
+	return false;
+      string key;
+      for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) {
+	key = string((*i).first);
+	if(this->operator[](key) != others[key]) 
+	  return false;
+      }
+      return true;
+    };
+    void operator!=(const SarMap<T>& others) const {
+      return !(*this == others);
     };
   };
 

@@ -53,6 +53,21 @@ namespace stactiverecord {
     return maxid;
   };
 
+  int SQLiteStorage::current_id(string classname) {
+    sqlite3_stmt *pSelect;
+    string query = "SELECT id FROM id_maximums WHERE classname = \"" + classname + "\"";
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    if(rc != SQLITE_ROW)
+      return -1;
+    int id = sqlite3_column_int(pSelect, 0);
+    rc = sqlite3_finalize(pSelect);
+    return id;
+  };
  
   void SQLiteStorage::initialize_tables(string classname) {
     char *errMsg;
@@ -193,6 +208,26 @@ namespace stactiverecord {
     // delete all int values
     tablename = classname + "_i";
     execute("DELETE FROM " + tablename + " WHERE id = " + id_s);
+  };
+
+  void SQLiteStorage::delete_records(string classname) {
+    char *errMsg;
+    int rc;
+    string query, tablename;
+
+    // delete string values table
+    tablename = classname + "_s";
+    execute("DROP TABLE " + tablename);
+
+    // delete int values table
+    tablename = classname + "_i";
+    execute("DROP TABLE " + tablename);
+
+    // delete entries from relationships
+    execute("DELETE FROM relationships WHERE class_one = \"" + classname + "\" OR class_two = \"" + classname + "\"");
+
+    // delete max id
+    execute("DELETE FROM id_maximums WHERE classname = \"" + classname + "\"");
   };
 
   void SQLiteStorage::set(int id, string classname, SarVector<int> related, string related_classname) {

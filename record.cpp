@@ -28,6 +28,8 @@ namespace stactiverecord {
   void Record::update() {
     if(id == -1) 
       throw Sar_NoSuchObjectException("Cannot update an object with id of -1");
+    else if(id > _db->current_id(classname)) 
+      throw Sar_NoSuchObjectException("The object id given does not exist.");
     else {
       _db->get(id, classname, svalues);
       _db->get(id, classname, ivalues);
