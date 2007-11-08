@@ -102,12 +102,23 @@ namespace stactiverecord {
     // some static search stuff
     template <class T> static ObjGroup<T> find_by(string key, string value) {
       string classname = T().classname;
-    }
+      SarVector<int> results;
+      Sar_Dbi::dbi->get(classname, key, value, results);
+      return ObjGroup<T>::from_ids(results);      
+    };
+
+    template <class T> static ObjGroup<T> find_by(string key, int value) {
+      string classname = T().classname;
+      SarVector<int> results;
+      Sar_Dbi::dbi->get(classname, key, value, results);
+      return ObjGroup<T>::from_ids(results);      
+    };
 
     template <class T> static ObjGroup<T> all() {
       string classname = T().classname;
       SarVector<int> results;
       Sar_Dbi::dbi->get(classname, results);
+      return ObjGroup<T>::from_ids(results);
     }
 
   };

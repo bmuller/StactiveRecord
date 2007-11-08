@@ -11,6 +11,7 @@ namespace stactiverecord {
 
 #include "utils.h"
 #include "types.h"
+#include "query.h"
 #include "cud_property_register.h"
 #include "exception.h"
 #include "storage/storage.h"

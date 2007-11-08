@@ -88,6 +88,12 @@ namespace stactiverecord {
       for(unsigned int i=0; i<sr.size(); i++)
 	push_back(sr[i]);
     };
+    static ObjGroup<T> from_ids(SarVector<int> ids) {
+      ObjGroup<T> og;
+      for(unsigned int i=0; i<ids.size(); i++)
+	og << T(ids[i]);
+      return og;
+    };
     SarVector<int> get_ids() {
       SarVector<int> sv;
       for(unsigned int i=0; i < this->size(); i++)

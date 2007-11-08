@@ -8,7 +8,7 @@ namespace stactiverecord {
     int rc = sqlite3_open(location.c_str(), &db);
     char *errMsg;
     test_result(rc, "problem opening database");
-    execute("CREATE TABLE IF NOT EXISTS id_maximums (id INT, classname VARCHAR(255), valuetype INT)");
+    execute("CREATE TABLE IF NOT EXISTS id_maximums (id INT, classname VARCHAR(255))");
     execute("CREATE TABLE IF NOT EXISTS relationships (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
     debug("sqlite database opened successfully");
   };
@@ -46,6 +46,7 @@ namespace stactiverecord {
       return 0;
     }
     int maxid = sqlite3_column_int(pSelect, 0) + 1;
+    rc = sqlite3_finalize(pSelect);
     string maxid_s;
     int_to_string(maxid, maxid_s);
     execute("UPDATE id_maximums SET id = " + maxid_s + " WHERE classname = \"" + classname + "\"");

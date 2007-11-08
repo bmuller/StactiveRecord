@@ -25,6 +25,14 @@ int main() {
   tt.set("name", "fred");
   tt.save();
 
+  Test ttt;
+  ttt.set("name", "asdf");
+  ttt.save();
+
+  ObjGroup<Test> og = Record::find_by<Test>("name", "fred");
+  og.get_ids().dump();
+
+  /*
   ObjGroup<Test> og;
   og << t;
   og << tt;
@@ -50,7 +58,6 @@ int main() {
   oogg[1].get("name", n2);
   cout << n1 << " " << n2 << "\n";
 
-  /*
   ff.del<Test>();
   ff.save();
   
