@@ -45,6 +45,8 @@ namespace stactiverecord {
     virtual void get(string classname, string key, string value, SarVector<int>& results) {}; 
     // get all objets with key and value
     virtual void get(string classname, string key, int value, SarVector<int>& results) {}; 
+    // using a query to find some group
+    //virtual void get(string classname, Q query) {};
 
     bool table_is_initialized(string tablename);
   };
@@ -76,6 +78,7 @@ namespace stactiverecord {
     void get(string classname, SarVector<int>& results);
     void get(string classname, string key, string value, SarVector<int>& results); 
     void get(string classname, string key, int value, SarVector<int>& results); 
+    //void get(string classname, Q query);
   };
 
   class MySQLStorage : public Sar_Dbi {

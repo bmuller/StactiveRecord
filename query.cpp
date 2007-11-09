@@ -1,0 +1,58 @@
+#include "stactive_record.h"
+
+namespace stactiverecord {
+  using namespace std;
+
+  Q& Q::operator||(Q& other) { 
+    ored << other; 
+    return (*this);
+  };
+
+  Q& Q::operator&&(Q& other) { 
+    anded << other; 
+    return (*this); 
+  };   
+  
+  // using the db, find all records that match
+  SarVector<int> Q::test(string classname, Sar_Dbi *db) {
+    SarVector<int> results;
+    db->get(classname, key, value, results);
+
+    // if none matching were found, see if any of our ors match
+    if(results.size() == 0) {
+      for(unsigned int i=0; i<ored.size(); i++) {
+	results = ored[i].test(classname, db);
+	if(results.size() == 0)
+	  return results;	  
+      }
+    }
+
+    SarVector<int> anded_results;
+    for(unsigned int i=0; i<anded.size(); i++) {
+      anded_results = anded[i].test(classname, db);
+      if(anded_results.size() == 0)
+	return anded_results;
+    }
+
+    return results.intersects(anded_results);
+  };
+
+  void Q::dump() {
+    cout << key << ": " << value << "\n";
+    if(anded.size() > 0) {
+      cout << "\tanded:\n";
+      for(unsigned int i=0; i<anded.size(); i++) {
+	cout << "\t";
+	anded[i].dump();
+      }
+    }
+    if(ored.size() > 0) {
+      cout << "\tored:\n";
+      for(unsigned int i=0; i<ored.size(); i++) {
+	cout << "\t";
+	ored[i].dump();
+      }
+    }
+  };
+  
+};

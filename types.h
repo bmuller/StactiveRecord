@@ -48,6 +48,13 @@ namespace stactiverecord {
 	if(!this->includes(others[i]))
 	  this->push_back(others[i]);
     };
+    SarVector<T> intersects(SarVector<T> others) {
+      SarVector<T> joined;
+      for(unsigned int i=0; i < others.size(); i++)
+	if(this->includes(others[i]))
+	  joined << others[i];
+      return joined;
+    };
     void operator+(SarVector<T> others) {
       for(unsigned int i=0; i < others.size(); i++)
 	this->push_back(others[i]);      

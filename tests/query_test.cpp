@@ -10,11 +10,19 @@ void assert(bool v, string msg) {
 int main() {
   debug("Testing queries..."); 
 
+  SarMap<string> sm;
+  sm["one"] = "two";
+  sm["bar"] = "foo";
+
   Q q("one", "two");
   Q tq("two", "three");
-  Q blah("four", "five");
-  Q ttq = (q && (tq || blah));
-  ttq.dump();
+  Q blah("bar", "foo");
+
+  Q test = ((q && blah) || (tq && blah));
+  test.dump();
+
+  //  if(((q && blah) || (tq && blah)).test(sm))
+  //  debug("Passed!");
 
   debug("If you're at this point, no errors were found.");
 

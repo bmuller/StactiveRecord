@@ -119,6 +119,14 @@ namespace stactiverecord {
       return ObjGroup<T>::from_ids(results);      
     };
 
+    template <class T> static ObjGroup<T> find(Q query) {
+      string classname = T().classname;
+      SarVector<int> results = query.test(classname, Sar_Dbi::dbi);
+      cout << "\n\nyourmom\n\n";
+      results.dump();
+      return ObjGroup<T>::from_ids(results);      
+    };
+
     template <class T> static ObjGroup<T> all() {
       string classname = T().classname;
       SarVector<int> results;

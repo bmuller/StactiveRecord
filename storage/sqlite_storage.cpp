@@ -449,4 +449,10 @@ namespace stactiverecord {
     rc = sqlite3_finalize(pSelect);
   };
 
+  /*
+  void SQLiteStorage::get(string classname, Q query) {
+    
+  }
+  */
+
 };

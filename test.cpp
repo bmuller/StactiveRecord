@@ -25,6 +25,10 @@ int main() {
   tt.set("name", "fred");
   tt.save();
 
+  Q q("name", "fred");
+  ObjGroup<Test> og = Record::find<Test>(q);
+  cout << og[0].id << "\n";
+  /*
   Test ttt;
   ttt.set("name", "asdf");
   ttt.save();
@@ -32,7 +36,6 @@ int main() {
   ObjGroup<Test> og = Record::find_by<Test>("name", "fred");
   og.get_ids().dump();
 
-  /*
   ObjGroup<Test> og;
   og << t;
   og << tt;

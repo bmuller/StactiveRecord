@@ -1,5 +1,5 @@
-LIBS = cud_property_register.o utils.o storage/sar_dbi.o record.o storage/mysql_storage.o storage/sqlite_storage.o -lsqlite3 -lmysqlpp
-PREREQ = utils.o cud_property_register.o sar_dbi.o record.o mysql_storage.o sqlite_storage.o
+LIBS = cud_property_register.o utils.o storage/sar_dbi.o record.o storage/mysql_storage.o storage/sqlite_storage.o query.o -lsqlite3 -lmysqlpp
+PREREQ = utils.o cud_property_register.o sar_dbi.o record.o mysql_storage.o sqlite_storage.o query.o
 
 main: ${PREREQ}
 	g++ test.cpp ${LIBS} -o test 
@@ -7,6 +7,8 @@ db_test: ${PREREQ}
 	g++ tests/db_test.cpp ${LIBS} -o tests/db_test
 query_test: ${PREREQ}
 	g++ tests/query_test.cpp ${LIBS} -o tests/query_test
+query.o:
+	g++ query.cpp -o query.o -c
 cud_property_register.o:
 	g++ cud_property_register.cpp -o cud_property_register.o -c
 utils.o:
