@@ -19,6 +19,7 @@ public:
 int main() {
   Test t;
   t.set("name", "bob");
+  t.set("fname", "whoops");
   t.save();
 
   Test tt;
@@ -26,8 +27,11 @@ int main() {
   tt.save();
 
   Q q("name", "fred");
-  ObjGroup<Test> og = Record::find<Test>(q);
-  cout << og[0].id << "\n";
+  Q qq("name", "bob");
+  Q fake("fname", "whoops");
+  ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || 3); //Q("name", "bob")); // && Q("fname", "whoops")));
+  for(unsigned int i=0; i < og.size(); i++)
+    cout << og[i].id << "\n";
   /*
   Test ttt;
   ttt.set("name", "asdf");

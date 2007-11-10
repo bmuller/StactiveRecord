@@ -8,6 +8,10 @@ namespace stactiverecord {
     return (*this);
   };
 
+  Q& Q::operator||(int 3) { 
+    return (*this);
+  };
+
   Q& Q::operator&&(Q& other) { 
     anded << other; 
     return (*this); 
@@ -19,13 +23,13 @@ namespace stactiverecord {
     db->get(classname, key, value, results);
 
     // if none matching were found, see if any of our ors match
-    if(results.size() == 0) {
-      for(unsigned int i=0; i<ored.size(); i++) {
-	results = ored[i].test(classname, db);
-	if(results.size() == 0)
-	  return results;	  
-      }
+    for(unsigned int i=0; i<ored.size(); i++) {
+      results.unionize(ored[i].test(classname, db));
     }
+
+    // if we have no results by now, just return
+    if(results.size() == 0)
+      return results;	  
 
     SarVector<int> anded_results;
     for(unsigned int i=0; i<anded.size(); i++) {
@@ -34,7 +38,12 @@ namespace stactiverecord {
 	return anded_results;
     }
 
-    return results.intersects(anded_results);
+    // if there are anded values, only return the ones that
+    // intersect the original results - otherwise, return first
+    // results
+    if(anded.size() > 0)
+      return results.intersects(anded_results);
+    return results;
   };
 
   void Q::dump() {
