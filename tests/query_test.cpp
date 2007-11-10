@@ -1,4 +1,4 @@
-#include  "../stactive_record.h"
+#include  "src/stactive_record.h"
 
 using namespace stactiverecord;
 

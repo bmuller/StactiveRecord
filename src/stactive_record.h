@@ -16,6 +16,7 @@ namespace stactiverecord {
 #include "storage/storage.h"
 #include "query.h"
 #include "record.h"
+#include "config.h"
 
 #define false 0
 #define true 1
@@ -23,6 +24,3 @@ namespace stactiverecord {
 #define VALUE_MAX_SIZE 255
 #define VALUE_MAX_SIZE_S "255"
 
-#define DEBUG 1
-
-#define PACKAGE_NAME "Stactive Record"

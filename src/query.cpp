@@ -8,10 +8,6 @@ namespace stactiverecord {
     return (*this);
   };
 
-  Q& Q::operator||(int 3) { 
-    return (*this);
-  };
-
   Q& Q::operator&&(Q& other) { 
     anded << other; 
     return (*this); 
