@@ -1,6 +1,6 @@
 AC_INIT([StactiveRecord], [0.0], [bmuller@butterfat.net])
 AC_DEFINE([PACKAGE_URL],["http://www.butterfat.net/wiki/Projects/StactiveRecord"],[project url])
-AM_CONFIG_HEADER(src/config.h)
+AM_CONFIG_HEADER(stactiverecord/config.h)
 AM_INIT_AUTOMAKE()
 
 AC_PROG_CXX
@@ -33,17 +33,46 @@ AX_PATH_BDB([3], [], [])
 AC_SUBST([BDB_LIBS])
 AC_SUBST([BDB_CPPFLAGS])
 
-AM_CONDITIONAL([SQLITE], [test "$SQLITE3_VERSION" != ""])
 AM_CONDITIONAL([BDB], [test "$BDB_LIBS" != ""])
+AM_CONDITIONAL([SQLITE3], [test "$SQLITE3_VERSION" != ""])
 AM_CONDITIONAL([MYSQL], [test "$MYSQL_VERSION" != ""])
 AM_CONDITIONAL([POSTGRESQL], [test "$POSTGRESQL_VERSION" != ""])
 
 AC_CONFIG_FILES([
  Makefile
- src/Makefile
+ stactiverecord/Makefile
 ])
 AC_OUTPUT
 
+echo " ***"
+
+if test "$BDB_LIBS" != ""; then
+echo " *** + compiling WITH support for BDB 3"
+else
+echo " *** - compiling WITHOUT support for BDB 3"
+fi
+
+if test "$SQLITE3_VERSION" != ""; then
+echo " *** + compiling WITH support for SQLite $SQLITE3_VERSION"
+else
+echo " *** - compiling WITHOUT support for SQLite"
+fi
+
+if test "$MYSQL_VERSION" != ""; then
+echo " *** + compiling WITH support for MySQL $MYSQL_VERSION"
+else
+echo " *** - compiling WITHOUT support for MySQL"
+fi
+
+if test "$POSTGRESQL_VERSION" != ""; then
+echo " *** + compiling WITH support for PostgreSQL $POSTGRESQL_VERSION"
+else
+echo " *** - compiling WITHOUT support for PostgreSQL"
+fi
+
+if test "$DEBUG" != ""; then
+echo " *** + compiling WITH debugging output"
+fi
 
 echo " ***"
 echo " *** You are now ready to build StactiveRecord"

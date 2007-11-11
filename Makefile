@@ -15,6 +15,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/stactiverecord
 pkglibdir = $(libdir)/stactiverecord
 pkgincludedir = $(includedir)/stactiverecord
@@ -32,12 +33,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = i686-pc-linux-gnu
 host_triplet = i686-pc-linux-gnu
-noinst_PROGRAMS = test$(EXEEXT) db_test$(EXEEXT)
+noinst_PROGRAMS = test$(EXEEXT) db_test$(EXEEXT) query_test$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
-	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
-	install-sh ltmain.sh missing
+DIST_COMMON = README $(am__configure_deps) $(nobase_include_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
+	config.guess config.sub depcomp install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.d/ax_compare_version.m4 \
 	$(top_srcdir)/acinclude.d/ax_lib_mysql.m4 \
@@ -50,7 +51,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/config.h
+CONFIG_HEADER = $(top_builddir)/stactiverecord/config.h
 CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_db_test_OBJECTS = db_test.$(OBJEXT)
@@ -59,13 +60,19 @@ db_test_LDADD = $(LDADD)
 db_test_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(db_test_LDFLAGS) $(LDFLAGS) -o $@
+am_query_test_OBJECTS = query_test.$(OBJEXT)
+query_test_OBJECTS = $(am_query_test_OBJECTS)
+query_test_LDADD = $(LDADD)
+query_test_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(query_test_LDFLAGS) $(LDFLAGS) -o $@
 am_test_OBJECTS = test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
 test_LDADD = $(LDADD)
 test_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(test_LDFLAGS) $(LDFLAGS) -o $@
-DEFAULT_INCLUDES = -I. -I$(top_builddir)/src
+DEFAULT_INCLUDES = -I. -I$(top_builddir)/stactiverecord
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -77,8 +84,9 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(db_test_SOURCES) $(test_SOURCES)
-DIST_SOURCES = $(db_test_SOURCES) $(test_SOURCES)
+SOURCES = $(db_test_SOURCES) $(query_test_SOURCES) $(test_SOURCES)
+DIST_SOURCES = $(db_test_SOURCES) $(query_test_SOURCES) \
+	$(test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -86,6 +94,15 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(includedir)"
+nobase_includeHEADERS_INSTALL = $(install_sh_DATA)
+HEADERS = $(nobase_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -220,12 +237,19 @@ sysconfdir = ${prefix}/etc
 target_alias = 
 top_builddir = .
 top_srcdir = .
-SUBDIRS = src
+SUBDIRS = stactiverecord
+nobase_include_HEADERS = stactiverecord/stactive_record.h stactiverecord/config.h stactiverecord/cud_property_register.h \
+	stactiverecord/exception.h stactiverecord/query.h stactiverecord/record.h stactiverecord/stactive_record.h \
+	stactiverecord/types.h  stactiverecord/utils.h
+
 test_SOURCES = test.cpp
 test_LDFLAGS = -lstactiverecord -L./src/.libs
 #test_DEPENDENCIES = libstactiverecord.la
 db_test_SOURCES = tests/db_test.cpp
 db_test_LDFLAGS = -lstactiverecord -L./src/.libs
+#db_test_DEPENDENCIES = src/libstactiverecord.la
+query_test_SOURCES = tests/query_test.cpp
+query_test_LDFLAGS = -lstactiverecord -L./src/.libs
 all: all-recursive
 
 .SUFFIXES:
@@ -273,6 +297,9 @@ clean-noinstPROGRAMS:
 db_test$(EXEEXT): $(db_test_OBJECTS) $(db_test_DEPENDENCIES) 
 	@rm -f db_test$(EXEEXT)
 	$(db_test_LINK) $(db_test_OBJECTS) $(db_test_LDADD) $(LIBS)
+query_test$(EXEEXT): $(query_test_OBJECTS) $(query_test_DEPENDENCIES) 
+	@rm -f query_test$(EXEEXT)
+	$(query_test_LINK) $(query_test_OBJECTS) $(query_test_LDADD) $(LIBS)
 test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES) 
 	@rm -f test$(EXEEXT)
 	$(test_LINK) $(test_OBJECTS) $(test_LDADD) $(LIBS)
@@ -284,6 +311,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/db_test.Po
+include ./$(DEPDIR)/query_test.Po
 include ./$(DEPDIR)/test.Po
 
 .cpp.o:
@@ -321,6 +349,20 @@ db_test.obj: tests/db_test.cpp
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o db_test.obj `if test -f 'tests/db_test.cpp'; then $(CYGPATH_W) 'tests/db_test.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/db_test.cpp'; fi`
 
+query_test.o: tests/query_test.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT query_test.o -MD -MP -MF $(DEPDIR)/query_test.Tpo -c -o query_test.o `test -f 'tests/query_test.cpp' || echo '$(srcdir)/'`tests/query_test.cpp
+	mv -f $(DEPDIR)/query_test.Tpo $(DEPDIR)/query_test.Po
+#	source='tests/query_test.cpp' object='query_test.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o query_test.o `test -f 'tests/query_test.cpp' || echo '$(srcdir)/'`tests/query_test.cpp
+
+query_test.obj: tests/query_test.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT query_test.obj -MD -MP -MF $(DEPDIR)/query_test.Tpo -c -o query_test.obj `if test -f 'tests/query_test.cpp'; then $(CYGPATH_W) 'tests/query_test.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/query_test.cpp'; fi`
+	mv -f $(DEPDIR)/query_test.Tpo $(DEPDIR)/query_test.Po
+#	source='tests/query_test.cpp' object='query_test.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o query_test.obj `if test -f 'tests/query_test.cpp'; then $(CYGPATH_W) 'tests/query_test.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/query_test.cpp'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -329,6 +371,25 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
+install-nobase_includeHEADERS: $(nobase_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
+	@$(am__vpath_adj_setup) \
+	list='$(nobase_include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  $(am__vpath_adj) \
+	  echo " $(nobase_includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
+	  $(nobase_includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	done
+
+uninstall-nobase_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@$(am__vpath_adj_setup) \
+	list='$(nobase_include_HEADERS)'; for p in $$list; do \
+	  $(am__vpath_adj) \
+	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -605,9 +666,12 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(includedir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -654,7 +718,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-nobase_includeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -692,7 +756,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-nobase_includeHEADERS
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -707,14 +771,14 @@ uninstall-am:
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am
+	install-nobase_includeHEADERS install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-nobase_includeHEADERS
 
-#db_test_DEPENDENCIES = src/libstactiverecord.la
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

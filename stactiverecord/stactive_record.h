@@ -9,6 +9,7 @@ namespace stactiverecord {
   enum coltype { NONE, INTEGER, STRING, RECORD };
 };
 
+#include "config.h"
 #include "utils.h"
 #include "types.h"
 #include "cud_property_register.h"
@@ -16,7 +17,6 @@ namespace stactiverecord {
 #include "storage/storage.h"
 #include "query.h"
 #include "record.h"
-#include "config.h"
 
 #define false 0
 #define true 1

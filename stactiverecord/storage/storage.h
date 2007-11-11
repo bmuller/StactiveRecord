@@ -1,6 +1,3 @@
-#include <sqlite3.h>
-#include <mysql/mysql.h>
-
 namespace stactiverecord {
   using namespace std;
 
@@ -51,6 +48,8 @@ namespace stactiverecord {
     bool table_is_initialized(string tablename);
   };
 
+#ifdef HAVE_SQLITE3
+#include <sqlite3.h>
   class SQLiteStorage : public Sar_Dbi {
   private:
     void close();
@@ -80,7 +79,10 @@ namespace stactiverecord {
     void get(string classname, string key, int value, SarVector<int>& results); 
     //void get(string classname, Q query);
   };
+#endif
 
+#ifdef HAVE_MYSQL
+#include <mysql/mysql.h>
   class MySQLStorage : public Sar_Dbi {
   private:
     void close();
@@ -99,6 +101,7 @@ namespace stactiverecord {
     void set(int id, string classname, SarMap<string> values, bool insert);
     void set(int id, string classname, SarMap<int> values, bool insert);
   };
+#endif
 
   /*
   class BDBStorage : public Sar_Dbi {
