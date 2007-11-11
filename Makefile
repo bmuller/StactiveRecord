@@ -240,7 +240,7 @@ top_srcdir = .
 SUBDIRS = stactiverecord
 nobase_include_HEADERS = stactiverecord/stactive_record.h stactiverecord/config.h stactiverecord/cud_property_register.h \
 	stactiverecord/exception.h stactiverecord/query.h stactiverecord/record.h stactiverecord/stactive_record.h \
-	stactiverecord/types.h  stactiverecord/utils.h
+	stactiverecord/types.h stactiverecord/utils.h stactiverecord/storage.h
 
 test_SOURCES = test.cpp
 test_LDFLAGS = -lstactiverecord -L./src/.libs
