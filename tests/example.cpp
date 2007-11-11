@@ -2,7 +2,7 @@
 
 using namespace stactiverecord;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://./sqlitedb.db");
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
 
 class Test : public Record {
 public:
@@ -29,10 +29,12 @@ int main() {
   Q q("name", "fred");
   Q qq("name", "bob");
   Q fake("fname", "whoops");
-  /*
-  ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || 3); //Q("name", "bob")); // && Q("fname", "whoops")));
+
+  ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || (Q("name", "bob") && Q("fname", "whoops")));
   for(unsigned int i=0; i < og.size(); i++)
     cout << og[i].id << "\n";
+
+  /*
   
   Test ttt;
   ttt.set("name", "asdf");

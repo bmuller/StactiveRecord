@@ -18,7 +18,8 @@ int main() {
   Q tq("two", "three");
   Q blah("bar", "foo");
 
-  Q test = ((q && blah) || (tq && blah));
+  //Q test = ((q && blah) || (tq && blah));
+  Q test = Q("one", "two") && Q("three", "four");
   test.dump();
 
   //  if(((q && blah) || (tq && blah)).test(sm))

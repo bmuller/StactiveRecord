@@ -3,16 +3,16 @@
 namespace stactiverecord {
   using namespace std;
 
-  Q& Q::operator||(Q& other) { 
+  Q& Q::operator||(Q other) { 
     ored << other; 
     return (*this);
   };
 
-  Q& Q::operator&&(Q& other) { 
+  Q& Q::operator&&(Q other) { 
     anded << other; 
     return (*this); 
-  };   
-  
+  };     
+
   // using the db, find all records that match
   SarVector<int> Q::test(string classname, Sar_Dbi *db) {
     SarVector<int> results;

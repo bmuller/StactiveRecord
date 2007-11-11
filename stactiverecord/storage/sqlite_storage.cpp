@@ -4,9 +4,9 @@ namespace stactiverecord {
   using namespace std;
 
   SQLiteStorage::SQLiteStorage(string location) {
+    debug("Attempting to open SQLite DB at " + location);
     is_closed = false;
     int rc = sqlite3_open(location.c_str(), &db);
-    char *errMsg;
     test_result(rc, "problem opening database");
     execute("CREATE TABLE IF NOT EXISTS id_maximums (id INT, classname VARCHAR(255))");
     execute("CREATE TABLE IF NOT EXISTS relationships (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
@@ -448,11 +448,5 @@ namespace stactiverecord {
     }
     rc = sqlite3_finalize(pSelect);
   };
-
-  /*
-  void SQLiteStorage::get(string classname, Q query) {
-    
-  }
-  */
 
 };

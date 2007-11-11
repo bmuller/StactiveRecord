@@ -3,6 +3,7 @@ namespace stactiverecord {
 
   class Sar_Dbi {
   public:
+    // config is in form scheme://[user[:password]@]host[:port]/database
     static Sar_Dbi* makeStorage(string config);
     static Sar_Dbi* dbi;
     SarVector<string> initialized_tables;
@@ -77,7 +78,6 @@ namespace stactiverecord {
     void get(string classname, SarVector<int>& results);
     void get(string classname, string key, string value, SarVector<int>& results); 
     void get(string classname, string key, int value, SarVector<int>& results); 
-    //void get(string classname, Q query);
   };
 #endif
 
@@ -103,13 +103,34 @@ namespace stactiverecord {
   };
 #endif
 
-  /*
+#ifdef HAVE_DB_H 
+#include <db_cxx.h>
   class BDBStorage : public Sar_Dbi {
+  private:
+    void close();
+    Db db;
+    bool is_closed;
   public:
-    void insert_or_update(int id, string classname, map<string,string> keyvalues);
+    BDBStorage(string location);
+    ~BDBStorage() { close(); };
+    int next_id(string classname);
+    int current_id(string classname);
     void delete_record(int id, string classname);
+    void delete_records(string classname);
     void initialize_tables(string classname);
+    void get(int id, string classname, SarMap<string>& values);
+    void get(int id, string classname, SarMap<int>& values);
+    void set(int id, string classname, SarMap<string> values, bool insert);
+    void set(int id, string classname, SarMap<int> values, bool insert);
+    void del(int id, string classname, SarVector<string> keys, coltype ct);
+    void set(int id, string classname, SarVector<int> related, string related_classname);
+    void get(int id, string classname, string related_classname, SarVector<int>& related);
+    void del(int id, string classname, SarVector<int> related, string related_classname);
+    void get(int id, string classname, SarMap< SarVector<int> >& sm);
+    void get(string classname, SarVector<int>& results);
+    void get(string classname, string key, string value, SarVector<int>& results); 
+    void get(string classname, string key, int value, SarVector<int>& results); 
   };
-  */
+#endif
 
 };
