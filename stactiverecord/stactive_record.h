@@ -7,7 +7,7 @@
 namespace stactiverecord {
   // Note that a change here means editing coltype_to_name in utils too
   enum coltype { NONE, INTEGER, STRING, RECORD };
-  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN };
+  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS };
 };
 
 #include "config.h"

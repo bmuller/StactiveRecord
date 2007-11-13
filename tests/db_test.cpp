@@ -2,7 +2,7 @@
 
 using namespace stactiverecord;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://./sqlitedb.db");
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
 
 void assert(bool v, string msg) {
   if(v) return;
@@ -119,11 +119,14 @@ int main() {
   assert((oresults.size() == 1 && oresults[0] == id), "getting all objects of a type");
   // get all with string value
   oresults.clear();
-  db->get(classname, "baz", "foo", oresults);
+  Where *where = startswith("fo");
+  db->get_where(classname, "baz", where, oresults);
   assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching string prop value");
   // get all with int value
   oresults.clear();
-  db->get(classname, "bar", 998, oresults);
+  where = greaterthan(990);
+  db->get_where(classname, "bar", where, oresults);
+  delete where;
   assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching int prop value");
 
   // test delete record

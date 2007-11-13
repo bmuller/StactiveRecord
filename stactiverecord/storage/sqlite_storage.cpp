@@ -411,67 +411,44 @@ namespace stactiverecord {
     others.clear();
   };
 
-  void SQLiteStorage::get(string classname, string key, string value, SarVector<int>& results) {
-    sqlite3_stmt *pSelect;
-    string tablename = classname + "_s";
-    debug("Getting all objects of type " + classname + " with key " + key + " and value " + value);
-    string query = "SELECT id FROM " + tablename + " WHERE keyname=\"" + key + "\" AND value=\"" + value +"\"";
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      results << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-  };
-
-  void SQLiteStorage::get(string classname, string key, int value, SarVector<int>& results) {
-    sqlite3_stmt *pSelect;
-    string tablename = classname + "_i";
-    string svalue;
-    int_to_string(value, svalue);
-    debug("Getting all objects of type " + classname + " with key " + key + " and value " + svalue);
-    string query = "SELECT id FROM " + tablename + " WHERE keyname=\"" + key + "\" AND value=" + svalue;
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      results << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-  };
-
   void SQLiteStorage::get_where(string classname, string key, Where * where, SarVector<int>& results) {
+    bool isnot = where->isnot;
     string swhere, table;
     sqlite3_stmt *pSelect;
     if(where->ct == INTEGER) {
       table = classname + "_i";
       string sint, second_sint;
       int_to_string(where->ivalue, sint);
-      if(where->type == GREATERTHAN)
-	swhere = "> " + sint;
-      else if(where->type == LESSTHAN)
-	swhere = "< " + sint;
-      else { // BETWEEN
+      switch(where->type) {
+      case GREATERTHAN:
+	swhere = ((isnot) ? "<= " : "> ") + sint ;
+	break;
+      case LESSTHAN:
+	swhere = ((isnot) ? ">= " : "< ") + sint;
+	break;
+      case EQUALS:
+	swhere = ((isnot) ? "!= " : "= ") + sint;	
+	break;
+      case BETWEEN:
 	int_to_string(where->ivaluetwo, second_sint);
-	swhere = "BETWEEN " + sint + " AND " + second_sint;
+	swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
+	break;
       }
     } else { //string
       table = classname + "_s";
-      if(where->type == STARTSWITH)
-	swhere = "LIKE \"" + where->svalue + "%\"";
-      else if(where->type == ENDSWITH)
-	swhere = "LIKE \"%" + where->svalue + "\"";
-      else //CONTAINS
-	swhere = "LIKE \"%" + where->svalue + "%\"";
+      switch(where->type) {
+      case STARTSWITH:
+	swhere = ((isnot) ? "NOT LIKE \"" : "LIKE \"") + where->svalue + "%\"";	
+	break;
+      case ENDSWITH:
+	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "\"";	
+	break;
+      case EQUALS:
+	swhere = ((isnot) ? "!= \"" : "= \"") + where->svalue + "\"";	
+	break;
+      case CONTAINS:
+	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";	
+      }
     }
     string query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     debug(query);

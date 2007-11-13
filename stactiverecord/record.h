@@ -109,20 +109,26 @@ namespace stactiverecord {
     template <class T> static ObjGroup<T> find_by(string key, string value) {
       string classname = T().classname;
       SarVector<int> results;
-      Sar_Dbi::dbi->get(classname, key, value, results);
+      Where * where = equals(value);
+      Sar_Dbi::dbi->get_where(classname, key, where, results);
+      delete where;
       return ObjGroup<T>::from_ids(results);      
     };
 
     template <class T> static ObjGroup<T> find_by(string key, int value) {
       string classname = T().classname;
       SarVector<int> results;
-      Sar_Dbi::dbi->get(classname, key, value, results);
+      Where * where = equals(value);
+      Sar_Dbi::dbi->get_where(classname, key, where, results);
+      delete where;
       return ObjGroup<T>::from_ids(results);      
     };
 
     template <class T> static ObjGroup<T> find(Q query) {
       string classname = T().classname;
       SarVector<int> results = query.test(classname, Sar_Dbi::dbi);
+      // free pointers in query
+      query.free();
       return ObjGroup<T>::from_ids(results);      
     };
 

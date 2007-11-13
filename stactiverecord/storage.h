@@ -39,12 +39,7 @@ namespace stactiverecord {
     // Some searching/static stuff
     // get all objects of a type
     virtual void get(string classname, SarVector<int>& results) {};
-    // get all objets with key and value
-    virtual void get(string classname, string key, string value, SarVector<int>& results) {}; 
-    // get all objets with key and value
-    virtual void get(string classname, string key, int value, SarVector<int>& results) {}; 
-
-    // using a query with a conditional
+    // using a query with a conditional "where"
     virtual void get_where(string classname, string key, Where * where, SarVector<int>& results) {};
 
     bool table_is_initialized(string tablename);

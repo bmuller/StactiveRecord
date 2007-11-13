@@ -24,11 +24,11 @@ int main() {
   t.save();
 
   Test tt;
-  //tt.set("name", "fred");
+  tt.set("name", "fred");
   tt.set("age", 55);
   tt.save();
 
-  ObjGroup<Test> og = Record::find<Test>(Q("age", between(40, 56)));
+  ObjGroup<Test> og = Record::find<Test>(Q("age", between(40, 56)) && Q("name", "fred"));
 
   //ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || (Q("name", "bob") && Q("fname", "whoops")));
   for(unsigned int i=0; i < og.size(); i++)
