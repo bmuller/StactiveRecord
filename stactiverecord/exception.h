@@ -33,8 +33,14 @@ namespace stactiverecord {
   public:
     Sar_RecordNotFoundException(string s) : Sar_Exception(s) {};
   };  
+
   class Sar_AssertionFailedException : public Sar_Exception {
   public:
     Sar_AssertionFailedException(string s) : Sar_Exception(s) {};
+  };  
+
+  class Sar_InvalidClassnameException : public Sar_Exception {
+  public:
+    Sar_InvalidClassnameException(string s) : Sar_Exception(s) {};
   };  
 };

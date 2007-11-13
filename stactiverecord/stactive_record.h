@@ -7,9 +7,11 @@
 namespace stactiverecord {
   // Note that a change here means editing coltype_to_name in utils too
   enum coltype { NONE, INTEGER, STRING, RECORD };
+  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN };
 };
 
 #include "config.h"
+#include "where.h"
 #include "utils.h"
 #include "types.h"
 #include "cud_property_register.h"
@@ -17,9 +19,6 @@ namespace stactiverecord {
 #include "storage.h"
 #include "query.h"
 #include "record.h"
-
-#define false 0
-#define true 1
 
 #define VALUE_MAX_SIZE 255
 #define VALUE_MAX_SIZE_S "255"

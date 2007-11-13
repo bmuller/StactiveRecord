@@ -153,7 +153,7 @@ namespace stactiverecord {
   };
   
   void Record::del(string key) {
-    coltype ct = get_col_type(key);
+    coltype ct = type(key);
     if(ct == NONE) return;
 
     if(is_registered_new(key, ct))
@@ -173,8 +173,12 @@ namespace stactiverecord {
     };
   };
 
+  bool Record::isset(string colname) {
+    return (type(colname) == NONE);
+  };
+
   // Return coltype if found, NONE if not found
-  coltype Record::get_col_type(string colname) {
+  coltype Record::type(string colname) {
     if(svalues.has_key(colname) || is_registered_new(colname, STRING))
       return STRING;
     if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
@@ -190,7 +194,7 @@ namespace stactiverecord {
   // Delete any previous values for key that isn't coltype ct
   // this is done to prevent two concurrent types for any key value
   coltype Record::clear_other_values(string colname, coltype ct) {
-    coltype existing_ct = get_col_type(colname);
+    coltype existing_ct = type(colname);
     if(existing_ct != NONE && existing_ct != ct) {
       string coltypename;
       coltype_to_name(existing_ct, coltypename);

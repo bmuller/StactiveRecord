@@ -4,7 +4,15 @@ namespace stactiverecord {
   using namespace std;
 
   void check_classname(string classname) {
-    
+    char chars[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+    bool found;
+    for(string::size_type i=0; i<classname.size(); i++) {
+      found = false;
+      for(int z=0; z<26; z++) 
+	if(classname[i] == chars[z] || classname[i] == '_')
+	  found = true;
+      if(!found) throw Sar_InvalidClassnameException("\"" + classname + "\" is an invalid classname.");
+    }
   };
 
   void coltype_to_name(coltype ct, string& name) {

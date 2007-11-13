@@ -16,7 +16,15 @@ namespace stactiverecord {
   // using the db, find all records that match
   SarVector<int> Q::test(string classname, Sar_Dbi *db) {
     SarVector<int> results;
-    db->get(classname, key, value, results);
+    // if we have conditions...
+    if(is_a_where) {
+      db->get_where(classname, key, where, results);
+    } else { // otherwise finding equality
+      if (ct == STRING)
+	db->get(classname, key, value, results);
+      else
+	db->get(classname, key, ivalue, results);
+    }
 
     // if none matching were found, see if any of our ors match
     for(unsigned int i=0; i<ored.size(); i++) {

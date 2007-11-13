@@ -18,24 +18,23 @@ public:
 
 int main() {
   Test t;
-  t.set("name", "bob");
-  t.set("fname", "whoops");
+  //t.set("name", "bob");
+  //t.set("fname", "whoops");
+  t.set("age", 70);
   t.save();
 
   Test tt;
-  tt.set("name", "fred");
+  //tt.set("name", "fred");
+  tt.set("age", 55);
   tt.save();
 
-  Q q("name", "fred");
-  Q qq("name", "bob");
-  Q fake("fname", "whoops");
+  ObjGroup<Test> og = Record::find<Test>(Q("age", between(40, 56)));
 
-  ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || (Q("name", "bob") && Q("fname", "whoops")));
+  //ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || (Q("name", "bob") && Q("fname", "whoops")));
   for(unsigned int i=0; i < og.size(); i++)
-    cout << og[i].id << "\n";
+    cout << og[i].id << "\n"; 
 
-  /*
-  
+  /*  
   Test ttt;
   ttt.set("name", "asdf");
   ttt.save();

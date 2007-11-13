@@ -449,4 +449,42 @@ namespace stactiverecord {
     rc = sqlite3_finalize(pSelect);
   };
 
+  void SQLiteStorage::get_where(string classname, string key, Where * where, SarVector<int>& results) {
+    string swhere, table;
+    sqlite3_stmt *pSelect;
+    if(where->ct == INTEGER) {
+      table = classname + "_i";
+      string sint, second_sint;
+      int_to_string(where->ivalue, sint);
+      if(where->type == GREATERTHAN)
+	swhere = "> " + sint;
+      else if(where->type == LESSTHAN)
+	swhere = "< " + sint;
+      else { // BETWEEN
+	int_to_string(where->ivaluetwo, second_sint);
+	swhere = "BETWEEN " + sint + " AND " + second_sint;
+      }
+    } else { //string
+      table = classname + "_s";
+      if(where->type == STARTSWITH)
+	swhere = "LIKE \"" + where->svalue + "%\"";
+      else if(where->type == ENDSWITH)
+	swhere = "LIKE \"%" + where->svalue + "\"";
+      else //CONTAINS
+	swhere = "LIKE \"%" + where->svalue + "%\"";
+    }
+    string query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      results << sqlite3_column_int(pSelect, 0);
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+  };
+
 };

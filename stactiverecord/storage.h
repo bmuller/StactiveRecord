@@ -43,8 +43,9 @@ namespace stactiverecord {
     virtual void get(string classname, string key, string value, SarVector<int>& results) {}; 
     // get all objets with key and value
     virtual void get(string classname, string key, int value, SarVector<int>& results) {}; 
-    // using a query to find some group
-    //virtual void get(string classname, Q query) {};
+
+    // using a query with a conditional
+    virtual void get_where(string classname, string key, Where * where, SarVector<int>& results) {};
 
     bool table_is_initialized(string tablename);
   };
@@ -78,6 +79,7 @@ namespace stactiverecord {
     void get(string classname, SarVector<int>& results);
     void get(string classname, string key, string value, SarVector<int>& results); 
     void get(string classname, string key, int value, SarVector<int>& results); 
+    void get_where(string classname, string key, Where * where, SarVector<int>& results);
   };
 #endif
 

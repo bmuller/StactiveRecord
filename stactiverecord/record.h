@@ -26,7 +26,8 @@ namespace stactiverecord {
     int id;
 
     void save();
-    coltype get_col_type(string colname);
+    coltype type(string colname);
+    bool isset(string colname);
 
     bool operator==(const Record& other) const;
     bool operator!=(const Record& other) const;
