@@ -1,6 +1,7 @@
 #include  "../stactiverecord/stactive_record.h"
 
 using namespace stactiverecord;
+using namespace std;
 
 void assert(bool v, string msg) {
   if(v) return;

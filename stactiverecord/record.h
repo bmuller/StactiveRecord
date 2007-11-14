@@ -1,22 +1,48 @@
+/*
+Copyright (C) 2007 Butterfat, LLC (http://butterfat.net)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Created by bmuller <bmuller@butterfat.net>
+*/
+
 namespace stactiverecord {
-  using namespace std;
 
   class Record : public CUDPropertyRegister {
   private:
     Sar_Dbi *_db;
-    string classname;
+    std::string classname;
     bool dirty;
-    SarMap<string> svalues;
+    SarMap<std::string> svalues;
     SarMap<int> ivalues;    
     SarMap< SarVector<int> > rvalues;
-    coltype clear_other_values(string colname, coltype ct);
+    coltype clear_other_values(std::string colname, coltype ct);
   protected:
-    Record(string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
+    Record(std::string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
       check_classname(classname);
       _db->initialize_tables(classname); 
       dirty = true; 
     };
-    Record(string _classname, int _id) : CUDPropertyRegister(), classname(_classname), id(_id), _db(Sar_Dbi::dbi) { 
+    Record(std::string _classname, int _id) : CUDPropertyRegister(), classname(_classname), id(_id), _db(Sar_Dbi::dbi) { 
       check_classname(classname);
       _db->initialize_tables(classname); 
       update(); 
@@ -24,30 +50,49 @@ namespace stactiverecord {
     void update();
   public:
     int id;
-
+    
+    /** Save record changes to DB.  If there are no changes, nothing will be done. */
     void save();
-    coltype type(string colname);
-    bool isset(string colname);
 
+    /** Determine the column type for the given column. */
+    coltype type(std::string colname);
+    
+    /** Determine whether or not any value is set for the given column. */
+    bool isset(std::string colname);
+
+    /** Comparison between two records - will look at classname and id */
     bool operator==(const Record& other) const;
+
+    /** Comparison between two records - will look at classname and id */
     bool operator!=(const Record& other) const;
 
-    void set(string key, string value);
-    void set(string key, int value);
-    void get(string key, string& value);
-    int get(string key);
-    void get(string key, Record& value);
-    void del(string key);
+    /** Set a property with a value */
+    void set(std::string key, std::string value);
+
+    /** Set a property with a value */
+    void set(std::string key, int value);
+
+    /** Get a property's value */
+    void get(std::string key, std::string& value);
+
+    /** Get a property's value */
+    int get(std::string key);
+
+    /** Delete a property */
+    void del(std::string key);
+
+    /** Delete a record */
     void del();
 
+    /** Delete all records of type T */
     template <class T> static void delete_all() {
-      string classname = T().classname;
+      std::string classname = T().classname;
       Sar_Dbi::dbi->delete_records(classname);
     };
 
-    // Assuming here that r is of type T
+    /** Assuming here that r is of type T, set record relationship (one->one) */
     template <class T> void set(Record r) {
-      string key = r.classname;
+      std::string key = r.classname;
       if(!rvalues.has_key(key)) 
 	rvalues[key] = SarVector<int>();
 
@@ -59,7 +104,7 @@ namespace stactiverecord {
       }
     };
 
-    // Assuming here that each r is of type T
+    /** Assuming here that each member of og is of type T, set record relationship (one->many) */
     template <class T> void setMany(ObjGroup<T> og) {
       // Set each one individuall, and make list of ids
       SarVector<int> og_ids;
@@ -69,7 +114,7 @@ namespace stactiverecord {
       }
 
       // Determine which should be removed, and remove them
-      string classname = T().classname;
+      std::string classname = T().classname;
       SarVector<int> to_delete = og_ids.get_new(rvalues[classname]);
       for(unsigned int i=0; i<to_delete.size(); i++) {
 	rvalues[classname].remove(to_delete[i]);
@@ -79,8 +124,9 @@ namespace stactiverecord {
 	register_change(classname, RECORD);
     };
 
+    /** Delete related record (one->one) */
     template <class T> void del() {
-      string related_classname = T().classname;
+      std::string related_classname = T().classname;
       if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
 	rvalues[related_classname] = SarVector<int>();
 	register_change(related_classname, RECORD);
@@ -88,16 +134,18 @@ namespace stactiverecord {
       }
     };
 
+    /** Get related record (one->one) */
     template <class T> void get(T& record) {
-      string related_classname = T().classname;
+      std::string related_classname = T().classname;
       if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
 	record = T(rvalues[related_classname][0]);
       } else throw Sar_RecordNotFoundException("Could not find related record \"" + related_classname + "\"");
     };
 
+    /** Get related records (one->many) */
     template <class T> ObjGroup<T> getMany() {
       ObjGroup<T> og;
-      string related_classname = T().classname;
+      std::string related_classname = T().classname;
       if(rvalues.has_key(related_classname)) {
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
@@ -105,9 +153,9 @@ namespace stactiverecord {
       return og;
     };
 
-    // some static search stuff
-    template <class T> static ObjGroup<T> find_by(string key, string value) {
-      string classname = T().classname;
+    /** Find all objects of type T with a property of key that has the given value */
+    template <class T> static ObjGroup<T> find_by(std::string key, std::string value) {
+      std::string classname = T().classname;
       SarVector<int> results;
       Where * where = equals(value);
       Sar_Dbi::dbi->get_where(classname, key, where, results);
@@ -115,8 +163,9 @@ namespace stactiverecord {
       return ObjGroup<T>::from_ids(results);      
     };
 
-    template <class T> static ObjGroup<T> find_by(string key, int value) {
-      string classname = T().classname;
+    /** Find all objects of type T with a property of key that has the given value */
+    template <class T> static ObjGroup<T> find_by(std::string key, int value) {
+      std::string classname = T().classname;
       SarVector<int> results;
       Where * where = equals(value);
       Sar_Dbi::dbi->get_where(classname, key, where, results);
@@ -124,16 +173,18 @@ namespace stactiverecord {
       return ObjGroup<T>::from_ids(results);      
     };
 
+    /** Find all objects of type T that match a given query Q */
     template <class T> static ObjGroup<T> find(Q query) {
-      string classname = T().classname;
+      std::string classname = T().classname;
       SarVector<int> results = query.test(classname, Sar_Dbi::dbi);
       // free pointers in query
       query.free();
       return ObjGroup<T>::from_ids(results);      
     };
 
+    /** Get all objects of type T */
     template <class T> static ObjGroup<T> all() {
-      string classname = T().classname;
+      std::string classname = T().classname;
       SarVector<int> results;
       Sar_Dbi::dbi->get(classname, results);
       return ObjGroup<T>::from_ids(results);

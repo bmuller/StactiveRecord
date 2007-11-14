@@ -1,12 +1,39 @@
+/*
+Copyright (C) 2007 Butterfat, LLC (http://butterfat.net)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Created by bmuller <bmuller@butterfat.net>
+*/
+
 #include "stactive_record.h"
 
 namespace stactiverecord {
-  using namespace std;
-
-  void check_classname(string classname) {
+  
+  /** Determind if classname is valid - throws exception if not */
+  void check_classname(std::string classname) {
     char chars[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
     bool found;
-    for(string::size_type i=0; i<classname.size(); i++) {
+    for(std::string::size_type i=0; i<classname.size(); i++) {
       found = false;
       for(int z=0; z<26; z++) 
 	if(classname[i] == chars[z] || classname[i] == '_')
@@ -15,29 +42,32 @@ namespace stactiverecord {
     }
   };
 
-  void coltype_to_name(coltype ct, string& name) {
-    string scoltype[] = { "NONE", "INTEGER", "STRING", "RECORD" };
+  /** convert column type to string */
+  void coltype_to_name(coltype ct, std::string& name) {
+    std::string scoltype[] = { "NONE", "INTEGER", "STRING", "RECORD" };
     name = scoltype[ct];
   };
 
-  void int_to_string(int i, string& s) {
+  /** convert integer to string */
+  void int_to_string(int i, std::string& s) {
     char c_int[100];
     sprintf(c_int, "%ld", i);
-    s = string(c_int);
+    s = std::string(c_int);
   };
 
-  void debug(string s) {
+  /** print debugging information if DEBUG is defined */
+  void debug(std::string s) {
 #ifdef DEBUG
-    string time_s = "";
+    std::string time_s = "";
     time_t rawtime = time(NULL);
     tm *tm_t = localtime(&rawtime);
     char rv[40];
     if(strftime(rv, sizeof(rv)-1, "%a %b %d %H:%M:%S %Y", tm_t))
-      time_s = "[" + string(rv) + "] ";
-    s = time_s + "[" + string(PACKAGE_NAME) + "] " + s + "\n";
+      time_s = "[" + std::string(rv) + "] ";
+    s = time_s + "[" + std::string(PACKAGE_NAME) + "] " + s + "\n";
     // escape %'s
-    string cleaned_s = "";
-    vector<string> parts = explode(s, "%");
+    std::string cleaned_s = "";
+    std::vector<std::string> parts = explode(s, "%");
     for(unsigned int i=0; i<parts.size()-1; i++)
       cleaned_s += parts[i] + "%%";
     cleaned_s += parts[parts.size()-1];
@@ -47,8 +77,9 @@ namespace stactiverecord {
 #endif
   };
 
-  vector<string> explode(string s, string e) {
-    vector<string> ret;
+  /** Split a string s into parts by value e */
+  std::vector<std::string> explode(std::string s, std::string e) {
+    std::vector<std::string> ret;
     int iPos = s.find(e, 0);
     int iPit = e.length();
     while(iPos>-1) {

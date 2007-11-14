@@ -1,48 +1,74 @@
+/*
+Copyright (C) 2007 Butterfat, LLC (http://butterfat.net)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Created by bmuller <bmuller@butterfat.net>
+*/
+
 namespace stactiverecord {
-  using namespace std;
 
   class Sar_Dbi {
   public:
     // config is in form scheme://[user[:password]@]host[:port]/database
-    static Sar_Dbi* makeStorage(string config);
+    static Sar_Dbi* makeStorage(std::string config);
     static Sar_Dbi* dbi;
-    SarVector<string> initialized_tables;
+    SarVector<std::string> initialized_tables;
     Sar_Dbi() : initialized_tables() {};
  
-    virtual void initialize_tables(string classname) {};
-    virtual int next_id(string classname) {};
-    virtual int current_id(string classname) {};
-    virtual void delete_record(int id, string classname) {};
-    virtual void delete_records(string classname) {};
+    virtual void initialize_tables(std::string classname) {};
+    virtual int next_id(std::string classname) {};
+    virtual int current_id(std::string classname) {};
+    virtual void delete_record(int id, std::string classname) {};
+    virtual void delete_records(std::string classname) {};
 
-    // get string values
-    virtual void get(int id, string classname, SarMap<string>& values) {};
+    // get std::string values
+    virtual void get(int id, std::string classname, SarMap<std::string>& values) {};
     // get int values
-    virtual void get(int id, string classname, SarMap<int>& values) {};
+    virtual void get(int id, std::string classname, SarMap<int>& values) {};
     // get record relations (of a specific class)
-    virtual void get(int id, string classname, string related_classname, SarVector<int>& related) {};
+    virtual void get(int id, std::string classname, std::string related_classname, SarVector<int>& related) {};
     // get all related classes
-    virtual void get(int id, string classname, SarMap< SarVector<int> >& sm) {};
+    virtual void get(int id, std::string classname, SarMap< SarVector<int> >& sm) {};
 
-    // insert/modify string values
-    virtual void set(int id, string classname, SarMap<string> values, bool insert) {};
+    // insert/modify std::string values
+    virtual void set(int id, std::string classname, SarMap<std::string> values, bool insert) {};
     // insert/modify int values
-    virtual void set(int id, string classname, SarMap<int> values, bool insert) {};
+    virtual void set(int id, std::string classname, SarMap<int> values, bool insert) {};
     // insert record relations
-    virtual void set(int id, string classname, SarVector<int> related, string related_classname) {};
+    virtual void set(int id, std::string classname, SarVector<int> related, std::string related_classname) {};
 
-    // delete string / int value
-    virtual void del(int id, string classname, SarVector<string> keys, coltype ct) {};
+    // delete std::string / int value
+    virtual void del(int id, std::string classname, SarVector<std::string> keys, coltype ct) {};
     // delete record relations
-    virtual void del(int id, string classname, SarVector<int> related, string related_classname) {};
+    virtual void del(int id, std::string classname, SarVector<int> related, std::string related_classname) {};
 
     // Some searching/static stuff
     // get all objects of a type
-    virtual void get(string classname, SarVector<int>& results) {};
+    virtual void get(std::string classname, SarVector<int>& results) {};
     // using a query with a conditional "where"
-    virtual void get_where(string classname, string key, Where * where, SarVector<int>& results) {};
+    virtual void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {};
 
-    bool table_is_initialized(string tablename);
+    bool table_is_initialized(std::string tablename);
   };
 
 #ifdef HAVE_SQLITE3
@@ -52,29 +78,29 @@ namespace stactiverecord {
     void close();
     sqlite3 *db;
     bool is_closed;
-    void test_result(int result, const string& context);
-    void execute(string query);
+    void test_result(int result, const std::string& context);
+    void execute(std::string query);
   public:
-    SQLiteStorage(string location);
+    SQLiteStorage(std::string location);
     ~SQLiteStorage() { close(); };
-    int next_id(string classname);
-    int current_id(string classname);
-    void delete_record(int id, string classname);
-    void delete_records(string classname);
-    void initialize_tables(string classname);
-    void get(int id, string classname, SarMap<string>& values);
-    void get(int id, string classname, SarMap<int>& values);
-    void set(int id, string classname, SarMap<string> values, bool insert);
-    void set(int id, string classname, SarMap<int> values, bool insert);
-    void del(int id, string classname, SarVector<string> keys, coltype ct);
-    void set(int id, string classname, SarVector<int> related, string related_classname);
-    void get(int id, string classname, string related_classname, SarVector<int>& related);
-    void del(int id, string classname, SarVector<int> related, string related_classname);
-    void get(int id, string classname, SarMap< SarVector<int> >& sm);
-    void get(string classname, SarVector<int>& results);
-    void get(string classname, string key, string value, SarVector<int>& results); 
-    void get(string classname, string key, int value, SarVector<int>& results); 
-    void get_where(string classname, string key, Where * where, SarVector<int>& results);
+    int next_id(std::string classname);
+    int current_id(std::string classname);
+    void delete_record(int id, std::string classname);
+    void delete_records(std::string classname);
+    void initialize_tables(std::string classname);
+    void get(int id, std::string classname, SarMap<std::string>& values);
+    void get(int id, std::string classname, SarMap<int>& values);
+    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
+    void set(int id, std::string classname, SarMap<int> values, bool insert);
+    void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
+    void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
+    void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
+    void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
+    void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
+    void get(std::string classname, SarVector<int>& results);
+    void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
+    void get(std::string classname, std::string key, int value, SarVector<int>& results); 
+    void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
   };
 #endif
 
@@ -85,18 +111,18 @@ namespace stactiverecord {
     void close();
     MYSQL *db;
     bool is_closed;
-    void test_result(int result, const string& context);
-    void execute(string query);
+    void test_result(int result, const std::string& context);
+    void execute(std::string query);
   public:
-    MySQLStorage(string config);
+    MySQLStorage(std::string config);
     ~MySQLStorage() { close(); };
-    int next_id(string classname);
-    void delete_record(int id, string classname);
-    void initialize_tables(string classname);
-    void get(int id, string classname, SarMap<string>& values);
-    void get(int id, string classname, SarMap<int>& values);
-    void set(int id, string classname, SarMap<string> values, bool insert);
-    void set(int id, string classname, SarMap<int> values, bool insert);
+    int next_id(std::string classname);
+    void delete_record(int id, std::string classname);
+    void initialize_tables(std::string classname);
+    void get(int id, std::string classname, SarMap<std::string>& values);
+    void get(int id, std::string classname, SarMap<int>& values);
+    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
+    void set(int id, std::string classname, SarMap<int> values, bool insert);
   };
 #endif
 
@@ -108,25 +134,25 @@ namespace stactiverecord {
     Db db;
     bool is_closed;
   public:
-    BDBStorage(string location);
+    BDBStorage(std::string location);
     ~BDBStorage() { close(); };
-    int next_id(string classname);
-    int current_id(string classname);
-    void delete_record(int id, string classname);
-    void delete_records(string classname);
-    void initialize_tables(string classname);
-    void get(int id, string classname, SarMap<string>& values);
-    void get(int id, string classname, SarMap<int>& values);
-    void set(int id, string classname, SarMap<string> values, bool insert);
-    void set(int id, string classname, SarMap<int> values, bool insert);
-    void del(int id, string classname, SarVector<string> keys, coltype ct);
-    void set(int id, string classname, SarVector<int> related, string related_classname);
-    void get(int id, string classname, string related_classname, SarVector<int>& related);
-    void del(int id, string classname, SarVector<int> related, string related_classname);
-    void get(int id, string classname, SarMap< SarVector<int> >& sm);
-    void get(string classname, SarVector<int>& results);
-    void get(string classname, string key, string value, SarVector<int>& results); 
-    void get(string classname, string key, int value, SarVector<int>& results); 
+    int next_id(std::string classname);
+    int current_id(std::string classname);
+    void delete_record(int id, std::string classname);
+    void delete_records(std::string classname);
+    void initialize_tables(std::string classname);
+    void get(int id, std::string classname, SarMap<std::string>& values);
+    void get(int id, std::string classname, SarMap<int>& values);
+    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
+    void set(int id, std::string classname, SarMap<int> values, bool insert);
+    void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
+    void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
+    void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
+    void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
+    void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
+    void get(std::string classname, SarVector<int>& results);
+    void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
+    void get(std::string classname, std::string key, int value, SarVector<int>& results); 
   };
 #endif
 

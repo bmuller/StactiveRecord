@@ -1,27 +1,31 @@
-#include  "stactive_record.h"
-
 /*
- * Three things that can be done to variables:
- * add, modify, delete.
- *
- * To add:
- * if exists in delete queue, then this is a modify
- * else add to add queue if not exists
- * 
- * To modify:
- * remove from delete queue
- * add to modify queue if not exists
- * 
- * To delete:
- * remove prop from add queue and mod queue
- * remove prop from 
- * add to delete queue if not exists
- *
- * update process:
- * delete everything in delete queue
- * add everything in add queue
- * modify everything in modify queue
- */
+Copyright (C) 2007 Butterfat, LLC (http://butterfat.net)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Created by bmuller <bmuller@butterfat.net>
+*/
+
+#include  "stactive_record.h"
 
 namespace stactiverecord {
 
@@ -52,8 +56,8 @@ namespace stactiverecord {
       if(id == -1) 
 	id = _db->next_id(classname);
 
-      SarVector<string> propkeys;
-      SarMap<string> spropvalues;
+      SarVector<std::string> propkeys;
+      SarMap<std::string> spropvalues;
       SarMap<int> ipropvalues;
 
       // new strings
@@ -93,7 +97,7 @@ namespace stactiverecord {
       propkeys.clear();
       get_changed(propkeys, RECORD);
       SarVector<int> related_ids;
-      string related_classname;
+      std::string related_classname;
       for(unsigned int i=0; i<propkeys.size(); i++) {
 	related_ids.clear();
 	related_classname = propkeys[i];
@@ -110,7 +114,7 @@ namespace stactiverecord {
     }
   };
 
-  void Record::set(string key, string value) { 
+  void Record::set(std::string key, std::string value) { 
     if(svalues.has_key(key)) {
       register_change(key, STRING);
     } else if(is_registered_deleted(key, STRING)) {
@@ -125,7 +129,7 @@ namespace stactiverecord {
     dirty = true;
   };
 
-  void Record::set(string key, int value) {   
+  void Record::set(std::string key, int value) {   
     if(ivalues.has_key(key)) {
       register_change(key, INTEGER);
     } else if(is_registered_deleted(key, INTEGER)) {
@@ -140,19 +144,19 @@ namespace stactiverecord {
     dirty = true;
   };
 
-  void Record::get(string key, string& value) {
+  void Record::get(std::string key, std::string& value) {
     if(svalues.has_key(key))
       value = svalues[key];
     else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };
 
-  int Record::get(string key) {
+  int Record::get(std::string key) {
     if(ivalues.has_key(key))
       return ivalues[key];
     throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };
   
-  void Record::del(string key) {
+  void Record::del(std::string key) {
     coltype ct = type(key);
     if(ct == NONE) return;
 
@@ -173,12 +177,12 @@ namespace stactiverecord {
     };
   };
 
-  bool Record::isset(string colname) {
+  bool Record::isset(std::string colname) {
     return (type(colname) == NONE);
   };
 
   // Return coltype if found, NONE if not found
-  coltype Record::type(string colname) {
+  coltype Record::type(std::string colname) {
     if(svalues.has_key(colname) || is_registered_new(colname, STRING))
       return STRING;
     if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
@@ -193,10 +197,10 @@ namespace stactiverecord {
 
   // Delete any previous values for key that isn't coltype ct
   // this is done to prevent two concurrent types for any key value
-  coltype Record::clear_other_values(string colname, coltype ct) {
+  coltype Record::clear_other_values(std::string colname, coltype ct) {
     coltype existing_ct = type(colname);
     if(existing_ct != NONE && existing_ct != ct) {
-      string coltypename;
+      std::string coltypename;
       coltype_to_name(existing_ct, coltypename);
       debug("getting rid of old value for " + colname + " and type " + coltypename);
       if(is_registered_new(colname, existing_ct)) {

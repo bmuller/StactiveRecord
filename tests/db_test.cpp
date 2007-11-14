@@ -1,6 +1,7 @@
 #include  "../stactiverecord/stactive_record.h"
 
 using namespace stactiverecord;
+using namespace std;
 
 Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
 

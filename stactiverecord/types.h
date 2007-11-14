@@ -1,10 +1,36 @@
+/*
+Copyright (C) 2007 Butterfat, LLC (http://butterfat.net)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Created by bmuller <bmuller@butterfat.net>
+*/
+
 namespace stactiverecord {
-  using namespace std;
 
   template <class T>
-  class SarVector : public vector<T> {
+  class SarVector : public std::vector<T> {
   public:
-    SarVector() : vector<T>() {};
+    SarVector() : std::vector<T>() {};
     bool includes(T value) {
       for(unsigned int i=0; i < this->size(); i++)
 	if(this->at(i) == value)
@@ -16,8 +42,8 @@ namespace stactiverecord {
     };
     void dump() {
       for(unsigned int i=0; i < this->size(); i++)
-        cout << this->at(i) << ", ";
-      cout << "\n";
+        std::cout << this->at(i) << ", ";
+      std::cout << "\n";
     };
     void remove(T value) {
       // terribly inefficient ... fix this later
@@ -78,44 +104,44 @@ namespace stactiverecord {
   };
   
   template <class T>
-  class SarMap : public map<string,T> {
+  class SarMap : public std::map<std::string,T> {
   public:
-    SarMap() : map<string,T>() {};
-    bool has_key(string key) {
+    SarMap() : std::map<std::string,T>() {};
+    bool has_key(std::string key) {
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
-	if(string((*i).first) == key) {
+	if(std::string((*i).first) == key) {
 	  return true;
 	}
       return false;
     };
     void dump() {
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
-	cout << (*i).first << ": " << (*i).second << "\n";
+	std::cout << (*i).first << ": " << (*i).second << "\n";
     };
-    void submap(SarVector<string> keys, SarMap<T>& submap) {
+    void submap(SarVector<std::string> keys, SarMap<T>& submap) {
       // clear the submap first...
       submap.clear();
       for(unsigned int i=0; i < keys.size(); i++)
 	submap[keys[i]] = this->operator[](keys[i]);
     };
-    void remove(string key) {
+    void remove(std::string key) {
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) {
-	if(string((*i).first) == key) 
+	if(std::string((*i).first) == key) 
 	  this->erase(i);
       }
     };
-    SarVector<string> keys() {
-      SarVector<string> keys;
+    SarVector<std::string> keys() {
+      SarVector<std::string> keys;
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
-	keys << string((*i).first);      
+	keys << std::string((*i).first);      
       return keys;
     };
     bool operator==(SarMap<T>& others) {
       if(this->size() != others.size() || this->keys() != others.keys())
 	return false;
-      string key;
+      std::string key;
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) {
-	key = string((*i).first);
+	key = std::string((*i).first);
 	if(this->operator[](key) != others[key]) 
 	  return false;
       }
