@@ -23,13 +23,15 @@ int main() {
   t.set("age", 70);
   t.save();
 
-  Test tt;
-  tt.set("name", "fred");
+  TestTwo tt;
+  //tt.set("name", "fred");
   tt.set("age", 55);
+  tt.set<Test>(t);
   tt.save();
 
   //  ObjGroup<Test> og = Record::find<Test>(Q("age", between(40, 56)) && Q("name", "fred"));
-  ObjGroup<Test> og = Record::find<Test>(Q("age", nbetween(40, 56)) || Q("name", "fred"));
+  //ObjGroup<Test> og = Record::find<Test>(Q("age", nbetween(40, 56)) || Q("name", "fred"));
+  ObjGroup<TestTwo> og = Record::find<TestTwo>(Q("age", between(40, 56)) && Q(hasobject(t)));
 
   //ObjGroup<Test> og = Record::find<Test>(Q("name", "fred") || (Q("name", "bob") && Q("fname", "whoops")));
   for(unsigned int i=0; i < og.size(); i++)

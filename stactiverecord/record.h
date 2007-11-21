@@ -30,7 +30,6 @@ namespace stactiverecord {
   class Record : public CUDPropertyRegister {
   private:
     Sar_Dbi *_db;
-    std::string classname;
     bool dirty;
     SarMap<std::string> svalues;
     SarMap<int> ivalues;    
@@ -50,6 +49,7 @@ namespace stactiverecord {
     void update();
   public:
     int id;
+    std::string classname;
     
     /** Save record changes to DB.  If there are no changes, nothing will be done. */
     void save();

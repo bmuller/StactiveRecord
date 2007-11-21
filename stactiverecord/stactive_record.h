@@ -22,7 +22,7 @@ namespace stactiverecord {
    * \enum wheretype The possible specific types/relationships a Where class can represent. 
    */
   enum coltype { NONE, INTEGER, STRING, RECORD };
-  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS };
+  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS, OBJECTRELATION };
 };
 
 #include "config.h"
@@ -34,6 +34,12 @@ namespace stactiverecord {
 #include "storage.h"
 #include "query.h"
 #include "record.h"
+
+namespace stactiverecord {
+  // Due to the fracking limitations of C++, this definition can't go in where.h
+  // or a circular dependency is introduced.  Gack!
+  Where * hasobject(Record r);
+};
 
 #define VALUE_MAX_SIZE 255
 #define VALUE_MAX_SIZE_S "255"

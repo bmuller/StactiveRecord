@@ -60,6 +60,8 @@ namespace stactiverecord {
      */
     Q(std::string _key, int _ivalue) : key(_key), ivalue(_ivalue) { ct = INTEGER; where = equals(_ivalue); };
 
+    Q(Where *_w) { ct = _w->ct; where = _w; };
+
     /** Boolean or operator */
     Q & operator||(Q other);
 
@@ -80,5 +82,4 @@ namespace stactiverecord {
      */
     void free();
   };
-  
 };

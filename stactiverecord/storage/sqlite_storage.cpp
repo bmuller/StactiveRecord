@@ -439,7 +439,7 @@ namespace stactiverecord {
 
   void SQLiteStorage::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
     bool isnot = where->isnot;
-    std::string swhere, table;
+    std::string swhere, table, query;
     sqlite3_stmt *pSelect;
     if(where->ct == INTEGER) {
       table = classname + "_i";
@@ -460,7 +460,8 @@ namespace stactiverecord {
 	swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
 	break;
       }
-    } else { //string
+      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
+    } else if(where->ct == STRING) {
       table = classname + "_s";
       switch(where->type) {
       case STARTSWITH:
@@ -475,8 +476,18 @@ namespace stactiverecord {
       case CONTAINS:
 	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";	
       }
+      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
+    } else { // RECORD
+      bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
+      std::string sint;
+      int_to_string(where->ivalue, sint);
+      if(swap)
+	query = "SELECT class_two_id FROM relationships WHERE class_two = \"" + classname + "\" AND class_one_id = "
+	  + sint + " AND class_one = \"" + where->svalue + "\"";
+      else
+	query = "SELECT class_one_id FROM relationships WHERE class_one = \"" + classname + "\" AND class_two_id = "
+	  + sint + " AND class_two = \"" + where->svalue + "\"";
     }
-    std::string query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){

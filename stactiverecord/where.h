@@ -40,6 +40,9 @@ namespace stactiverecord {
       ivalue(_ivalue), ivaluetwo(_valuetwo), type(_wt), ct(INTEGER), isnot(_isnot) {};
     Where(std::string _svalue, wheretype _wt, bool _isnot=false) :
       svalue(_svalue), type(_wt), ct(STRING), isnot(_isnot) {};
+    // in the case of a record search - i.e., Q(hasobject(someobject))
+    Where(std::string _svalue, int _ivalue, wheretype _wt, bool _isnot=false) :
+      svalue(_svalue), ivalue(_ivalue), type(_wt), ct(RECORD), isnot(_isnot) {};
   };
 
   Where * startswith(std::string value);

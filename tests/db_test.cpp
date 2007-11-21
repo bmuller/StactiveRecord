@@ -123,6 +123,11 @@ int main() {
   Where *where = startswith("fo");
   db->get_where(classname, "baz", where, oresults);
   assert((oresults.size() == 1 && oresults[0] == id), "getting all objects with matching string prop value");
+  // get all related
+  oresults.clear();
+  where = new Where(classname, 2, OBJECTRELATION);
+  db->get_where(related_classname, "unused: ignore", where, oresults);
+  assert(oresults.size() == 2, "searching for all objects with a certain other object relation");
   // get all with int value
   oresults.clear();
   where = greaterthan(990);
