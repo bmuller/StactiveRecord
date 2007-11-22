@@ -135,7 +135,7 @@ namespace stactiverecord {
     };
 
     /** Get related record (one->one) */
-    template <class T> void get(T& record) {
+    template <class T> void getOne(T& record) {
       std::string related_classname = T().classname;
       if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
 	record = T(rvalues[related_classname][0]);
