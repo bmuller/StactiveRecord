@@ -40,8 +40,8 @@ namespace stactiverecord {
     SarVector<Q> ored;
     SarVector<Q> anded;
     coltype ct;
-    Where *where;
   public:
+    Where *where;
     /** Create query object 
      * @param _key The key being queried
      * @param _w A Where object describing the limits of the query

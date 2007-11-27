@@ -27,6 +27,16 @@ Created by bmuller <bmuller@butterfat.net>
 
 namespace stactiverecord {
 
+  class KVT {
+  public:
+    std::string key, svalue;
+    int ivalue;
+    coltype type;
+    KVT(std::string _key, std::string _value) : key(_key), svalue(_value), type(STRING) {};
+    KVT(std::string _key, int _value) : key(_key), ivalue(_value), type(INTEGER) {};
+    KVT(std::string _key, coltype ct) : key(_key), type(ct) {};
+  };
+
   class Row {
   private:
     SarVector<int> ints;
@@ -122,7 +132,8 @@ namespace stactiverecord {
     void get(std::string classname, std::string key, int value, SarVector<int>& results); 
     void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
 
-    SarVector<Row> select(std::string table, SarVector<std::string> cols, SarVector<coltype> coltypes, Where * where);
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where);
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="");
     void where_to_string(Where * where, std::string& swhere);
   };
 #endif

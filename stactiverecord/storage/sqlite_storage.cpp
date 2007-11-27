@@ -56,6 +56,14 @@ namespace stactiverecord {
   };
 
   int SQLiteStorage::next_id(std::string classname) {
+    SarVector<KVT> cols;
+    cols << KVT("id", INTEGER);
+    SarVector<Row> row = select("id_maximums", cols, "classname = \"" + classname + "\"");
+    if(row.size() == 0) {
+      debug("could not find max id int for " + classname + " - starting at 0");
+      //insert("id_maximums", 
+    };
+    /*
     sqlite3_stmt *pSelect;
     std::string query = "SELECT id FROM id_maximums WHERE classname = \"" + classname + "\"";
     debug(query);
@@ -77,6 +85,7 @@ namespace stactiverecord {
     int_to_string(maxid, maxid_s);
     execute("UPDATE id_maximums SET id = " + maxid_s + " WHERE classname = \"" + classname + "\"");
     return maxid;
+    */
   };
 
   int SQLiteStorage::current_id(std::string classname) {
@@ -458,7 +467,6 @@ namespace stactiverecord {
 	break;
       }
     } else if(where->ct == STRING) {
-      table = classname + "_s";
       switch(where->type) {
       case STARTSWITH:
 	swhere = ((isnot) ? "NOT LIKE \"" : "LIKE \"") + where->svalue + "%\"";	
@@ -474,15 +482,25 @@ namespace stactiverecord {
       }
     }
   };
+  
+  //  void SQLiteStorage::insert(std::string table, <
 
-  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<std::string> cols, SarVector<coltype> coltypes, Where * where) {
-    string columns, swhere;
+  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {
+    std::string swhere;
+    where_to_string(where, swhere);
+    return select(table, cols, key + " " + swhere);
+  };
+
+  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string where) {
+    std::string columns;
     int result_iterator = 0;
+    SarVector<std::string> s_cols;
+    for(unsigned int i = 0; i < cols.size(); i++)
+      s_cols << cols[i].key;
     sqlite3_stmt *pSelect;
     SarVector<Row> result;
-    join(cols, ",", columns);
-    where_to_string(where, swhere);
-    string query = "SELECT " + columns + " FROM " + table + " WHERE " + swhere;
+    join(s_cols, ",", columns);
+    std::string query = "SELECT " + columns + " FROM " + ((where=="") ? table : table + " WHERE " + where);
     debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){
@@ -491,10 +509,10 @@ namespace stactiverecord {
     rc = sqlite3_step(pSelect);
     while(rc == SQLITE_ROW){
       Row r;
-      for(unsigned int i=0; i<coltypes.size(); i++) {
-	if(coltypes[i] == INTEGER) {
+      for(unsigned int i=0; i<cols.size(); i++) {
+	if(cols[i].type == INTEGER) {
 	  r << sqlite3_column_int(pSelect, i);
-	} else if(coltypes[i] == STRING) {
+	} else if(cols[i].type == STRING) {
 	  char c_key[255];
 	  snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, i));
 	  r << std::string(c_key);
@@ -518,7 +536,7 @@ namespace stactiverecord {
       query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     } else if(where->ct == STRING) {
       table = classname + "_s";
-      where_to_string(Where, swhere);
+      where_to_string(where, swhere);
       query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     } else { // RECORD
       bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
