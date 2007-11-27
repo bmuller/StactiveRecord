@@ -27,6 +27,26 @@ Created by bmuller <bmuller@butterfat.net>
 
 namespace stactiverecord {
 
+  class Row {
+  private:
+    SarVector<int> ints;
+    SarVector<std::string> strings;
+  public:
+    void operator<<(int i) { ints << i; };
+    void operator<<(std::string s) { strings << s; };
+    void get_string(int position, std::string& s) { 
+      if(position > strings.size() - 1) 
+	throw Sar_ColumnNotFoundException("String column not found.");
+      s = strings[position];
+    };
+    int get_int(int position) { 
+      if(position > ints.size() - 1) 
+	throw Sar_ColumnNotFoundException("Int column not found.");
+      return ints[position];
+    };    
+  };
+
+
   class Sar_Dbi {
   public:
     // config is in form scheme://[user[:password]@]host[:port]/database
@@ -101,6 +121,9 @@ namespace stactiverecord {
     void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
     void get(std::string classname, std::string key, int value, SarVector<int>& results); 
     void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
+
+    SarVector<Row> select(std::string table, SarVector<std::string> cols, SarVector<coltype> coltypes, Where * where);
+    void where_to_string(Where * where, std::string& swhere);
   };
 #endif
 

@@ -48,7 +48,7 @@ namespace stactiverecord {
 
   void SQLiteStorage::test_result(int result, const std::string& context) {
     if(result != SQLITE_OK){
-      std::string msg = "SQLite Error in Session Manager - " + context + ": " + std::string(sqlite3_errmsg(db)) + "\n";
+      std::string msg = "SQLite Error - " + context + ": " + std::string(sqlite3_errmsg(db)) + "\n";
       sqlite3_close(db);
       is_closed = true;
       throw Sar_DBException(msg);
@@ -437,12 +437,9 @@ namespace stactiverecord {
     others.clear();
   };
 
-  void SQLiteStorage::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
+  void where_to_string(Where * where, std::string& swhere) {
     bool isnot = where->isnot;
-    std::string swhere, table, query;
-    sqlite3_stmt *pSelect;
     if(where->ct == INTEGER) {
-      table = classname + "_i";
       std::string sint, second_sint;
       int_to_string(where->ivalue, sint);
       switch(where->type) {
@@ -460,7 +457,6 @@ namespace stactiverecord {
 	swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
 	break;
       }
-      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     } else if(where->ct == STRING) {
       table = classname + "_s";
       switch(where->type) {
@@ -476,6 +472,53 @@ namespace stactiverecord {
       case CONTAINS:
 	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";	
       }
+    }
+  };
+
+  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<std::string> cols, SarVector<coltype> coltypes, Where * where) {
+    string columns, swhere;
+    int result_iterator = 0;
+    sqlite3_stmt *pSelect;
+    SarVector<Row> result;
+    join(cols, ",", columns);
+    where_to_string(where, swhere);
+    string query = "SELECT " + columns + " FROM " + table + " WHERE " + swhere;
+    debug(query);
+    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
+    if( rc!=SQLITE_OK || !pSelect ){
+      throw Sar_DBException("error preparing sql query: " + query);
+    }
+    rc = sqlite3_step(pSelect);
+    while(rc == SQLITE_ROW){
+      Row r;
+      for(unsigned int i=0; i<coltypes.size(); i++) {
+	if(coltypes[i] == INTEGER) {
+	  r << sqlite3_column_int(pSelect, i);
+	} else if(coltypes[i] == STRING) {
+	  char c_key[255];
+	  snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, i));
+	  r << std::string(c_key);
+	}
+	result << r;
+      }
+      result_iterator++;
+      rc = sqlite3_step(pSelect);
+    }
+    rc = sqlite3_finalize(pSelect);
+    return result;
+  };
+
+  void SQLiteStorage::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
+    bool isnot = where->isnot;
+    std::string swhere, table, query;
+    sqlite3_stmt *pSelect;
+    if(where->ct == INTEGER) {
+      table = classname + "_i";
+      where_to_string(where, swhere);
+      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
+    } else if(where->ct == STRING) {
+      table = classname + "_s";
+      where_to_string(Where, swhere);
       query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
     } else { // RECORD
       bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;

@@ -91,6 +91,12 @@ namespace stactiverecord {
     if(s!="")
       ret.push_back(s);
     return ret;
-  }
+  };
+
+  void join(std::vector<std::string> v, std::string joiner, std::string& result) {
+    result = "";
+    for (unsigned int i=0; i<v.size(); i++) 
+      result += (i==(v.size()-1)) ? v[i] : v[i] + joiner;
+  }; 
 
 };

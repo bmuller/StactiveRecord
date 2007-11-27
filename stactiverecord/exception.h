@@ -90,4 +90,13 @@ namespace stactiverecord {
   public:
     Sar_InvalidClassnameException(std::string s) : Sar_Exception(s) {};
   };  
+
+  /** \class Sar_ColumnNotFoundException
+   * \brief Exception thrown from a db class if a column is asked for
+   * but doesn't exist.
+   */  
+  class Sar_ColumnNotFoundException : public Sar_Exception {
+  public:
+    Sar_ColumnNotFoundException(std::string s) : Sar_Exception(s) {};
+  };  
 };
