@@ -55,55 +55,6 @@ namespace stactiverecord {
     }
   };
 
-  int SQLiteStorage::next_id(std::string classname) {
-    SarVector<KVT> cols;
-    cols << KVT("id", INTEGER);
-    SarVector<Row> row = select("id_maximums", cols, "classname = \"" + classname + "\"");
-    if(row.size() == 0) {
-      debug("could not find max id int for " + classname + " - starting at 0");
-      //insert("id_maximums", 
-    };
-    /*
-    sqlite3_stmt *pSelect;
-    std::string query = "SELECT id FROM id_maximums WHERE classname = \"" + classname + "\"";
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    if(rc != SQLITE_ROW){
-      debug("could not find max id int for " + classname + " - starting at 0");
-      rc = sqlite3_finalize(pSelect);
-      query = "INSERT INTO id_maximums (id,classname) VALUES(0, \"" + classname + "\")";
-      execute(query);
-      return 0;
-    }
-    int maxid = sqlite3_column_int(pSelect, 0) + 1;
-    rc = sqlite3_finalize(pSelect);
-    std::string maxid_s;
-    int_to_string(maxid, maxid_s);
-    execute("UPDATE id_maximums SET id = " + maxid_s + " WHERE classname = \"" + classname + "\"");
-    return maxid;
-    */
-  };
-
-  int SQLiteStorage::current_id(std::string classname) {
-    sqlite3_stmt *pSelect;
-    std::string query = "SELECT id FROM id_maximums WHERE classname = \"" + classname + "\"";
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    if(rc != SQLITE_ROW)
-      return -1;
-    int id = sqlite3_column_int(pSelect, 0);
-    rc = sqlite3_finalize(pSelect);
-    return id;
-  };
- 
   void SQLiteStorage::initialize_tables(std::string classname) {
     char *errMsg;
     std::string tablename;
@@ -130,100 +81,6 @@ namespace stactiverecord {
     debug("Finished initializing tables for class " + classname);
   };
 
-  void SQLiteStorage::get(int id, std::string classname, SarMap<std::string>& values) {
-    sqlite3_stmt *pSelect;
-    std::string tablename = classname + "_s";
-    std::string id_s;
-    int_to_string(id, id_s);
-    std::string query = "SELECT keyname,value FROM " + tablename + " WHERE id = " + id_s;
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    char c_key[255];
-    char c_value[VALUE_MAX_SIZE + 1];
-    while(rc == SQLITE_ROW){
-      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
-      snprintf(c_value, VALUE_MAX_SIZE, "%s", sqlite3_column_text(pSelect, 1));
-      values[std::string(c_key)] = std::string(c_value);
-      rc = sqlite3_step(pSelect);
-    }    
-    rc = sqlite3_finalize(pSelect);
-  };
-
-  void SQLiteStorage::get(int id, std::string classname, SarMap<int>& values) {
-    sqlite3_stmt *pSelect;
-    std::string tablename = classname + "_i";
-    std::string id_s;
-    int_to_string(id, id_s);
-    std::string query = "SELECT keyname,value FROM " + tablename + " WHERE id = " + id_s;
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      char c_key[255];
-      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
-      int value = sqlite3_column_int(pSelect, 1);
-      values[std::string(c_key)] = value;
-      rc = sqlite3_step(pSelect);
-    }    
-    rc = sqlite3_finalize(pSelect);
-  };
-
-  void SQLiteStorage::set(int id, std::string classname, SarMap<std::string> values, bool insert) {
-    std::string query;
-    std::string tablename = classname + "_s";
-    std::string id_s;
-    int_to_string(id, id_s);
-    if(insert) {
-      for(std::map<std::string,std::string>::iterator i=values.begin(); i!=values.end(); ++i) {
-	query = "INSERT INTO " + tablename + " (id,keyname,value) VALUES (" + id_s + ",\"" + std::string((*i).first) + "\",\"" + std::string((*i).second) + "\")";
-	execute(query);
-      }
-    } else {
-      for(std::map<std::string,std::string>::iterator i=values.begin(); i!=values.end(); ++i) {
-	query = "UPDATE " + tablename + " SET value=\"" + std::string((*i).second) + "\" WHERE id=" + id_s \
-	  + " AND keyname=\"" + std::string((*i).first) + "\"";
-	execute(query);
-      }
-    }
-  };
-
-  void SQLiteStorage::set(int id, std::string classname, SarMap<int> values, bool insert) {
-    std::string query;
-    std::string tablename = classname + "_i";
-    std::string id_s;
-    std::string value_s;
-    int_to_string(id, id_s);
-    if(insert) {
-      for(std::map<std::string,int>::iterator i=values.begin(); i!=values.end(); ++i) {
-	int_to_string((*i).second, value_s);
-	query = "INSERT INTO " + tablename + " (id,keyname,value) VALUES (" + id_s + ",\"" + std::string((*i).first) + "\"," + value_s + ")";
-	execute(query);
-      }
-    } else {
-      for(std::map<std::string,int>::iterator i=values.begin(); i!=values.end(); ++i) {
-	int_to_string((*i).second, value_s);
-	query = "UPDATE " + tablename + " SET  value=" + value_s + " WHERE id=" + id_s \
-	  + " AND keyname=\"" + std::string((*i).first) + "\"";
-	execute(query);
-      }
-    }
-  };
-
-  void SQLiteStorage::del(int id, std::string classname, SarVector<std::string> keys, coltype ct) {
-    std::string tablename = (ct == STRING) ? classname+"_s" : classname+"_i";
-    std::string id_s;
-    int_to_string(id, id_s);
-    for(unsigned int i=0; i < keys.size(); i++)
-      execute("DELETE FROM " + tablename + " WHERE id = " + id_s + " AND keyname = \"" + keys[i] + "\"");
-  };
-
   void SQLiteStorage::execute(std::string query) {
     debug("SQLite executing: " + query);
     // this var doesn't matter cause it's the same as what will be printed by test_result
@@ -232,86 +89,6 @@ namespace stactiverecord {
     test_result(rc, query);
   };
 
-  void SQLiteStorage::delete_record(int id, std::string classname) {
-    char *errMsg;
-    int rc;
-    std::string id_s, query, tablename;
-    int_to_string(id, id_s);
-
-    // delete all string values
-    tablename = classname + "_s";
-    execute("DELETE FROM " + tablename + " WHERE id = " + id_s);
-
-    // delete all int values
-    tablename = classname + "_i";
-    execute("DELETE FROM " + tablename + " WHERE id = " + id_s);
-
-    execute("DELETE FROM relationships WHERE class_one = \"" + classname + "\" AND class_one_id=" + id_s);
-    execute("DELETE FROM relationships WHERE class_two = \"" + classname + "\" AND class_two_id=" + id_s);
-  };
-
-  void SQLiteStorage::delete_records(std::string classname) {
-    char *errMsg;
-    int rc;
-    std::string query, tablename;
-
-    // delete string values table
-    tablename = classname + "_s";
-    execute("DELETE FROM " + tablename);
-
-    // delete int values table
-    tablename = classname + "_i";
-    execute("DELETE FROM " + tablename);
-
-    // delete entries from relationships
-    execute("DELETE FROM relationships WHERE class_one = \"" + classname + "\" OR class_two = \"" + classname + "\"");
-
-    // delete max id
-    execute("DELETE FROM id_maximums WHERE classname = \"" + classname + "\"");
-  };
-
-  void SQLiteStorage::set(int id, std::string classname, SarVector<int> related, std::string related_classname) {
-    std::string s_id, related_id;
-    int_to_string(id, s_id);
-    debug("Adding related " + related_classname + "s to a " + classname);
-    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
-    for(SarVector<int>::size_type i=0; i<related.size(); i++) {
-      int_to_string(related[i], related_id);
-      if(swap)
-	execute("INSERT INTO relationships (class_one, class_one_id, class_two, class_two_id) VALUES(\"" + \
-		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
-      else
-	execute("INSERT INTO relationships (class_two, class_two_id, class_one, class_one_id) VALUES(\"" + \
-		related_classname + "\", " + related_id + ", \"" + classname + "\", " + s_id + ")");
-    }
-  };
-
-  void SQLiteStorage::get(int id, std::string classname, std::string related_classname, SarVector<int>& related) {
-    sqlite3_stmt *pSelect;
-    std::string s_id, query;
-    int_to_string(id, s_id);
-    debug("Getting related " + related_classname + "s to a " + classname);
-    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
-    if(swap)
-      query = "SELECT class_one_id FROM relationships WHERE class_one = \"" + related_classname + "\" AND class_two_id = " 
-	+ s_id + " AND class_two = \"" + classname + "\"";
-    else
-      query = "SELECT class_two_id FROM relationships WHERE class_two = \"" + related_classname + "\" AND class_one_id = " 
-	+ s_id + " AND class_one = \"" + classname + "\"";
-
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      related << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-  };
-  
   void SQLiteStorage::get(int id, std::string classname, SarMap< SarVector<int> >& sm) {
     sqlite3_stmt *pSelect;
     std::string s_id, query, key;
@@ -446,7 +223,7 @@ namespace stactiverecord {
     others.clear();
   };
 
-  void where_to_string(Where * where, std::string& swhere) {
+  void SQLiteStorage::where_to_string(Where * where, std::string& swhere) {
     bool isnot = where->isnot;
     if(where->ct == INTEGER) {
       std::string sint, second_sint;
@@ -483,7 +260,58 @@ namespace stactiverecord {
     }
   };
   
-  //  void SQLiteStorage::insert(std::string table, <
+  void SQLiteStorage::insert(std::string table, SarVector<KVT> cols) {
+    std::string columns, sint;
+    std::string values = "";
+    SarVector<std::string> s_cols;
+    for(unsigned int i = 0; i < cols.size(); i++)
+      s_cols << cols[i].key;
+    join(s_cols, ",", columns);
+    for(unsigned int i = 0; i < cols.size(); i++) {
+      if(cols[i].type == STRING) {
+	values += "\"" + cols[i].svalue + "\"";
+      } else if(cols[i].type == INTEGER) {
+	int_to_string(cols[i].ivalue, sint);
+	values += sint;
+      }
+      if(i != cols.size() - 1)
+	values += ",";
+    } 
+    std::string query = "INSERT INTO " + table + " (" + columns + ") VALUES(" + values + ")";
+    execute(query);
+  };
+
+  void SQLiteStorage::remove(std::string table, std::string key, Where * where) {
+    std::string swhere;
+    where_to_string(where, swhere);
+    remove(table, key + " " + swhere);
+  };
+
+  void SQLiteStorage::remove(std::string table, std::string where) {
+    execute("DELETE FROM " + ((where=="") ? table : table + " WHERE " + where));
+  };
+
+  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string key, Where * where) {
+    std::string swhere;
+    where_to_string(where, swhere);
+    update(table, cols, key + " " + swhere);
+  };
+
+  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
+    std::string setstring = "";
+    std::string sint;
+    for(unsigned int i = 0; i < cols.size(); i++) {
+      if(cols[i].type == STRING) {
+	setstring += cols[i].key + "=\"" + cols[i].svalue + "\"";
+      } else if(cols[i].type == INTEGER) {
+	int_to_string(cols[i].ivalue, sint);
+	setstring += cols[i].key + "=" + sint;
+      }
+      if(i != cols.size() - 1)
+	setstring += ",";
+    }
+    execute("UPDATE " + table + " SET " + ((where=="") ? setstring : setstring + " WHERE " + where));
+  };
 
   SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {
     std::string swhere;
@@ -517,8 +345,8 @@ namespace stactiverecord {
 	  snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, i));
 	  r << std::string(c_key);
 	}
-	result << r;
       }
+      result << r;
       result_iterator++;
       rc = sqlite3_step(pSelect);
     }

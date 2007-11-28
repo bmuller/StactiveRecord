@@ -66,29 +66,29 @@ namespace stactiverecord {
     Sar_Dbi() : initialized_tables() {};
  
     virtual void initialize_tables(std::string classname) {};
-    virtual int next_id(std::string classname) {};
-    virtual int current_id(std::string classname) {};
-    virtual void delete_record(int id, std::string classname) {};
-    virtual void delete_records(std::string classname) {};
+    int next_id(std::string classname);
+    int current_id(std::string classname);
+    void delete_record(int id, std::string classname);
+    void delete_records(std::string classname);
 
     // get std::string values
-    virtual void get(int id, std::string classname, SarMap<std::string>& values) {};
+    void get(int id, std::string classname, SarMap<std::string>& values);
     // get int values
-    virtual void get(int id, std::string classname, SarMap<int>& values) {};
+    void get(int id, std::string classname, SarMap<int>& values);
     // get record relations (of a specific class)
-    virtual void get(int id, std::string classname, std::string related_classname, SarVector<int>& related) {};
+    void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
     // get all related classes
     virtual void get(int id, std::string classname, SarMap< SarVector<int> >& sm) {};
 
     // insert/modify std::string values
-    virtual void set(int id, std::string classname, SarMap<std::string> values, bool insert) {};
+    void set(int id, std::string classname, SarMap<std::string> values, bool isinsert);
     // insert/modify int values
-    virtual void set(int id, std::string classname, SarMap<int> values, bool insert) {};
+    void set(int id, std::string classname, SarMap<int> values, bool isinsert);
     // insert record relations
-    virtual void set(int id, std::string classname, SarVector<int> related, std::string related_classname) {};
+    void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
 
     // delete std::string / int value
-    virtual void del(int id, std::string classname, SarVector<std::string> keys, coltype ct) {};
+    void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
     // delete record relations
     virtual void del(int id, std::string classname, SarVector<int> related, std::string related_classname) {};
 
@@ -97,6 +97,18 @@ namespace stactiverecord {
     virtual void get(std::string classname, SarVector<int>& results) {};
     // using a query with a conditional "where"
     virtual void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {};
+
+
+    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {}; 
+    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="") {};
+    virtual void update(std::string table, SarVector<KVT> cols, std::string key, Where * where) {};
+    virtual void update(std::string table, SarVector<KVT> cols, std::string where="") {};
+    virtual void remove(std::string table, std::string key, Where * where) {};
+    virtual void remove(std::string table, std::string where="") {};
+    virtual void insert(std::string table, SarVector<KVT> cols) {};
+    virtual void where_to_string(Where * where, std::string& swhere) {};
+
+
 
     bool table_is_initialized(std::string tablename);
   };
@@ -113,18 +125,7 @@ namespace stactiverecord {
   public:
     SQLiteStorage(std::string location);
     ~SQLiteStorage() { close(); };
-    int next_id(std::string classname);
-    int current_id(std::string classname);
-    void delete_record(int id, std::string classname);
-    void delete_records(std::string classname);
-    void initialize_tables(std::string classname);
-    void get(int id, std::string classname, SarMap<std::string>& values);
-    void get(int id, std::string classname, SarMap<int>& values);
-    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
-    void set(int id, std::string classname, SarMap<int> values, bool insert);
-    void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
-    void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
-    void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
+    void initialize_tables(std::string classname);    
     void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
     void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
     void get(std::string classname, SarVector<int>& results);
@@ -134,6 +135,11 @@ namespace stactiverecord {
 
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where);
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="");
+    void update(std::string table, SarVector<KVT> cols, std::string key, Where * where);
+    void update(std::string table, SarVector<KVT> cols, std::string where="");
+    void remove(std::string table, std::string key, Where * where);
+    void remove(std::string table, std::string where="");
+    void insert(std::string table, SarVector<KVT> cols);
     void where_to_string(Where * where, std::string& swhere);
   };
 #endif

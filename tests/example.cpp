@@ -18,11 +18,11 @@ public:
 
 int main() {
   Test t;
-  //t.set("name", "bob");
+  t.set("name", "bob");
   //t.set("fname", "whoops");
   t.set("age", 70);
   t.save();
-
+  /*
   TestTwo tt;
   //tt.set("name", "fred");
   tt.set("age", 55);
@@ -37,7 +37,7 @@ int main() {
   for(unsigned int i=0; i < og.size(); i++)
     std::cout << og[i].id << "\n"; 
 
-  /*  
+    
   Test ttt;
   ttt.set("name", "asdf");
   ttt.save();
