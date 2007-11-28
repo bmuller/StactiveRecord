@@ -287,6 +287,12 @@ namespace stactiverecord {
     remove(table, key + " " + swhere);
   };
 
+  void SQLiteStorage::remove(std::string table, Q qwhere) {
+    std::string where;
+    qwhere.to_string(where);
+    remove(table, where);
+  };
+
   void SQLiteStorage::remove(std::string table, std::string where) {
     execute("DELETE FROM " + ((where=="") ? table : table + " WHERE " + where));
   };

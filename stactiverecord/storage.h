@@ -107,6 +107,7 @@ namespace stactiverecord {
     virtual void update(std::string table, SarVector<KVT> cols, Q qwhere) {};
     virtual void remove(std::string table, std::string key, Where * where) {};
     virtual void remove(std::string table, std::string where="") {};
+    virtual void remove(std::string table, Q qwhere) {};
     virtual void insert(std::string table, SarVector<KVT> cols) {};
     virtual void where_to_string(Where * where, std::string& swhere) {};
 
@@ -143,6 +144,7 @@ namespace stactiverecord {
     void update(std::string table, SarVector<KVT> cols, Q qwhere);
     void remove(std::string table, std::string key, Where * where);
     void remove(std::string table, std::string where="");
+    void remove(std::string table, Q qwhere);
     void insert(std::string table, SarVector<KVT> cols);
     void where_to_string(Where * where, std::string& swhere);
   };

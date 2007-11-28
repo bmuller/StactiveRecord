@@ -3,6 +3,8 @@
 using namespace stactiverecord;
 using namespace std;
 
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
+
 void assert(bool v, string msg) {
   if(v) return;
   throw Sar_AssertionFailedException("Failed when testing " + msg);

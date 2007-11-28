@@ -32,9 +32,7 @@ namespace stactiverecord {
   int Sar_Dbi::next_id(std::string classname) {
     SarVector<KVT> cols;
     cols << KVT("id", INTEGER);
-    Where * where = equals(classname);
-    SarVector<Row> row = select("id_maximums", cols, "classname", where);
-    delete where;
+    SarVector<Row> row = select("id_maximums", cols, Q("classname", classname));
     SarVector<KVT> values;
     if(row.size() == 0) {
       debug("could not find max id int for " + classname + " - starting at 0");
@@ -45,14 +43,14 @@ namespace stactiverecord {
     }
     int maxid = row[0].get_int(0) + 1;
     values << KVT("id", maxid);
-    update("id_maximums", values, Q("classname", equals(classname)));
+    update("id_maximums", values, Q("classname", classname));
     return maxid;
   };
 
   int Sar_Dbi::current_id(std::string classname) {
     SarVector<KVT> values;
     values << KVT("id", INTEGER);
-    SarVector<Row> rows = select("id_maximums", values, Q("classname", equals(classname)));
+    SarVector<Row> rows = select("id_maximums", values, Q("classname", classname));
     if(rows.size() == 0)
       return -1;
     return rows[0].get_int(0);
@@ -63,9 +61,7 @@ namespace stactiverecord {
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
     cols << KVT("value", STRING);
-    Where * where = equals(id);
-    SarVector<Row> rows = select(tablename, cols, "id", where);
-    delete where;
+    SarVector<Row> rows = select(tablename, cols, Q("id", id));
     std::string key, value;
     for (unsigned int i = 0; i < rows.size(); i++) {
       rows[i].get_string(0, key);
@@ -79,9 +75,7 @@ namespace stactiverecord {
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
     cols << KVT("value", INTEGER);
-    Where * where = equals(id);
-    SarVector<Row> rows = select(tablename, cols, "id", where);
-    delete where;
+    SarVector<Row> rows = select(tablename, cols, Q("id", id));
     std::string key;
     int value;
     for (unsigned int i = 0; i < rows.size(); i++) {
@@ -101,15 +95,7 @@ namespace stactiverecord {
 	values << KVT("keyname", std::string((*i).first));
         insert(tablename, values);
       } else {
-        Where * id_where = equals(id);
-        Where * keyname_where = equals(std::string((*i).first));
-	std::string sid_where, skeyname_where;
-        where_to_string(id_where, sid_where);
-        where_to_string(keyname_where, skeyname_where);
-	std::string where = "id " + sid_where + " AND keyname " + skeyname_where;
-        update(tablename, values, where);
-        delete id_where;
-        delete keyname_where;
+	update(tablename, values, Q("id", id) && Q("keyname", std::string((*i).first)));
       }
     }
   };
@@ -124,40 +110,22 @@ namespace stactiverecord {
 	values << KVT("keyname", std::string((*i).first));
         insert(tablename, values);
       } else {
-        Where * id_where = equals(id);
-        Where * keyname_where = equals(std::string((*i).first));
-	std::string sid_where, skeyname_where;
-        where_to_string(id_where, sid_where);
-        where_to_string(keyname_where, skeyname_where);
-	std::string where = "id " + sid_where + " AND keyname " + skeyname_where;
-        update(tablename, values, where);
-        delete id_where;
-        delete keyname_where;
+	update(tablename, values, Q("id", id) && Q("keyname", std::string((*i).first)));
       }
     }
   };
 
   void Sar_Dbi::del(int id, std::string classname, SarVector<std::string> keys, coltype ct) {
     std::string tablename = (ct == STRING) ? classname+"_s" : classname+"_i";
-    Where * id_where = equals(id);
-    std::string sid_where, skeyname_where;
-    where_to_string(id_where, sid_where);
-    for(unsigned int i=0; i < keys.size(); i++) {
-      Where * keyname_where = equals(std::string(keys[i]));
-      where_to_string(keyname_where, skeyname_where);
-      std::string where = "id " + sid_where + " AND keyname " + skeyname_where;
-      remove(tablename, where);
-      delete keyname_where;
-    }
-    delete id_where;
+    for(unsigned int i=0; i < keys.size(); i++) 
+      remove(tablename, Q("id", id) && Q("keyname", keys[i]));
   };
   
   void Sar_Dbi::delete_record(int id, std::string classname) {
-    Where * id_where = equals(id);
     std::string tablename = classname + "_s";
-    remove(tablename, "id", id_where);
+    remove(tablename, Q("id", id));
     tablename = classname + "_i";
-    remove(tablename, "id", id_where);
+    remove(tablename, Q("id", id));
 
     tablename = "relationships";
     Where * classname_where = equals(classname);
