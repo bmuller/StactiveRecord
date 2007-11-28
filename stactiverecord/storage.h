@@ -101,8 +101,10 @@ namespace stactiverecord {
 
     virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {}; 
     virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="") {};
+    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere) {};
     virtual void update(std::string table, SarVector<KVT> cols, std::string key, Where * where) {};
     virtual void update(std::string table, SarVector<KVT> cols, std::string where="") {};
+    virtual void update(std::string table, SarVector<KVT> cols, Q qwhere) {};
     virtual void remove(std::string table, std::string key, Where * where) {};
     virtual void remove(std::string table, std::string where="") {};
     virtual void insert(std::string table, SarVector<KVT> cols) {};
@@ -135,8 +137,10 @@ namespace stactiverecord {
 
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where);
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="");
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere);
     void update(std::string table, SarVector<KVT> cols, std::string key, Where * where);
     void update(std::string table, SarVector<KVT> cols, std::string where="");
+    void update(std::string table, SarVector<KVT> cols, Q qwhere);
     void remove(std::string table, std::string key, Where * where);
     void remove(std::string table, std::string where="");
     void insert(std::string table, SarVector<KVT> cols);

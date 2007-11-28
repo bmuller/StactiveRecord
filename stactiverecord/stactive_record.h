@@ -31,8 +31,8 @@ namespace stactiverecord {
 #include "types.h"
 #include "cud_property_register.h"
 #include "exception.h"
-#include "storage.h"
 #include "query.h"
+#include "storage.h"
 #include "record.h"
 
 namespace stactiverecord {

@@ -176,7 +176,7 @@ namespace stactiverecord {
     /** Find all objects of type T that match a given query Q */
     template <class T> static ObjGroup<T> find(Q query) {
       std::string classname = T().classname;
-      SarVector<int> results = query.test(classname, Sar_Dbi::dbi);
+      SarVector<int> results = query.test(classname);
       // free pointers in query
       query.free();
       return ObjGroup<T>::from_ids(results);      

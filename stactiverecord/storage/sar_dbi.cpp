@@ -45,16 +45,14 @@ namespace stactiverecord {
     }
     int maxid = row[0].get_int(0) + 1;
     values << KVT("id", maxid);
-    update("id_maximums", values, "classname = \"" + classname + "\"");
+    update("id_maximums", values, Q("classname", equals(classname)));
     return maxid;
   };
 
   int Sar_Dbi::current_id(std::string classname) {
     SarVector<KVT> values;
     values << KVT("id", INTEGER);
-    Where * where = equals(classname);
-    SarVector<Row> rows = select("id_maximums", values, "classname", where);
-    delete where;
+    SarVector<Row> rows = select("id_maximums", values, Q("classname", equals(classname)));
     if(rows.size() == 0)
       return -1;
     return rows[0].get_int(0);

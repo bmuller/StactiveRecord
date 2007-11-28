@@ -42,6 +42,7 @@ namespace stactiverecord {
     coltype ct;
   public:
     Where *where;
+    void to_string(std::string& query);
     /** Create query object 
      * @param _key The key being queried
      * @param _w A Where object describing the limits of the query
@@ -72,7 +73,7 @@ namespace stactiverecord {
      * @param classname The classname to test
      * @param db The Sar_Dbi object - it can be directly queried
      */
-    SarVector<int> test(std::string classname, Sar_Dbi *sar_dbi);
+    SarVector<int> test(std::string classname);
 
     /** Print out all the other Q objects anded and ored */
     void dump();

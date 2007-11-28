@@ -297,6 +297,12 @@ namespace stactiverecord {
     update(table, cols, key + " " + swhere);
   };
 
+  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, Q qwhere) {
+    std::string where;
+    qwhere.to_string(where);
+    update(table, cols, where);
+  }
+
   void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
     std::string setstring = "";
     std::string sint;
@@ -317,6 +323,12 @@ namespace stactiverecord {
     std::string swhere;
     where_to_string(where, swhere);
     return select(table, cols, key + " " + swhere);
+  };
+
+  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, Q qwhere) {
+    std::string where;
+    qwhere.to_string(where);
+    return select(table, cols, where);
   };
 
   SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string where) {

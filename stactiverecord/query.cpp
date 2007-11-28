@@ -39,13 +39,13 @@ namespace stactiverecord {
     return (*this); 
   };     
 
-  SarVector<int> Q::test(std::string classname, Sar_Dbi *db) {
+  SarVector<int> Q::test(std::string classname) {
     SarVector<int> results;
-    db->get_where(classname, key, where, results);
+    Sar_Dbi::dbi->get_where(classname, key, where, results);
 
     // if none matching were found, see if any of our ors match
     for(unsigned int i=0; i<ored.size(); i++) {
-      results.unionize(ored[i].test(classname, db));
+      results.unionize(ored[i].test(classname));
     }
 
     // if we have no results by now, just return
@@ -54,7 +54,7 @@ namespace stactiverecord {
 
     SarVector<int> anded_results;
     for(unsigned int i=0; i<anded.size(); i++) {
-      anded_results = anded[i].test(classname, db);
+      anded_results = anded[i].test(classname);
       if(anded_results.size() == 0)
 	return anded_results;
     }
@@ -65,6 +65,25 @@ namespace stactiverecord {
     if(anded.size() > 0)
       return results.intersects(anded_results);
     return results;
+  };
+
+  void Q::to_string(std::string& query) {
+    std::string swhere;
+    Sar_Dbi::dbi->where_to_string(where, swhere);
+    query = "(" + key + " " + swhere;
+    
+    std::string sored;
+    for(unsigned int i=0; i<ored.size(); i++) {
+      ored[i].to_string(sored);
+      query += " OR " + sored; 
+    }
+    
+    std::string sanded;
+    for(unsigned int i=0; i<anded.size(); i++) {
+      anded[i].to_string(sanded);
+      query += " AND " + sanded; 
+    }
+    query += ")";
   };
 
   void Q::dump() {
