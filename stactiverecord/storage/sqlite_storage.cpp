@@ -89,49 +89,6 @@ namespace stactiverecord {
     test_result(rc, query);
   };
 
-  void SQLiteStorage::get(int id, std::string classname, SarMap< SarVector<int> >& sm) {
-    sqlite3_stmt *pSelect;
-    std::string s_id, query, key;
-    int_to_string(id, s_id);
-    debug("Getting all related objects to a " + classname);
-
-    query = "SELECT class_one, class_one_id FROM relationships WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id;
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      char c_key[255];
-      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
-      key = std::string(c_key);
-      if(!sm.has_key(key))
-	sm[key] = SarVector<int>();
-      sm[key] << sqlite3_column_int(pSelect, 1);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);    
-
-    query = "SELECT class_two, class_two_id FROM relationships WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id;
-    debug(query);
-    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      char c_key[255];
-      snprintf(c_key, 255, "%s", sqlite3_column_text(pSelect, 0));
-      key = std::string(c_key);
-      if(!sm.has_key(key))
-	sm[key] = SarVector<int>();
-      sm[key] << sqlite3_column_int(pSelect, 1);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);    
-  };
-
   void SQLiteStorage::del(int id, std::string classname, SarVector<int> related, std::string related_classname) {
     if(related.size() == 0)
       return;
@@ -281,35 +238,16 @@ namespace stactiverecord {
     execute(query);
   };
 
-  void SQLiteStorage::remove(std::string table, std::string key, Where * where) {
-    std::string swhere;
-    where_to_string(where, swhere);
-    remove(table, key + " " + swhere);
-  };
-
   void SQLiteStorage::remove(std::string table, Q qwhere) {
-    std::string where;
-    qwhere.to_string(where);
-    remove(table, where);
-  };
-
-  void SQLiteStorage::remove(std::string table, std::string where) {
+    std::string where = "";
+    if(qwhere != NULL)
+      qwhere.to_string(where);
     execute("DELETE FROM " + ((where=="") ? table : table + " WHERE " + where));
-  };
-
-  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string key, Where * where) {
-    std::string swhere;
-    where_to_string(where, swhere);
-    update(table, cols, key + " " + swhere);
   };
 
   void SQLiteStorage::update(std::string table, SarVector<KVT> cols, Q qwhere) {
     std::string where;
     qwhere.to_string(where);
-    update(table, cols, where);
-  }
-
-  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
     std::string setstring = "";
     std::string sint;
     for(unsigned int i = 0; i < cols.size(); i++) {
@@ -325,19 +263,9 @@ namespace stactiverecord {
     execute("UPDATE " + table + " SET " + ((where=="") ? setstring : setstring + " WHERE " + where));
   };
 
-  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {
-    std::string swhere;
-    where_to_string(where, swhere);
-    return select(table, cols, key + " " + swhere);
-  };
-
   SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, Q qwhere) {
     std::string where;
     qwhere.to_string(where);
-    return select(table, cols, where);
-  };
-
-  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string where) {
     std::string columns;
     int result_iterator = 0;
     SarVector<std::string> s_cols;

@@ -128,14 +128,8 @@ namespace stactiverecord {
     remove(tablename, Q("id", id));
 
     tablename = "relationships";
-    Where * classname_where = equals(classname);
-    std::string sid_where, sclassname_where;
-    where_to_string(id_where, sid_where);
-    where_to_string(classname_where, sclassname_where);
-    remove(tablename, "class_one " + sclassname_where + " AND class_one_id " + sid_where);
-    remove(tablename, "class_two " + sclassname_where + " AND class_two_id " + sid_where);
-    delete id_where;
-    delete classname_where;
+    remove(tablename, Q("class_one", classname) && Q("class_one_id", id));
+    remove(tablename, Q("class_two", classname) && Q("class_two_id ", id));
   };
 
   void Sar_Dbi::delete_records(std::string classname) {
@@ -151,14 +145,13 @@ namespace stactiverecord {
     tablename = "relationships";
     Where * classname_where = equals(classname);
     where_to_string(classname_where, sclassname_where);
+
     // delete entries from relationships
-    remove(tablename, "class_one " + sclassname_where + " OR class_two " + sclassname_where);
+    remove(tablename, Q("class_one", classname) || Q("class_two", classname));
 
     // delete max id
     tablename = "id_maximums";
-    remove(tablename, "classname", classname_where);
-
-    delete classname_where;
+    remove(tablename, Q("classname", classname));
   };
 
   void Sar_Dbi::set(int id, std::string classname, SarVector<int> related, std::string related_classname) {
@@ -187,35 +180,47 @@ namespace stactiverecord {
     debug("Getting related " + related_classname + "s to a " + classname);
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
     SarVector<KVT> cols;
-    std::string sid_where, sclassname_one_where, sclassname_two_where, swhere;
+    SarVector<Row> rows;
+
     if(swap) {
       cols << KVT("class_one_id", INTEGER);
-      Where * id_where = equals(id);
-      Where * classname_one_where = equals(related_classname);
-      Where * classname_two_where = equals(classname);
-      where_to_string(id_where, sid_where);
-      where_to_string(classname_one_where, sclassname_one_where);
-      where_to_string(classname_two_where, sclassname_two_where);
-      delete id_where;
-      delete classname_one_where;
-      delete classname_two_where;
-      swhere = "class_one " + sclassname_one_where + " AND class_two_id " + sid_where + " AND class_two " + sclassname_two_where;
+      rows = select(tablename, cols, Q("class_one", related_classname) && Q("class_two_id", id) && Q("class_two", classname));
     } else {
       cols << KVT("class_two_id", INTEGER);
-      Where * id_where = equals(id);
-      Where * classname_one_where = equals(classname);
-      Where * classname_two_where = equals(related_classname);
-      where_to_string(id_where, sid_where);
-      where_to_string(classname_one_where, sclassname_one_where);
-      where_to_string(classname_two_where, sclassname_two_where);
-      delete id_where;
-      delete classname_one_where;
-      delete classname_two_where;
-      swhere = "class_one " + sclassname_one_where + " AND class_one_id " + sid_where + " AND class_two " + sclassname_two_where;
+      rows = select(tablename, cols, Q("class_one", classname) && Q("class_one_id", id) && Q("class_two", related_classname));
     }
-    SarVector<Row> rows = select(tablename, cols, swhere);
+
     for(unsigned int i = 0; i < rows.size(); i++)
       related << rows[i].get_int(0);
   };
+
+  void Sar_Dbi::get(int id, std::string classname, SarMap< SarVector<int> >& sm) {
+    debug("Getting all related objects to a " + classname);
+    std::string tablename = "relationships";
+    SarVector<KVT> cols;
+    cols << KVT("class_one", STRING);
+    cols << KVT("class_one_id", INTEGER);
+    SarVector<Row> rows = select(tablename, cols, Q("class_two", classname) && Q("class_two_id", id));
+    for(unsigned int i = 0; i<rows.size(); i++) {
+      std::string key;
+      rows[i].get_string(0, key);
+      if(!sm.has_key(key))
+        sm[key] = SarVector<int>();
+      sm[key] << rows[i].get_int(0);
+    }
+
+    cols.clear();
+    cols << KVT("class_two", STRING);
+    cols << KVT("class_two_id", INTEGER);
+    rows = select(tablename, cols, Q("class_one", classname) && Q("class_one_id", id));
+    for(unsigned int i = 0; i<rows.size(); i++) {
+      std::string key;
+      rows[i].get_string(0, key);
+      if(!sm.has_key(key))
+        sm[key] = SarVector<int>();
+      sm[key] << rows[i].get_int(0);
+    }
+  };
+
 
 };

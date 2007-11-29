@@ -78,7 +78,7 @@ namespace stactiverecord {
     // get record relations (of a specific class)
     void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
     // get all related classes
-    virtual void get(int id, std::string classname, SarMap< SarVector<int> >& sm) {};
+    void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
 
     // insert/modify std::string values
     void set(int id, std::string classname, SarMap<std::string> values, bool isinsert);
@@ -99,18 +99,11 @@ namespace stactiverecord {
     virtual void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {};
 
 
-    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where) {}; 
-    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="") {};
     virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere) {};
-    virtual void update(std::string table, SarVector<KVT> cols, std::string key, Where * where) {};
-    virtual void update(std::string table, SarVector<KVT> cols, std::string where="") {};
     virtual void update(std::string table, SarVector<KVT> cols, Q qwhere) {};
-    virtual void remove(std::string table, std::string key, Where * where) {};
-    virtual void remove(std::string table, std::string where="") {};
-    virtual void remove(std::string table, Q qwhere) {};
+    virtual void remove(std::string table, Q qwhere=NULL) {};
     virtual void insert(std::string table, SarVector<KVT> cols) {};
     virtual void where_to_string(Where * where, std::string& swhere) {};
-
 
 
     bool table_is_initialized(std::string tablename);
@@ -130,21 +123,14 @@ namespace stactiverecord {
     ~SQLiteStorage() { close(); };
     void initialize_tables(std::string classname);    
     void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
-    void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
     void get(std::string classname, SarVector<int>& results);
     void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
     void get(std::string classname, std::string key, int value, SarVector<int>& results); 
     void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
 
-    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string key, Where * where);
-    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="");
     SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere);
-    void update(std::string table, SarVector<KVT> cols, std::string key, Where * where);
-    void update(std::string table, SarVector<KVT> cols, std::string where="");
     void update(std::string table, SarVector<KVT> cols, Q qwhere);
-    void remove(std::string table, std::string key, Where * where);
-    void remove(std::string table, std::string where="");
-    void remove(std::string table, Q qwhere);
+    void remove(std::string table, Q qwhere=NULL);
     void insert(std::string table, SarVector<KVT> cols);
     void where_to_string(Where * where, std::string& swhere);
   };
