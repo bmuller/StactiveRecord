@@ -25,6 +25,38 @@ namespace stactiverecord {
     throw Sar_InvalidConfigurationException("DB type of \"" + configparts[0] + "\" not recognized.");
   };
 
+  bool Sar_Dbi::exists(std::string classname, int id) {
+    std::string tablename = classname + "_e";
+    SarVector<KVT> cols;
+    cols << KVT("id", INTEGER);
+    return select(tablename, cols, Q("id", id)).size() != 0;
+  };
+
+  void Sar_Dbi::make_existing(std::string classname, int id) {
+    std::string tablename = classname + "_e";
+    SarVector<KVT> cols;
+    cols << KVT("id", id);
+    insert(tablename, cols);
+  };
+
+  void Sar_Dbi::update(std::string table, SarVector<KVT> cols, Q qwhere) {
+    std::string where;
+    qwhere.to_string(where);
+    update(table, cols, where);
+  };
+
+  void Sar_Dbi::remove(std::string table, Q qwhere) {
+    std::string where = "";
+    qwhere.to_string(where);
+    remove(table, where);
+  };
+
+  SarVector<Row> Sar_Dbi::select(std::string table, SarVector<KVT> cols, Q qwhere, bool distinct) {
+    std::string where;
+    qwhere.to_string(where);
+    return select(table, cols, where, distinct);
+  };
+
   bool Sar_Dbi::table_is_initialized(std::string tablename) { 
     return initialized_tables.includes(tablename);
   };
@@ -124,7 +156,11 @@ namespace stactiverecord {
   void Sar_Dbi::delete_record(int id, std::string classname) {
     std::string tablename = classname + "_s";
     remove(tablename, Q("id", id));
+
     tablename = classname + "_i";
+    remove(tablename, Q("id", id));
+
+    tablename = classname + "_e";
     remove(tablename, Q("id", id));
 
     tablename = "relationships";
@@ -139,6 +175,10 @@ namespace stactiverecord {
 
     // delete int values table
     tablename = classname + "_i";
+    remove(tablename);
+
+    // delete existing values table
+    tablename = classname + "_e";
     remove(tablename);
 
     std::string sclassname_where;
@@ -222,5 +262,68 @@ namespace stactiverecord {
     }
   };
 
+  void Sar_Dbi::del(int id, std::string classname, SarVector<int> related, std::string related_classname) {
+    if(related.size() == 0)
+      return;
+    std::string tablename = "relationships";
+    debug("Deleting some related " + related_classname + "s to a " + classname);
+    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
+    if(swap)
+      remove(tablename, Q("class_two", classname) && Q("class_two_id", id) && Q("class_one", related_classname) && Q("class_one_id", in(related)));
+    else
+      remove(tablename, Q("class_one", classname) && Q("class_one_id", id) && Q("class_two", related_classname) && Q("class_two_id", in(related)));
+  };
+
+  void Sar_Dbi::get(std::string classname, SarVector<int>& results) {
+    std::string tablename = classname + "_s";
+    debug("Getting all objects of type " + classname);
+    SarVector<KVT> cols;
+    cols << KVT("id", INTEGER);
+    SarVector<Row> rows = select(tablename, cols, "", true);
+
+    tablename = classname + "_i";
+    rows.unionize(select(tablename, cols, "", true));
+
+    tablename = "relationships";
+    cols.clear();
+    cols << KVT("class_one_id", INTEGER);
+    rows.unionize(select(tablename, cols, Q("class_one", classname), true));
+
+    cols.clear();
+    cols << KVT("class_two_id", INTEGER);
+    rows.unionize(select(tablename, cols, Q("class_two", classname), true));
+
+    for(unsigned int i=0; i < rows.size(); i++)
+      results << rows[i].get_int(0);
+  };
+
+  void Sar_Dbi::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
+    bool isnot = where->isnot;
+    SarVector<Row> rows;
+    SarVector<KVT> cols;
+    std::string tablename;
+    if(where->ct == INTEGER) {
+      tablename = classname + "_i";
+      cols << KVT("id", INTEGER);
+      rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
+    } else if(where->ct == STRING) {
+      tablename = classname + "_s";
+      cols << KVT("id", INTEGER);
+      rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
+    } else { //RECORD
+      tablename = "relationships";
+      bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
+      if(swap) {
+        cols << KVT("class_two_id", INTEGER);
+        rows = select(tablename, cols, Q("class_two", classname) && Q("class_one_id", where->ivalue) && Q("class_one", where->svalue));
+      } else {
+        cols << KVT("class_one_id", INTEGER);
+        rows = select(tablename, cols, Q("class_one", classname) && Q("class_two_id", where->ivalue) && Q("class_two", where->svalue));
+      }
+    }
+
+    for(unsigned int i = 0; i < rows.size(); i++)
+      results << rows[i].get_int(0);
+  };
 
 };

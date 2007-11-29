@@ -32,7 +32,7 @@ namespace stactiverecord {
   void Record::update() {
     if(id == -1) 
       throw Sar_NoSuchObjectException("Cannot update an object with id of -1");
-    else if(id > _db->current_id(classname)) 
+    else if(!_db->exists(classname, id)) 
       throw Sar_NoSuchObjectException("The object id given does not exist.");
     else {
       _db->get(id, classname, svalues);
@@ -53,8 +53,10 @@ namespace stactiverecord {
     // only save if a value was changed, or if this object has never 
     // been saved before (if the id is -1)
     if(dirty || id == -1) {
-      if(id == -1) 
+      if(id == -1) {
 	id = _db->next_id(classname);
+	_db->make_existing(classname, id);
+      }
 
       SarVector<std::string> propkeys;
       SarMap<std::string> spropvalues;

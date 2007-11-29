@@ -22,7 +22,7 @@ namespace stactiverecord {
    * \enum wheretype The possible specific types/relationships a Where class can represent. 
    */
   enum coltype { NONE, INTEGER, STRING, RECORD };
-  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS, OBJECTRELATION };
+  enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS, OBJECTRELATION, IN };
 };
 
 #include "config.h"

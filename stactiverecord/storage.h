@@ -38,12 +38,17 @@ namespace stactiverecord {
   };
 
   class Row {
-  private:
+  public:
     SarVector<int> ints;
     SarVector<std::string> strings;
-  public:
     void operator<<(int i) { ints << i; };
     void operator<<(std::string s) { strings << s; };
+    bool operator!=(Row& other) {
+      return !(*this == other);
+    };
+    bool operator==(Row& other) {
+      return ints == other.ints && strings == other.strings;
+    };
     void get_string(int position, std::string& s) { 
       if(position > strings.size() - 1) 
 	throw Sar_ColumnNotFoundException("String column not found.");
@@ -67,6 +72,8 @@ namespace stactiverecord {
  
     virtual void initialize_tables(std::string classname) {};
     int next_id(std::string classname);
+    bool exists(std::string classname, int id);
+    void make_existing(std::string classname, int id);
     int current_id(std::string classname);
     void delete_record(int id, std::string classname);
     void delete_records(std::string classname);
@@ -90,21 +97,22 @@ namespace stactiverecord {
     // delete std::string / int value
     void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
     // delete record relations
-    virtual void del(int id, std::string classname, SarVector<int> related, std::string related_classname) {};
+    void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
 
     // Some searching/static stuff
     // get all objects of a type
-    virtual void get(std::string classname, SarVector<int>& results) {};
+    void get(std::string classname, SarVector<int>& results);
     // using a query with a conditional "where"
-    virtual void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {};
+    void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
 
-
-    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere) {};
-    virtual void update(std::string table, SarVector<KVT> cols, Q qwhere) {};
-    virtual void remove(std::string table, Q qwhere=NULL) {};
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere, bool distinct=false);
+    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false) {};
+    void update(std::string table, SarVector<KVT> cols, Q qwhere);
+    virtual void update(std::string table, SarVector<KVT> cols, std::string where="") {};
+    void remove(std::string table, Q qwhere);
+    virtual void remove(std::string table, std::string where="") {};
     virtual void insert(std::string table, SarVector<KVT> cols) {};
     virtual void where_to_string(Where * where, std::string& swhere) {};
-
 
     bool table_is_initialized(std::string tablename);
   };
@@ -122,15 +130,9 @@ namespace stactiverecord {
     SQLiteStorage(std::string location);
     ~SQLiteStorage() { close(); };
     void initialize_tables(std::string classname);    
-    void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
-    void get(std::string classname, SarVector<int>& results);
-    void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
-    void get(std::string classname, std::string key, int value, SarVector<int>& results); 
-    void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
-
-    SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere);
-    void update(std::string table, SarVector<KVT> cols, Q qwhere);
-    void remove(std::string table, Q qwhere=NULL);
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
+    void update(std::string table, SarVector<KVT> cols, std::string where="");
+    void remove(std::string table, std::string where="");
     void insert(std::string table, SarVector<KVT> cols);
     void where_to_string(Where * where, std::string& swhere);
   };

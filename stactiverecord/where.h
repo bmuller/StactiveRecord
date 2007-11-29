@@ -31,11 +31,14 @@ namespace stactiverecord {
   public:
     int ivalue, ivaluetwo;
     std::string svalue;
+    std::vector<int> ivalues;
     wheretype type;
     coltype ct;
     bool isnot;
     Where(int _ivalue, wheretype _wt, bool _isnot=false) : 
       ivalue(_ivalue), type(_wt), ct(INTEGER), isnot(_isnot) {};
+    Where(std::vector<int> _ivalues, wheretype _wt, bool _isnot=false) : 
+      ivalues(_ivalues), type(_wt), ct(INTEGER), isnot(_isnot) {};
     Where(int _ivalue, int _valuetwo, wheretype _wt, bool _isnot=false) :
       ivalue(_ivalue), ivaluetwo(_valuetwo), type(_wt), ct(INTEGER), isnot(_isnot) {};
     Where(std::string _svalue, wheretype _wt, bool _isnot=false) :
@@ -53,6 +56,7 @@ namespace stactiverecord {
   Where * between(int value, int valuetwo);
   Where * equals(int value);
   Where * equals(std::string value);
+  Where * in(std::vector<int> values);
 
   // negated values
   Where * nstartswith(std::string value);
@@ -63,4 +67,5 @@ namespace stactiverecord {
   Where * nbetween(int value, int valuetwo);
   Where * nequals(int value);
   Where * nequals(std::string value);
+  Where * nin(std::vector<int> values);
 };

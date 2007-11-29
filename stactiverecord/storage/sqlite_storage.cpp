@@ -46,6 +46,14 @@ namespace stactiverecord {
     test_result(sqlite3_close(db), "problem closing database");
   };
 
+  void SQLiteStorage::execute(std::string query) {
+    debug("SQLite executing: " + query);
+    // this var doesn't matter cause it's the same as what will be printed by test_result
+    char *errMsg; 
+    int rc = sqlite3_exec(db, query.c_str(), NULL, 0, &errMsg);
+    test_result(rc, query);
+  };
+
   void SQLiteStorage::test_result(int result, const std::string& context) {
     if(result != SQLITE_OK){
       std::string msg = "SQLite Error - " + context + ": " + std::string(sqlite3_errmsg(db)) + "\n";
@@ -78,106 +86,15 @@ namespace stactiverecord {
       initialized_tables.push_back(tablename);
     }
 
+    // make table for exiting objects
+    tablename = classname + "_e";
+    if(!table_is_initialized(tablename)) {
+      debug("initializing table " + tablename);
+      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT)");
+      initialized_tables.push_back(tablename);
+    }
+
     debug("Finished initializing tables for class " + classname);
-  };
-
-  void SQLiteStorage::execute(std::string query) {
-    debug("SQLite executing: " + query);
-    // this var doesn't matter cause it's the same as what will be printed by test_result
-    char *errMsg; 
-    int rc = sqlite3_exec(db, query.c_str(), NULL, 0, &errMsg);
-    test_result(rc, query);
-  };
-
-  void SQLiteStorage::del(int id, std::string classname, SarVector<int> related, std::string related_classname) {
-    if(related.size() == 0)
-      return;
-    std::string s_id, related_id;
-    int_to_string(id, s_id);
-    debug("Deleting some related " + related_classname + "s to a " + classname);
-    bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
-
-    std::string idlist = "(";
-    for(SarVector<int>::size_type i=0; i<related.size(); i++) {
-      int_to_string(related[i], related_id);
-      idlist += related_id;
-      if(i!=(related.size() - 1))
-	idlist += ",";
-    }
-    idlist += ")";
-
-    if(swap)
-      execute("DELETE FROM relationships WHERE class_two=\"" + classname + "\" AND class_two_id=" + s_id \
-	      + " AND class_one=\"" + related_classname + "\" and class_one_id IN " + idlist);
-    else
-      execute("DELETE FROM relationships WHERE class_one=\"" + classname + "\" AND class_one_id=" + s_id \
-	      + " AND class_two=\"" + related_classname + "\" and class_two_id IN " + idlist);
-  };
-  
-  // some searching stuff
-  void SQLiteStorage::get(std::string classname, SarVector<int>& results) {
-    sqlite3_stmt *pSelect;
-    SarVector<int> others;
-    std::string tablename = classname + "_s";
-    debug("Getting all objects of type " + classname);
-    std::string query = "SELECT DISTINCT id FROM " + tablename;
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      results << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-   
-    tablename = classname + "_i";
-    query = "SELECT DISTINCT id FROM " + tablename;
-    debug(query);
-    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      others << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-    results.unionize(others);
-    others.clear();
-
-    query = "SELECT DISTINCT class_one_id FROM relationships WHERE class_one = \"" + classname + "\"";
-    debug(query);
-    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      others << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-    results.unionize(others);
-    others.clear();
-
-    query = "SELECT DISTINCT class_two_id FROM relationships WHERE class_two = \"" + classname + "\"";
-    debug(query);
-    rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      others << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
-    results.unionize(others);
-    others.clear();
   };
 
   void SQLiteStorage::where_to_string(Where * where, std::string& swhere) {
@@ -198,6 +115,17 @@ namespace stactiverecord {
       case BETWEEN:
 	int_to_string(where->ivaluetwo, second_sint);
 	swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
+	break;
+      case IN:
+	std::string idlist = "(";
+	for(std::vector<int>::size_type i=0; i<where->ivalues.size(); i++) {
+	  int_to_string(where->ivalues[i], sint);
+	  idlist += sint;
+	  if(i!=(where->ivalues.size() - 1))
+	    idlist += ",";
+	}
+	idlist += ")";
+	swhere = ((isnot) ? "NOT IN " : "IN " ) + idlist;
 	break;
       }
     } else if(where->ct == STRING) {
@@ -238,16 +166,11 @@ namespace stactiverecord {
     execute(query);
   };
 
-  void SQLiteStorage::remove(std::string table, Q qwhere) {
-    std::string where = "";
-    if(qwhere != NULL)
-      qwhere.to_string(where);
+  void SQLiteStorage::remove(std::string table, std::string where) {
     execute("DELETE FROM " + ((where=="") ? table : table + " WHERE " + where));
   };
 
-  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, Q qwhere) {
-    std::string where;
-    qwhere.to_string(where);
+  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
     std::string setstring = "";
     std::string sint;
     for(unsigned int i = 0; i < cols.size(); i++) {
@@ -263,9 +186,7 @@ namespace stactiverecord {
     execute("UPDATE " + table + " SET " + ((where=="") ? setstring : setstring + " WHERE " + where));
   };
 
-  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, Q qwhere) {
-    std::string where;
-    qwhere.to_string(where);
+  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string where, bool distinct) {
     std::string columns;
     int result_iterator = 0;
     SarVector<std::string> s_cols;
@@ -274,7 +195,7 @@ namespace stactiverecord {
     sqlite3_stmt *pSelect;
     SarVector<Row> result;
     join(s_cols, ",", columns);
-    std::string query = "SELECT " + columns + " FROM " + ((where=="") ? table : table + " WHERE " + where);
+    std::string query = (distinct ? "SELECT DISTINCT " : "SELECT ") + columns + " FROM " + ((where=="") ? table : table + " WHERE " + where);
     debug(query);
     int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
     if( rc!=SQLITE_OK || !pSelect ){
@@ -298,42 +219,6 @@ namespace stactiverecord {
     }
     rc = sqlite3_finalize(pSelect);
     return result;
-  };
-
-  void SQLiteStorage::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
-    bool isnot = where->isnot;
-    std::string swhere, table, query;
-    sqlite3_stmt *pSelect;
-    if(where->ct == INTEGER) {
-      table = classname + "_i";
-      where_to_string(where, swhere);
-      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
-    } else if(where->ct == STRING) {
-      table = classname + "_s";
-      where_to_string(where, swhere);
-      query = "SELECT id FROM " + table + " WHERE keyname=\"" + key + "\" AND value " + swhere;
-    } else { // RECORD
-      bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
-      std::string sint;
-      int_to_string(where->ivalue, sint);
-      if(swap)
-	query = "SELECT class_two_id FROM relationships WHERE class_two = \"" + classname + "\" AND class_one_id = "
-	  + sint + " AND class_one = \"" + where->svalue + "\"";
-      else
-	query = "SELECT class_one_id FROM relationships WHERE class_one = \"" + classname + "\" AND class_two_id = "
-	  + sint + " AND class_two = \"" + where->svalue + "\"";
-    }
-    debug(query);
-    int rc = sqlite3_prepare(db, query.c_str(), -1, &pSelect, 0);
-    if( rc!=SQLITE_OK || !pSelect ){
-      throw Sar_DBException("error preparing sql query: " + query);
-    }
-    rc = sqlite3_step(pSelect);
-    while(rc == SQLITE_ROW){
-      results << sqlite3_column_int(pSelect, 0);
-      rc = sqlite3_step(pSelect);
-    }
-    rc = sqlite3_finalize(pSelect);
   };
 
 };

@@ -44,6 +44,7 @@ namespace stactiverecord {
     Record(std::string _classname, int _id) : CUDPropertyRegister(), classname(_classname), id(_id), _db(Sar_Dbi::dbi) { 
       check_classname(classname);
       _db->initialize_tables(classname); 
+      // if id doesn't exist error will be thrown in update
       update(); 
     };
     void update();
@@ -83,6 +84,11 @@ namespace stactiverecord {
 
     /** Delete a record */
     void del();
+
+    template<class T> static bool exists(int id) {
+      std::string classname = T().classname;
+      return Sar_Dbi::dbi->exists(classname, id);      
+    };
 
     /** Delete all records of type T */
     template <class T> static void delete_all() {
