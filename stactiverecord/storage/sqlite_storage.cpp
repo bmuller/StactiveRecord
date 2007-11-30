@@ -29,13 +29,14 @@ Created by bmuller <bmuller@butterfat.net>
 
 namespace stactiverecord {
 
-  SQLiteStorage::SQLiteStorage(std::string location) {
+  SQLiteStorage::SQLiteStorage(std::string location, std::string prefix) : Sar_Dbi(prefix) {
     debug("Attempting to open SQLite DB at " + location);
     is_closed = false;
     int rc = sqlite3_open(location.c_str(), &db);
     test_result(rc, "problem opening database");
-    execute("CREATE TABLE IF NOT EXISTS id_maximums (id INT, classname VARCHAR(255))");
-    execute("CREATE TABLE IF NOT EXISTS relationships (class_one VARCHAR(255), class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
+    execute("CREATE TABLE IF NOT EXISTS " + table_prefix + "id_maximums (id INT, classname VARCHAR(255))");
+    execute("CREATE TABLE IF NOT EXISTS " + table_prefix + "relationships (class_one VARCHAR(255), "
+	    "class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
     debug("sqlite database opened successfully");
   };
 
@@ -69,7 +70,7 @@ namespace stactiverecord {
     int rc;
 
     // make table for string values
-    tablename = classname + "_s";
+    tablename = table_prefix + classname + "_s";
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
       std::string query = "CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), "
@@ -79,7 +80,7 @@ namespace stactiverecord {
     }
 
     // make table for string values
-    tablename = classname + "_i";
+    tablename = table_prefix + classname + "_i";
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
       execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT)");
@@ -87,7 +88,7 @@ namespace stactiverecord {
     }
 
     // make table for exiting objects
-    tablename = classname + "_e";
+    tablename = table_prefix + classname + "_e";
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
       execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT)");

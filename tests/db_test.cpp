@@ -3,7 +3,7 @@
 using namespace stactiverecord;
 using namespace std;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:", "yomamma_");
 
 void assert(bool v, string msg) {
   if(v) return;
@@ -13,6 +13,8 @@ void assert(bool v, string msg) {
 int main() {
   debug("Testing sqlite..."); 
   Sar_Dbi *db = Sar_Dbi::dbi;
+  //Sar_Dbi::dbi->table_prefix = "yomamma_";
+  //db->table_prefix = "yomamma_";
   string classname = "testclass";
   string related_classname = "testclass_related";
 

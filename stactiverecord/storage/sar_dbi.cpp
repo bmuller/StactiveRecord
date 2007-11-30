@@ -2,7 +2,7 @@
 
 namespace stactiverecord {
 
-  Sar_Dbi * Sar_Dbi::makeStorage(std::string config) {
+  Sar_Dbi * Sar_Dbi::makeStorage(std::string config, std::string prefix) {
     std::vector<std::string> configparts = explode(config, "://");
     if(configparts.size() != 2)
       throw Sar_InvalidConfigurationException("Invalid database configuration string: " + config);
@@ -14,7 +14,7 @@ namespace stactiverecord {
 
 #ifdef HAVE_SQLITE3
     if(configparts[0] == "sqlite")
-      return new SQLiteStorage(configparts[1]);
+      return new SQLiteStorage(configparts[1], prefix);
 #endif    
 
 #ifdef HAVE_POSTGRESQL
@@ -26,14 +26,14 @@ namespace stactiverecord {
   };
 
   bool Sar_Dbi::exists(std::string classname, int id) {
-    std::string tablename = classname + "_e";
+    std::string tablename = table_prefix + classname + "_e";
     SarVector<KVT> cols;
     cols << KVT("id", INTEGER);
     return select(tablename, cols, Q("id", id)).size() != 0;
   };
 
   void Sar_Dbi::make_existing(std::string classname, int id) {
-    std::string tablename = classname + "_e";
+    std::string tablename = table_prefix + classname + "_e";
     SarVector<KVT> cols;
     cols << KVT("id", id);
     insert(tablename, cols);
@@ -64,32 +64,32 @@ namespace stactiverecord {
   int Sar_Dbi::next_id(std::string classname) {
     SarVector<KVT> cols;
     cols << KVT("id", INTEGER);
-    SarVector<Row> row = select("id_maximums", cols, Q("classname", classname));
+    SarVector<Row> row = select(table_prefix + "id_maximums", cols, Q("classname", classname));
     SarVector<KVT> values;
     if(row.size() == 0) {
       debug("could not find max id int for " + classname + " - starting at 0");
       values << KVT("id", 0);
       values << KVT("classname", classname);
-      insert("id_maximums", values);
+      insert(table_prefix + "id_maximums", values);
       return 0;
     }
     int maxid = row[0].get_int(0) + 1;
     values << KVT("id", maxid);
-    update("id_maximums", values, Q("classname", classname));
+    update(table_prefix + "id_maximums", values, Q("classname", classname));
     return maxid;
   };
 
   int Sar_Dbi::current_id(std::string classname) {
     SarVector<KVT> values;
     values << KVT("id", INTEGER);
-    SarVector<Row> rows = select("id_maximums", values, Q("classname", classname));
+    SarVector<Row> rows = select(table_prefix + "id_maximums", values, Q("classname", classname));
     if(rows.size() == 0)
       return -1;
     return rows[0].get_int(0);
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap<std::string>& values) {
-    std::string tablename = classname + "_s";
+    std::string tablename = table_prefix + classname + "_s";
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
     cols << KVT("value", STRING);
@@ -103,7 +103,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap<int>& values) {
-    std::string tablename = classname + "_i";
+    std::string tablename = table_prefix + classname + "_i";
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
     cols << KVT("value", INTEGER);
@@ -118,7 +118,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::set(int id, std::string classname, SarMap<std::string> values, bool isinsert) {
-    std::string tablename = classname + "_s";
+    std::string tablename = table_prefix + classname + "_s";
     for(std::map<std::string,std::string>::iterator i=values.begin(); i!=values.end(); ++i) {
       SarVector<KVT> values;
       values << KVT("value", std::string((*i).second));
@@ -133,7 +133,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::set(int id, std::string classname, SarMap<int> values, bool isinsert) {
-    std::string tablename = classname + "_i";
+    std::string tablename = table_prefix + classname + "_i";
     for(std::map<std::string,int>::iterator i=values.begin(); i!=values.end(); ++i) {
       SarVector<KVT> values;
       values << KVT("value", (*i).second);
@@ -148,41 +148,41 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::del(int id, std::string classname, SarVector<std::string> keys, coltype ct) {
-    std::string tablename = (ct == STRING) ? classname+"_s" : classname+"_i";
+    std::string tablename = table_prefix + ((ct == STRING) ? classname+"_s" : classname+"_i");
     for(unsigned int i=0; i < keys.size(); i++) 
       remove(tablename, Q("id", id) && Q("keyname", keys[i]));
   };
   
   void Sar_Dbi::delete_record(int id, std::string classname) {
-    std::string tablename = classname + "_s";
+    std::string tablename = table_prefix + classname + "_s";
     remove(tablename, Q("id", id));
 
-    tablename = classname + "_i";
+    tablename = table_prefix + classname + "_i";
     remove(tablename, Q("id", id));
 
-    tablename = classname + "_e";
+    tablename = table_prefix + classname + "_e";
     remove(tablename, Q("id", id));
 
-    tablename = "relationships";
+    tablename = table_prefix + "relationships";
     remove(tablename, Q("class_one", classname) && Q("class_one_id", id));
     remove(tablename, Q("class_two", classname) && Q("class_two_id ", id));
   };
 
   void Sar_Dbi::delete_records(std::string classname) {
     // delete string values table
-    std::string tablename = classname + "_s";
+    std::string tablename = table_prefix + classname + "_s";
     remove(tablename);
 
     // delete int values table
-    tablename = classname + "_i";
+    tablename = table_prefix + classname + "_i";
     remove(tablename);
 
     // delete existing values table
-    tablename = classname + "_e";
+    tablename = table_prefix + classname + "_e";
     remove(tablename);
 
     std::string sclassname_where;
-    tablename = "relationships";
+    tablename = table_prefix + "relationships";
     Where * classname_where = equals(classname);
     where_to_string(classname_where, sclassname_where);
 
@@ -190,12 +190,12 @@ namespace stactiverecord {
     remove(tablename, Q("class_one", classname) || Q("class_two", classname));
 
     // delete max id
-    tablename = "id_maximums";
+    tablename = table_prefix + "id_maximums";
     remove(tablename, Q("classname", classname));
   };
 
   void Sar_Dbi::set(int id, std::string classname, SarVector<int> related, std::string related_classname) {
-    std::string tablename = "relationships";
+    std::string tablename = table_prefix + "relationships";
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
     debug("Adding related " + related_classname + "s to a " + classname);
     for(SarVector<int>::size_type i=0; i<related.size(); i++) {
@@ -216,7 +216,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, std::string related_classname, SarVector<int>& related) {
-    std::string tablename = "relationships";
+    std::string tablename = table_prefix + "relationships";
     debug("Getting related " + related_classname + "s to a " + classname);
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
     SarVector<KVT> cols;
@@ -236,7 +236,7 @@ namespace stactiverecord {
 
   void Sar_Dbi::get(int id, std::string classname, SarMap< SarVector<int> >& sm) {
     debug("Getting all related objects to a " + classname);
-    std::string tablename = "relationships";
+    std::string tablename = table_prefix + "relationships";
     SarVector<KVT> cols;
     cols << KVT("class_one", STRING);
     cols << KVT("class_one_id", INTEGER);
@@ -265,7 +265,7 @@ namespace stactiverecord {
   void Sar_Dbi::del(int id, std::string classname, SarVector<int> related, std::string related_classname) {
     if(related.size() == 0)
       return;
-    std::string tablename = "relationships";
+    std::string tablename = table_prefix + "relationships";
     debug("Deleting some related " + related_classname + "s to a " + classname);
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
     if(swap)
@@ -275,16 +275,16 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(std::string classname, SarVector<int>& results) {
-    std::string tablename = classname + "_s";
+    std::string tablename = table_prefix + classname + "_s";
     debug("Getting all objects of type " + classname);
     SarVector<KVT> cols;
     cols << KVT("id", INTEGER);
     SarVector<Row> rows = select(tablename, cols, "", true);
 
-    tablename = classname + "_i";
+    tablename = table_prefix + classname + "_i";
     rows.unionize(select(tablename, cols, "", true));
 
-    tablename = "relationships";
+    tablename = table_prefix + "relationships";
     cols.clear();
     cols << KVT("class_one_id", INTEGER);
     rows.unionize(select(tablename, cols, Q("class_one", classname), true));
@@ -303,15 +303,15 @@ namespace stactiverecord {
     SarVector<KVT> cols;
     std::string tablename;
     if(where->ct == INTEGER) {
-      tablename = classname + "_i";
+      tablename = table_prefix + classname + "_i";
       cols << KVT("id", INTEGER);
       rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
     } else if(where->ct == STRING) {
-      tablename = classname + "_s";
+      tablename = table_prefix + classname + "_s";
       cols << KVT("id", INTEGER);
       rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
     } else { //RECORD
-      tablename = "relationships";
+      tablename = table_prefix + "relationships";
       bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
       if(swap) {
         cols << KVT("class_two_id", INTEGER);

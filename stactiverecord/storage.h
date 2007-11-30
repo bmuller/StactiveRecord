@@ -65,10 +65,11 @@ namespace stactiverecord {
   class Sar_Dbi {
   public:
     // config is in form scheme://[user[:password]@]host[:port]/database
-    static Sar_Dbi* makeStorage(std::string config);
+    static Sar_Dbi* makeStorage(std::string config, std::string prefix="");
     static Sar_Dbi* dbi;
+    std::string table_prefix;
     SarVector<std::string> initialized_tables;
-    Sar_Dbi() : initialized_tables() {};
+    Sar_Dbi(std::string prefix = "") : initialized_tables(), table_prefix(prefix) {};
  
     virtual void initialize_tables(std::string classname) {};
     int next_id(std::string classname);
@@ -127,7 +128,7 @@ namespace stactiverecord {
     void test_result(int result, const std::string& context);
     void execute(std::string query);
   public:
-    SQLiteStorage(std::string location);
+    SQLiteStorage(std::string location, std::string prefix="");
     ~SQLiteStorage() { close(); };
     void initialize_tables(std::string classname);    
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
