@@ -139,6 +139,27 @@ namespace stactiverecord {
   };
 #endif
 
+#ifdef HAVE_POSTGRESQL
+#include <postgresql/libpq-fe.h>
+  class PostgreSQLStorage : public Sar_Dbi {
+  private:
+    void close();
+    PGconn *db;
+    bool is_closed;
+    void test_result(int result, const std::string& context);
+    void execute(std::string query);
+  public:
+    PostgreSQLStorage(std::string location, std::string prefix="");
+    ~PostgreSQLStorage() { close(); };
+    void initialize_tables(std::string classname);    
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
+    void update(std::string table, SarVector<KVT> cols, std::string where="");
+    void remove(std::string table, std::string where="");
+    void insert(std::string table, SarVector<KVT> cols);
+    void where_to_string(Where * where, std::string& swhere);
+  };
+#endif
+
 #ifdef HAVE_MYSQL
 #include <mysql/mysql.h>
   class MySQLStorage : public Sar_Dbi {
@@ -158,36 +179,6 @@ namespace stactiverecord {
     void get(int id, std::string classname, SarMap<int>& values);
     void set(int id, std::string classname, SarMap<std::string> values, bool insert);
     void set(int id, std::string classname, SarMap<int> values, bool insert);
-  };
-#endif
-
-#ifdef HAVE_DB_H 
-#include <db_cxx.h>
-  class BDBStorage : public Sar_Dbi {
-  private:
-    void close();
-    Db db;
-    bool is_closed;
-  public:
-    BDBStorage(std::string location);
-    ~BDBStorage() { close(); };
-    int next_id(std::string classname);
-    int current_id(std::string classname);
-    void delete_record(int id, std::string classname);
-    void delete_records(std::string classname);
-    void initialize_tables(std::string classname);
-    void get(int id, std::string classname, SarMap<std::string>& values);
-    void get(int id, std::string classname, SarMap<int>& values);
-    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
-    void set(int id, std::string classname, SarMap<int> values, bool insert);
-    void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
-    void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
-    void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
-    void del(int id, std::string classname, SarVector<int> related, std::string related_classname);
-    void get(int id, std::string classname, SarMap< SarVector<int> >& sm);
-    void get(std::string classname, SarVector<int>& results);
-    void get(std::string classname, std::string key, std::string value, SarVector<int>& results); 
-    void get(std::string classname, std::string key, int value, SarVector<int>& results); 
   };
 #endif
 

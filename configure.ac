@@ -29,11 +29,6 @@ fi
 AX_LIB_MYSQL()
 AX_LIB_POSTGRESQL()
 
-AX_PATH_BDB([3], [], [])	 
-AC_SUBST([BDB_LIBS])
-AC_SUBST([BDB_CPPFLAGS])
-
-AM_CONDITIONAL([BDB], [test "$BDB_LIBS" != ""])
 AM_CONDITIONAL([SQLITE3], [test "$SQLITE3_VERSION" != ""])
 AM_CONDITIONAL([MYSQL], [test "$MYSQL_VERSION" != ""])
 AM_CONDITIONAL([POSTGRESQL], [test "$POSTGRESQL_VERSION" != ""])
@@ -45,12 +40,6 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 echo " ***"
-
-if test "$BDB_LIBS" != ""; then
-echo " *** + compiling WITH support for BDB 3"
-else
-echo " *** - compiling WITHOUT support for BDB 3"
-fi
 
 if test "$SQLITE3_VERSION" != ""; then
 echo " *** + compiling WITH support for SQLite $SQLITE3_VERSION"

@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS=-I ${top_srcdir}/acinclude.d/
 
-INCLUDES = ${BDB_CPPFLAGS} ${SQLITE3_CFLAGS} ${MYSQL_CFLAGS}
-AM_LDFLAGS = ${BDB_LIBS} ${SQLITE3_LDFLAGS} ${MYSQL_LDFLAGS}
+INCLUDES = ${SQLITE3_CFLAGS} ${MYSQL_CFLAGS} ${POSTGRESQL_CFLAGS}
+AM_LDFLAGS = ${SQLITE3_LDFLAGS} ${MYSQL_LDFLAGS} ${POSTGRESQL_LDFLAGS}
 
 lib_LTLIBRARIES = libstactiverecord.la
 #libstactiverecord_la_LIBADD = $(LIB_KPARTS)
@@ -16,7 +16,7 @@ if MYSQL
 libstactiverecord_la_SOURCES += storage/mysql_storage.cpp
 endif
 
-#if BDB
-#libstactiverecord_la_SOURCES += storage/bdb_storage.cpp
-#endif
+if POSTGRESQL
+libstactiverecord_la_SOURCES += storage/postgresql_storage.cpp
+endif
 

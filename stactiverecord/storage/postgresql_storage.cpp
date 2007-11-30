@@ -25,12 +25,49 @@ OTHER DEALINGS IN THE SOFTWARE.
 Created by bmuller <bmuller@butterfat.net>
 */
 
+/* example code
+  PGconn *psql = PQconnectdb("hostaddr = '127.0.0.1' dbname = 'stactiverecord' user = 'stactiverecord' password = 'stactiverecord'");
+  if (!psql) {
+    fprintf(stderr, "libpq error: PQconnectdb returned NULL.\n\n");
+  }
+  if (PQstatus(psql) != CONNECTION_OK) {
+    fprintf(stderr, "libpq error: PQstatus(psql) != CONNECTION_OK\n\n");
+  }
+
+  PGresult *result = PQexec(psql, "SELECT now()");
+  int rowcount;
+  if (!result || !(rowcount = PQntuples(result))) {
+    fprintf(stderr, "libpq error: no rows returned or bad result set\n\n");
+    PQfinish(psql);
+    return 0;
+  }
+  for (int i = 0; i < rowcount; i++) {
+    printf("Time: %s\n", PQgetvalue(result, i, 0));
+  }
+  PQclear(result);
+
+  PQfinish(psql);
+*/
+
+
+
+
+
 #include "../stactive_record.h"
 
 namespace stactiverecord {
-
-  SQLiteStorage::SQLiteStorage(std::string location, std::string prefix) : Sar_Dbi(prefix) {
-    debug("Attempting to open SQLite DB at " + location);
+  // config is in form scheme://[user[:password]@]host[:port]/database
+  PostgreSQLStorage::PostgreSQLStorage(std::string config, std::string prefix) : Sar_Dbi(prefix) {
+    debug("Attempting to open PostgreSQL DB at " + config);
+    /*
+    SarVector<std::string> parts = explode(config, '/');
+    std::string database;
+    if(parts.size() == 1) {
+      
+    }
+    parts = explode(parts
+    */
+    /*
     is_closed = false;
     int rc = sqlite3_open(location.c_str(), &db);
     test_result(rc, "problem opening database");
@@ -38,33 +75,43 @@ namespace stactiverecord {
     execute("CREATE TABLE IF NOT EXISTS " + table_prefix + "relationships (class_one VARCHAR(255), "
 	    "class_one_id INT, class_two VARCHAR(255), class_two_id INT)");
     debug("sqlite database opened successfully");
+    */
   };
 
-  void SQLiteStorage::close() {
+  void PostgreSQLStorage::close() {
+    /*
     if(is_closed)
       return;
     is_closed = true;
     test_result(sqlite3_close(db), "problem closing database");
+    */
   };
 
-  void SQLiteStorage::execute(std::string query) {
-    debug("SQLite executing: " + query);
+  void PostgreSQLStorage::execute(std::string query) {
+    /*
+      debug("SQLite executing: " + query);
+    */
     // this var doesn't matter cause it's the same as what will be printed by test_result
+    /*
     char *errMsg; 
     int rc = sqlite3_exec(db, query.c_str(), NULL, 0, &errMsg);
     test_result(rc, query);
+    */
   };
 
-  void SQLiteStorage::test_result(int result, const std::string& context) {
+  void PostgreSQLStorage::test_result(int result, const std::string& context) {
+    /*
     if(result != SQLITE_OK){
       std::string msg = "SQLite Error - " + context + ": " + std::string(sqlite3_errmsg(db)) + "\n";
       sqlite3_close(db);
       is_closed = true;
       throw Sar_DBException(msg);
     }
+    */
   };
 
-  void SQLiteStorage::initialize_tables(std::string classname) {
+  void PostgreSQLStorage::initialize_tables(std::string classname) {
+    /*
     std::string tablename;
 
     // make table for string values
@@ -94,9 +141,11 @@ namespace stactiverecord {
     }
 
     debug("Finished initializing tables for class " + classname);
+    */
   };
 
-  void SQLiteStorage::where_to_string(Where * where, std::string& swhere) {
+  void PostgreSQLStorage::where_to_string(Where * where, std::string& swhere) {
+    /*
     bool isnot = where->isnot;
     if(where->ct == INTEGER) {
       std::string sint, second_sint;
@@ -142,9 +191,11 @@ namespace stactiverecord {
 	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";	
       }
     }
+    */
   };
   
-  void SQLiteStorage::insert(std::string table, SarVector<KVT> cols) {
+  void PostgreSQLStorage::insert(std::string table, SarVector<KVT> cols) {
+    /*
     std::string columns, sint;
     std::string values = "";
     SarVector<std::string> s_cols;
@@ -163,13 +214,15 @@ namespace stactiverecord {
     } 
     std::string query = "INSERT INTO " + table + " (" + columns + ") VALUES(" + values + ")";
     execute(query);
+    */
   };
 
-  void SQLiteStorage::remove(std::string table, std::string where) {
+  void PostgreSQLStorage::remove(std::string table, std::string where) {
     execute("DELETE FROM " + ((where=="") ? table : table + " WHERE " + where));
   };
 
-  void SQLiteStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
+  void PostgreSQLStorage::update(std::string table, SarVector<KVT> cols, std::string where) {
+    /*
     std::string setstring = "";
     std::string sint;
     for(unsigned int i = 0; i < cols.size(); i++) {
@@ -183,9 +236,13 @@ namespace stactiverecord {
 	setstring += ",";
     }
     execute("UPDATE " + table + " SET " + ((where=="") ? setstring : setstring + " WHERE " + where));
+    */
   };
 
-  SarVector<Row> SQLiteStorage::select(std::string table, SarVector<KVT> cols, std::string where, bool distinct) {
+  SarVector<Row> PostgreSQLStorage::select(std::string table, SarVector<KVT> cols, std::string where, bool distinct) {
+        SarVector<Row> result;
+	return result;
+    /*
     std::string columns;
     int result_iterator = 0;
     SarVector<std::string> s_cols;
@@ -218,6 +275,7 @@ namespace stactiverecord {
     }
     rc = sqlite3_finalize(pSelect);
     return result;
+    */
   };
 
 };
