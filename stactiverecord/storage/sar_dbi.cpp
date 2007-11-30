@@ -9,7 +9,7 @@ namespace stactiverecord {
 
 #ifdef HAVE_MYSQL 
     if(configparts[0] == "mysql")
-      return new MySQLStorage(configparts[1]);
+      return new MySQLStorage(configparts[1], prefix);
 #endif
 
 #ifdef HAVE_SQLITE3
@@ -18,11 +18,45 @@ namespace stactiverecord {
 #endif    
 
 #ifdef HAVE_POSTGRESQL
-    //if(configparts[0] == "postgres")
-    //  return new PostgresStorage(configparts[1]);
+    if(configparts[0] == "postgres")
+      return new PostgreSQLStorage(configparts[1], prefix);
 #endif    
 
     throw Sar_InvalidConfigurationException("DB type of \"" + configparts[0] + "\" not recognized.");
+  };
+
+  /** parse scheme://[user[:password]@host[:port]/]database into a hashmap that can contain the following
+      keys: user, password, host, port, database
+  */
+  SarMap<std::string> Sar_Dbi::parseconfig(std::string config) {
+    SarMap<std::string> result;
+    std::vector<std::string> parts = explode(config, "/");
+    if(parts.size() == 1) { 
+      result["database"] = parts[0];
+      return result;
+    }
+    result["database"] = parts[1];
+    parts = explode(parts[0], "@");
+    if(parts.size() == 1) 
+      throw Sar_InvalidConfigurationException("If you specify a user you must also specify a host");
+    std::string user = parts[0];
+    std::string host = parts[1];
+    parts = explode(user, ":");
+    if(parts.size() == 1) {
+      result["user"] = user;
+    } else {
+      result["user"] = parts[0];
+      result["password"] = parts[1];
+    }
+
+    parts = explode(host, ":");
+    if(parts.size() == 1) {
+      result["host"] = host;
+    } else {
+      result["host"] = parts[0];
+      result["port"] = parts[1];
+    }
+    return result;
   };
 
   bool Sar_Dbi::exists(std::string classname, int id) {
@@ -324,6 +358,55 @@ namespace stactiverecord {
 
     for(unsigned int i = 0; i < rows.size(); i++)
       results << rows[i].get_int(0);
+  };
+
+  /** Most SQL db's will use the following - kids can overwrite if necessary (like postgres) **/
+  void Sar_Dbi::where_to_string(Where * where, std::string& swhere) {
+    bool isnot = where->isnot;
+    if(where->ct == INTEGER) {
+      std::string sint, second_sint;
+      int_to_string(where->ivalue, sint);
+      switch(where->type) {
+      case GREATERTHAN:
+        swhere = ((isnot) ? "<= " : "> ") + sint ;
+        break;
+      case LESSTHAN:
+        swhere = ((isnot) ? ">= " : "< ") + sint;
+        break;
+      case EQUALS:
+        swhere = ((isnot) ? "!= " : "= ") + sint;
+        break;
+      case BETWEEN:
+        int_to_string(where->ivaluetwo, second_sint);
+        swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
+        break;
+      case IN:
+	std::string idlist = "(";
+        for(std::vector<int>::size_type i=0; i<where->ivalues.size(); i++) {
+          int_to_string(where->ivalues[i], sint);
+          idlist += sint;
+          if(i!=(where->ivalues.size() - 1))
+            idlist += ",";
+        }
+        idlist += ")";
+        swhere = ((isnot) ? "NOT IN " : "IN " ) + idlist;
+        break;
+      }
+    } else if(where->ct == STRING) {
+      switch(where->type) {
+      case STARTSWITH:
+        swhere = ((isnot) ? "NOT LIKE \"" : "LIKE \"") + where->svalue + "%\"";
+        break;
+      case ENDSWITH:
+        swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "\"";
+        break;
+      case EQUALS:
+        swhere = ((isnot) ? "!= \"" : "= \"") + where->svalue + "\"";
+        break;
+      case CONTAINS:
+        swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";
+      }
+    }
   };
 
 };

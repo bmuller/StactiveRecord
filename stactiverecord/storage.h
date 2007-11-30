@@ -67,6 +67,7 @@ namespace stactiverecord {
     // config is in form scheme://[user[:password]@]host[:port]/database
     static Sar_Dbi* makeStorage(std::string config, std::string prefix="");
     static Sar_Dbi* dbi;
+    static SarMap<std::string> parseconfig(std::string config);
     std::string table_prefix;
     SarVector<std::string> initialized_tables;
     Sar_Dbi(std::string prefix = "") : initialized_tables(), table_prefix(prefix) {};
@@ -106,6 +107,9 @@ namespace stactiverecord {
     // using a query with a conditional "where"
     void get_where(std::string classname, std::string key, Where * where, SarVector<int>& results);
 
+    // Convert a where object to a string value for a query
+    virtual void where_to_string(Where * where, std::string& swhere);
+
     SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere, bool distinct=false);
     virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false) {};
     void update(std::string table, SarVector<KVT> cols, Q qwhere);
@@ -113,7 +117,6 @@ namespace stactiverecord {
     void remove(std::string table, Q qwhere);
     virtual void remove(std::string table, std::string where="") {};
     virtual void insert(std::string table, SarVector<KVT> cols) {};
-    virtual void where_to_string(Where * where, std::string& swhere) {};
 
     bool table_is_initialized(std::string tablename);
   };
@@ -135,7 +138,6 @@ namespace stactiverecord {
     void update(std::string table, SarVector<KVT> cols, std::string where="");
     void remove(std::string table, std::string where="");
     void insert(std::string table, SarVector<KVT> cols);
-    void where_to_string(Where * where, std::string& swhere);
   };
 #endif
 
@@ -170,7 +172,7 @@ namespace stactiverecord {
     void test_result(int result, const std::string& context);
     void execute(std::string query);
   public:
-    MySQLStorage(std::string config);
+    MySQLStorage(std::string config, std::string prefix);
     ~MySQLStorage() { close(); };
     int next_id(std::string classname);
     void delete_record(int id, std::string classname);

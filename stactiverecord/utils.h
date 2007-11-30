@@ -40,5 +40,6 @@ namespace stactiverecord {
   std::vector<std::string> explode(std::string s, std::string e);
   void coltype_to_name(coltype ct, std::string& name);
   void join(std::vector<std::string> v, std::string joiner, std::string& result);
+  int string_to_int(std::string s);
 };
   

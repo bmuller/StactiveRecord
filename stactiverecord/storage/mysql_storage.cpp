@@ -5,7 +5,7 @@
 namespace stactiverecord {
   using namespace std;
 
-  MySQLStorage::MySQLStorage(string config) {
+  MySQLStorage::MySQLStorage(string config, string prefix) : Sar_Dbi(prefix) {
     is_closed = false;
     db = mysql_init(NULL);
 	mysql_real_connect(db, "localhost", "test", NULL, "test", 0, NULL, 0);

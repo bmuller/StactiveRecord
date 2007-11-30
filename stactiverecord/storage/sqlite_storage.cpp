@@ -95,55 +95,7 @@ namespace stactiverecord {
 
     debug("Finished initializing tables for class " + classname);
   };
-
-  void SQLiteStorage::where_to_string(Where * where, std::string& swhere) {
-    bool isnot = where->isnot;
-    if(where->ct == INTEGER) {
-      std::string sint, second_sint;
-      int_to_string(where->ivalue, sint);
-      switch(where->type) {
-      case GREATERTHAN:
-	swhere = ((isnot) ? "<= " : "> ") + sint ;
-	break;
-      case LESSTHAN:
-	swhere = ((isnot) ? ">= " : "< ") + sint;
-	break;
-      case EQUALS:
-	swhere = ((isnot) ? "!= " : "= ") + sint;	
-	break;
-      case BETWEEN:
-	int_to_string(where->ivaluetwo, second_sint);
-	swhere = ((isnot) ? "NOT BETWEEN " : "BETWEEN " ) + sint + " AND " + second_sint;
-	break;
-      case IN:
-	std::string idlist = "(";
-	for(std::vector<int>::size_type i=0; i<where->ivalues.size(); i++) {
-	  int_to_string(where->ivalues[i], sint);
-	  idlist += sint;
-	  if(i!=(where->ivalues.size() - 1))
-	    idlist += ",";
-	}
-	idlist += ")";
-	swhere = ((isnot) ? "NOT IN " : "IN " ) + idlist;
-	break;
-      }
-    } else if(where->ct == STRING) {
-      switch(where->type) {
-      case STARTSWITH:
-	swhere = ((isnot) ? "NOT LIKE \"" : "LIKE \"") + where->svalue + "%\"";	
-	break;
-      case ENDSWITH:
-	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "\"";	
-	break;
-      case EQUALS:
-	swhere = ((isnot) ? "!= \"" : "= \"") + where->svalue + "\"";	
-	break;
-      case CONTAINS:
-	swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";	
-      }
-    }
-  };
-  
+ 
   void SQLiteStorage::insert(std::string table, SarVector<KVT> cols) {
     std::string columns, sint;
     std::string values = "";

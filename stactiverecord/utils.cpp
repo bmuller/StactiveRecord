@@ -55,6 +55,15 @@ namespace stactiverecord {
     s = std::string(c_int);
   };
 
+  /** Better be sure s is really a string - used for postgres int column
+      retrieval
+  **/
+  int string_to_int(std::string s) {
+    int i;
+    sscanf(s.c_str(), "%d", &i);
+    return i;
+  }
+
   /** print debugging information if DEBUG is defined */
   void debug(std::string s) {
 #ifdef DEBUG

@@ -4,6 +4,7 @@ using namespace stactiverecord;
 using namespace std;
 
 Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:", "yomamma_");
+//Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("postgres://stactiverecord:stactiverecord@127.0.0.1/stactiverecord");
 
 void assert(bool v, string msg) {
   if(v) return;

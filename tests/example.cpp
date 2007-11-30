@@ -2,7 +2,7 @@
 
 using namespace stactiverecord;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
+Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("postgres://stactiverecord:stactiverecord@127.0.0.1/stactiverecord");
 
 class Test : public Record {
 public:
@@ -17,12 +17,13 @@ public:
 };
 
 int main() {
+  /*
   Test t;
   t.set("name", "bob");
   //t.set("fname", "whoops");
   t.set("age", 70);
   t.save();
-  /*
+
   TestTwo tt;
   //tt.set("name", "fred");
   tt.set("age", 55);
