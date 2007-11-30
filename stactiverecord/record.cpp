@@ -116,7 +116,11 @@ namespace stactiverecord {
     }
   };
 
-  void Record::set(std::string key, std::string value) { 
+  void Record::set(std::string key, std::string value) {
+    // no change    
+    if(svalues.has_key(key) && svalues[key] == value)
+      return;
+
     if(svalues.has_key(key)) {
       register_change(key, STRING);
     } else if(is_registered_deleted(key, STRING)) {
@@ -132,6 +136,10 @@ namespace stactiverecord {
   };
 
   void Record::set(std::string key, int value) {   
+    // no change
+    if(ivalues.has_key(key) && ivalues[key] == value)
+      return;
+
     if(ivalues.has_key(key)) {
       register_change(key, INTEGER);
     } else if(is_registered_deleted(key, INTEGER)) {

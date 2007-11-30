@@ -4,6 +4,29 @@ using namespace stactiverecord;
 
 Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("postgres://stactiverecord:stactiverecord@127.0.0.1/stactiverecord");
 
+class Person : public Record {
+public:
+  std::string firstname;
+  std::string lastname;
+  int age;
+  Person * buddy;
+  Person() : Record("person") { init(); };
+  Person(int id) : Record("person", id) { init(); }
+  void init() {
+    get("firstname", firstname, "Unknown");
+    get("lastname", lastname, "Unkown");
+    get("age", age, 0);
+    getOne<Person>((*buddy));
+  };
+  void save() {
+    set("firstname", firstname);
+    set("lastname", lastname);
+    set("age", age);
+    set<Person>((*buddy));
+    Record::save();
+  };
+};
+
 class Test : public Record {
 public:
   Test() : Record("test") {};
@@ -17,6 +40,25 @@ public:
 };
 
 int main() {
+  Person p;
+  p.age = 23;
+  p.firstname = "bob";
+  p.save();
+
+  Person q;
+  q.buddy = &p;
+  //q.set<Person>(p);
+  q.save();
+
+  Person qq(q.id);
+  std::cout << qq.buddy->firstname << "\n";
+  /*
+  Person qq(q.id);
+  Person z;
+  qq.getOne<Person>(z);
+  std::cout << z.firstname << "\n";
+  */
+
   /*
   Test t;
   t.set("name", "bob");
