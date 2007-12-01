@@ -72,7 +72,7 @@ namespace stactiverecord {
     SarVector<std::string> initialized_tables;
     Sar_Dbi(std::string prefix = "") : initialized_tables(), table_prefix(prefix) {};
  
-    virtual void initialize_tables(std::string classname) {};
+    virtual void initialize_tables(std::string classname) = 0;
     int next_id(std::string classname);
     bool exists(std::string classname, int id);
     void make_existing(std::string classname, int id);
@@ -111,12 +111,12 @@ namespace stactiverecord {
     virtual void where_to_string(Where * where, std::string& swhere);
 
     SarVector<Row> select(std::string table, SarVector<KVT> cols, Q qwhere, bool distinct=false);
-    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false) {};
+    virtual SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false) = 0;
     void update(std::string table, SarVector<KVT> cols, Q qwhere);
-    virtual void update(std::string table, SarVector<KVT> cols, std::string where="") {};
+    virtual void update(std::string table, SarVector<KVT> cols, std::string where="") = 0;
     void remove(std::string table, Q qwhere);
-    virtual void remove(std::string table, std::string where="") {};
-    virtual void insert(std::string table, SarVector<KVT> cols) {};
+    virtual void remove(std::string table, std::string where="") = 0;
+    virtual void insert(std::string table, SarVector<KVT> cols) = 0;
 
     bool table_is_initialized(std::string tablename);
   };

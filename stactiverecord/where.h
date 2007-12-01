@@ -56,6 +56,7 @@ namespace stactiverecord {
   Where * between(int value, int valuetwo);
   Where * equals(int value);
   Where * equals(std::string value);
+  Where * equals(bool value);
   Where * in(std::vector<int> values);
 
   // negated values
@@ -67,5 +68,6 @@ namespace stactiverecord {
   Where * nbetween(int value, int valuetwo);
   Where * nequals(int value);
   Where * nequals(std::string value);
+  Where * nequals(bool value);
   Where * nin(std::vector<int> values);
 };

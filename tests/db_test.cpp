@@ -3,19 +3,20 @@
 using namespace stactiverecord;
 using namespace std;
 
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:", "yomamma_");
-//Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("postgres://stactiverecord:stactiverecord@127.0.0.1/stactiverecord");
+Sar_Dbi * Sar_Dbi::dbi;
 
 void assert(bool v, string msg) {
   if(v) return;
   throw Sar_AssertionFailedException("Failed when testing " + msg);
 }
 
-int main() {
-  debug("Testing sqlite..."); 
+int main(int argc, char* argv[]) {
+  if(argc != 2) {
+    std::cout << "Usage: ./db_test <db config string>\n";
+    return 1;
+  }
+  Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
   Sar_Dbi *db = Sar_Dbi::dbi;
-  //Sar_Dbi::dbi->table_prefix = "yomamma_";
-  //db->table_prefix = "yomamma_";
   string classname = "testclass";
   string related_classname = "testclass_related";
 
@@ -154,8 +155,6 @@ int main() {
   assert((oresults.size() == 0), "deleting all objects of a type");
 
   delete Sar_Dbi::dbi;
-
-  debug("If you're at this point, no errors were found.");
-
+  std::cout << "No errors were found.\n";
   return 0;
 }

@@ -112,7 +112,13 @@ namespace stactiverecord {
     };
 
     /** Assuming here that r is of type T, set record relationship (one->one) */
-    template <class T> void set(Record r) {
+    template <class T> void setOne(Record r) {
+      if(r.id == -1 || !exists<T>(r.id)) {
+	std::string msg = "You cannot set an object relation with an object ";
+	msg += "that either has not yet been saved or has been deleted.";
+	throw Sar_NoSuchObjectException(msg);
+      }
+
       std::string key = r.classname;
       if(!rvalues.has_key(key)) 
 	rvalues[key] = SarVector<int>();
@@ -130,7 +136,7 @@ namespace stactiverecord {
       // Set each one individuall, and make list of ids
       SarVector<int> og_ids;
       for(unsigned int i=0; i<og.size(); i++) {
-	set<T>(og[i]);
+	setOne<T>(og[i]);
 	og_ids << og[i].id;
       }
 
@@ -172,26 +178,6 @@ namespace stactiverecord {
 	  og << T(rvalues[related_classname][i]);
       } else throw Sar_RecordNotFoundException("Could not find related records \"" + related_classname + "\"");
       return og;
-    };
-
-    /** Find all objects of type T with a property of key that has the given value */
-    template <class T> static ObjGroup<T> find_by(std::string key, std::string value) {
-      std::string classname = T().classname;
-      SarVector<int> results;
-      Where * where = equals(value);
-      Sar_Dbi::dbi->get_where(classname, key, where, results);
-      delete where;
-      return ObjGroup<T>::from_ids(results);      
-    };
-
-    /** Find all objects of type T with a property of key that has the given value */
-    template <class T> static ObjGroup<T> find_by(std::string key, int value) {
-      std::string classname = T().classname;
-      SarVector<int> results;
-      Where * where = equals(value);
-      Sar_Dbi::dbi->get_where(classname, key, where, results);
-      delete where;
-      return ObjGroup<T>::from_ids(results);      
     };
 
     /** Find all objects of type T that match a given query Q */

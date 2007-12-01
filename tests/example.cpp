@@ -26,7 +26,7 @@ public:
     Record::save();
   };
   void setBuddy(Person p) { 
-    set<Person>(p);
+    setOne<Person>(p);
   };
   void getBuddy(Person &p) {
     getOne<Person>(p);

@@ -61,6 +61,17 @@ namespace stactiverecord {
      */
     Q(std::string _key, int _ivalue) : key(_key), ivalue(_ivalue) { ct = INTEGER; where = equals(_ivalue); };
 
+    /** Create query object.
+     * @param _key The key being queried
+     * @param _value The exact value to match for the given key.
+     */
+    Q(std::string _key, bool _bvalue) : key(_key) {
+      ivalue = (_bvalue) ? 1 : 0;
+      ct = INTEGER; 
+      // 0 = false, any other value = true
+      where = (_bvalue) ? nequals(0) : equals(0); 
+    };
+
     Q(Where *_w) { ct = _w->ct; where = _w; };
 
     /** Boolean or operator */

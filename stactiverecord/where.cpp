@@ -61,6 +61,12 @@ namespace stactiverecord {
     return new Where(value, EQUALS);
   };
 
+  Where * equals(bool value) {
+    if(value)
+      return new Where(0, EQUALS, true);
+    return new Where(0, EQUALS);
+  };
+
   Where * hasobject(Record r) {
     return new Where(r.classname, r.id, OBJECTRELATION);
   };
@@ -101,6 +107,10 @@ namespace stactiverecord {
 
   Where * nequals(std::string value) {
     return new Where(value, EQUALS, true);
+  };
+
+  Where * nequals(bool value) {
+    return equals(!value);
   };
 
   Where * nin(std::vector<int> values) {
