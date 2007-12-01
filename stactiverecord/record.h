@@ -73,6 +73,9 @@ namespace stactiverecord {
     /** Set a property with a value */
     void set(std::string key, int value);
 
+    /** Set a property with a value */
+    void set(std::string key, bool value);
+
     /** Get a property's value throw exception if not set*/
     void get(std::string key, std::string& value);
 
@@ -84,6 +87,12 @@ namespace stactiverecord {
 
     /** Get a property's value, set to default if not yet set */
     void get(std::string key, int& value, int alt);
+
+    /** Get a property's value, throw exception if not set */
+    void get(std::string key, bool& value);
+
+    /** Get a property's value, set to default if not yet set */
+    void get(std::string key, bool& value, bool alt);
 
     /** Delete a property */
     void del(std::string key);

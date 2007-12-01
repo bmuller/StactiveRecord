@@ -154,6 +154,10 @@ namespace stactiverecord {
     dirty = true;
   };
 
+  void Record::set(std::string key, bool value) {
+    set(key, ((value) ? 1 : 0));
+  };
+
   void Record::get(std::string key, std::string& value, std::string alt) {
     if(svalues.has_key(key))
       value = svalues[key];
@@ -179,7 +183,20 @@ namespace stactiverecord {
       value = ivalues[key];
     else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };
-  
+
+  void Record::get(std::string key, bool& value, bool alt) {
+    if(ivalues.has_key(key))
+      value = (ivalues[key]==0) ? false : true;
+    else
+      value = alt;
+  };
+
+  void Record::get(std::string key, bool& value) {
+    if(ivalues.has_key(key))
+      value = (ivalues[key]==0) ? false : true;
+    else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+  };  
+
   void Record::del(std::string key) {
     coltype ct = type(key);
     if(ct == NONE) return;

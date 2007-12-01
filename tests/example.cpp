@@ -9,21 +9,27 @@ public:
   std::string firstname;
   std::string lastname;
   int age;
-  Person * buddy;
+  bool iscool;
   Person() : Record("person") { init(); };
   Person(int id) : Record("person", id) { init(); }
   void init() {
     get("firstname", firstname, "Unknown");
     get("lastname", lastname, "Unkown");
     get("age", age, 0);
-    getOne<Person>((*buddy));
+    get("iscool", iscool, false);
   };
   void save() {
     set("firstname", firstname);
     set("lastname", lastname);
     set("age", age);
-    set<Person>((*buddy));
+    set("iscool", iscool);
     Record::save();
+  };
+  void setBuddy(Person p) { 
+    set<Person>(p);
+  };
+  void getBuddy(Person &p) {
+    getOne<Person>(p);
   };
 };
 
@@ -43,15 +49,18 @@ int main() {
   Person p;
   p.age = 23;
   p.firstname = "bob";
+  p.iscool = false;
   p.save();
-
+  
   Person q;
-  q.buddy = &p;
-  //q.set<Person>(p);
+  q.setBuddy(p);
   q.save();
 
   Person qq(q.id);
-  std::cout << qq.buddy->firstname << "\n";
+  Person z;
+  qq.getBuddy(z);
+  std::cout << z.firstname << "\n";
+  
   /*
   Person qq(q.id);
   Person z;
