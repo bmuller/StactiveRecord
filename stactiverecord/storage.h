@@ -174,13 +174,11 @@ namespace stactiverecord {
   public:
     MySQLStorage(std::string config, std::string prefix);
     ~MySQLStorage() { close(); };
-    int next_id(std::string classname);
-    void delete_record(int id, std::string classname);
-    void initialize_tables(std::string classname);
-    void get(int id, std::string classname, SarMap<std::string>& values);
-    void get(int id, std::string classname, SarMap<int>& values);
-    void set(int id, std::string classname, SarMap<std::string> values, bool insert);
-    void set(int id, std::string classname, SarMap<int> values, bool insert);
+    void initialize_tables(std::string classname);    
+    SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
+    void update(std::string table, SarVector<KVT> cols, std::string where="");
+    void remove(std::string table, std::string where="");
+    void insert(std::string table, SarVector<KVT> cols);
   };
 #endif
 
