@@ -32,8 +32,6 @@ int main(int argc, char* argv[]) {
   Test t;
   t.set("number", 40);
   t.set("boolean", true);
-  t.set("string_one", "one");
-  t.set("string_two", "two");
   t.save();
 
   // test some queries
@@ -49,8 +47,40 @@ int main(int argc, char* argv[]) {
   t.save();
 
   // test reverse relationship
-  og = tt.getMany<Test>();
-  assert(og.size() == 1 && og[0].id == t.id, "testing reverse relationship between objects");
+  Test q(t.id);
+  ObjGroup<TestTwo> ogtt = q.getMany<TestTwo>();
+  assert(ogtt.size() == 1 && ogtt[0].id == t.id, "testing reverse relationship between objects");
+
+  // test complicated query
+  Test o;
+  o.set("stringone", "one");
+  o.set("stringtwo", "two");
+  o.set("integer", 40);
+  o.save();
+
+  Test oo;
+  oo.set("stringone", "another");
+  oo.set("stringtwo", "andanother");
+  oo.set("integer", 50);
+  oo.save();  
+
+  og = Record::find<Test>((Q("stringone", startswith("ano")) || Q("stringone", endswith("ne"))) && Q("integer", between(39, 51)));
+  assert(og.size() == 2, "testing a complicated query");
+
+  //test lots and lots of relationships
+  Test popular;
+  ObjGroup<TestTwo> friends;
+  int number = 50;
+  for(int i=0; i<number; i++) {
+    TestTwo unpop_friend;
+    unpop_friend.save();
+    friends << unpop_friend;
+  }
+  popular.setMany<TestTwo>(friends);
+  popular.save();
+
+  ogtt = popular.getMany<TestTwo>();
+  assert(ogtt.size() == number, "testing object relationship with lots of objects");
 
   delete Sar_Dbi::dbi;
   cout << "No errors were found.\n";

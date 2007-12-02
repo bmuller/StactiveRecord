@@ -49,9 +49,9 @@ int main() {
   Person p;
   p.age = 23;
   p.firstname = "bob";
-  p.iscool = false;
+  //p.iscool = false;
   p.save();
-  
+  return 0;
   Person q;
   q.setBuddy(p);
   q.save();

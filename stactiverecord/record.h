@@ -70,6 +70,10 @@ namespace stactiverecord {
     /** Set a property with a value */
     void set(std::string key, std::string value);
 
+    /** Set a property with a value - this is done if folk don't use namespacd std and use 
+     quoted string */
+    void set(std::string key, const char * s) { set(key, std::string(s)); };
+
     /** Set a property with a value */
     void set(std::string key, int value);
 
@@ -176,7 +180,7 @@ namespace stactiverecord {
       if(rvalues.has_key(related_classname)) {
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
-      } else throw Sar_RecordNotFoundException("Could not find related records \"" + related_classname + "\"");
+      }
       return og;
     };
 
