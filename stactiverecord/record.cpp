@@ -117,7 +117,6 @@ namespace stactiverecord {
   };
 
   void Record::set(std::string key, std::string value) {
-    debug("setting a string value");
     // no change    
     if(svalues.has_key(key) && svalues[key] == value)
       return;
@@ -137,7 +136,6 @@ namespace stactiverecord {
   };
 
   void Record::set(std::string key, int value) {   
-    std::cout << "Setting int value: " << value << "\n";
     // no change
     if(ivalues.has_key(key) && ivalues[key] == value)
       return;

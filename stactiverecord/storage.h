@@ -117,6 +117,7 @@ namespace stactiverecord {
     void remove(std::string table, Q qwhere);
     virtual void remove(std::string table, std::string where="") = 0;
     virtual void insert(std::string table, SarVector<KVT> cols) = 0;
+    virtual void execute(std::string query) = 0;
 
     bool table_is_initialized(std::string tablename);
   };
@@ -129,10 +130,10 @@ namespace stactiverecord {
     sqlite3 *db;
     bool is_closed;
     void test_result(int result, const std::string& context);
-    void execute(std::string query);
   public:
     SQLiteStorage(std::string location, std::string prefix="");
     ~SQLiteStorage() { close(); };
+    void execute(std::string query);
     void initialize_tables(std::string classname);    
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
     void update(std::string table, SarVector<KVT> cols, std::string where="");
@@ -149,10 +150,10 @@ namespace stactiverecord {
     PGconn *db;
     bool is_closed;
     void test_result(int result, const std::string& context);
-    void execute(std::string query);
   public:
     PostgreSQLStorage(std::string location, std::string prefix="");
     ~PostgreSQLStorage() { close(); };
+    void execute(std::string query);
     void initialize_tables(std::string classname);    
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
     void update(std::string table, SarVector<KVT> cols, std::string where="");
@@ -170,10 +171,10 @@ namespace stactiverecord {
     MYSQL *db;
     bool is_closed;
     void test_result(int result, const std::string& context);
-    void execute(std::string query);
   public:
     MySQLStorage(std::string config, std::string prefix);
     ~MySQLStorage() { close(); };
+    void execute(std::string query);
     void initialize_tables(std::string classname);    
     SarVector<Row> select(std::string table, SarVector<KVT> cols, std::string where="", bool distinct=false);
     void update(std::string table, SarVector<KVT> cols, std::string where="");
