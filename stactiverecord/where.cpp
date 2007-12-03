@@ -75,6 +75,10 @@ namespace stactiverecord {
     return new Where(values, IN);
   };
 
+  Where * isnull() {
+    return new Where(ISNULL);
+  };
+
   // negated values 
 
   Where * nstartswith(std::string value) {
@@ -115,6 +119,10 @@ namespace stactiverecord {
 
   Where * nin(std::vector<int> values) {
     return new Where(values, IN, false);
+  };
+
+  Where * nisnull() {
+    return new Where(ISNULL, false);
   };
 
 };

@@ -46,6 +46,8 @@ namespace stactiverecord {
     // in the case of a record search - i.e., Q(hasobject(someobject))
     Where(std::string _svalue, int _ivalue, wheretype _wt, bool _isnot=false) :
       svalue(_svalue), ivalue(_ivalue), type(_wt), ct(RECORD), isnot(_isnot) {};
+    // for isnull and nisnull
+    Where(wheretype _wt, bool _isnot=false) : type(_wt), ct(ALL), isnot(_isnot) {};
   };
 
   Where * startswith(std::string value);
@@ -58,6 +60,7 @@ namespace stactiverecord {
   Where * equals(std::string value);
   Where * equals(bool value);
   Where * in(std::vector<int> values);
+  Where * isnull();
 
   // negated values
   Where * nstartswith(std::string value);
@@ -70,4 +73,5 @@ namespace stactiverecord {
   Where * nequals(std::string value);
   Where * nequals(bool value);
   Where * nin(std::vector<int> values);
+  Where * nisnull();
 };

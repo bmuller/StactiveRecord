@@ -150,7 +150,6 @@ namespace stactiverecord {
       for(unsigned int i=0; i<to_delete.size(); i++) {
 	rvalues[classname].remove(to_delete[i]);
       }
-      rvalues[classname].dump();
       if(rvalues.size() > 0)
 	register_change(classname, RECORD);
     };

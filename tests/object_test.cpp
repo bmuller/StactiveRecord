@@ -82,6 +82,9 @@ int main(int argc, char* argv[]) {
   ogtt = popular.getMany<TestTwo>();
   assert(ogtt.size() == number, "testing object relationship with lots of objects");
 
+  og = Record::find<Test>(Q("asdf", isnull()));
+  std::cout << "number: " << og.size() << "\n";
+
   delete Sar_Dbi::dbi;
   cout << "No errors were found.\n";
   return 0;
