@@ -344,6 +344,27 @@ namespace stactiverecord {
       tablename = table_prefix + classname + "_s";
       cols << KVT("id", INTEGER);
       rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
+    } else if(where->ct == ALL) { // special case - can't just do one select
+      // if we're testing isnull() type of where
+      if(where->type == ISNULL) {
+	cols << KVT("id", INTEGER);
+	if(where->isnot) {
+	  tablename = table_prefix + classname + "_s";
+	  rows = select(tablename, cols, Q("keyname", key));
+	  tablename = table_prefix + classname + "_i";
+	  rows.unionize(select(tablename, cols, Q("keyname", key)));
+	} else {
+	  // terribly inefficient 
+	  tablename = table_prefix + classname + "_s";
+	  rows = select(tablename, cols);
+	  rows - select(tablename, cols, Q("keyname", key));
+	  
+	  tablename = table_prefix + classname + "_i";
+	  SarVector<Row> tmp = select(tablename, cols);
+	  tmp - select(tablename, cols, Q("keyname", key));
+	  rows.unionize(tmp);
+	}
+      }
     } else { //RECORD
       tablename = table_prefix + "relationships";
       bool swap = (strcmp(classname.c_str(), where->svalue.c_str()) > 0) ? true : false;
@@ -405,12 +426,6 @@ namespace stactiverecord {
         break;
       case CONTAINS:
         swhere = ((isnot) ? "NOT LIKE \"%" : "LIKE \"%") + where->svalue + "%\"";
-      }
-    } else if(where->ct == ALL) {
-      switch(where->type) {
-      case ISNULL:
-        swhere = (isnot) ? "IS NOT NULL" : "IS NULL";
-	break;
       }
     }
   };

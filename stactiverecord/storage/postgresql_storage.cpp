@@ -154,12 +154,6 @@ namespace stactiverecord {
       case CONTAINS:
 	swhere = ((isnot) ? "NOT LIKE '%" : "LIKE '%") + where->svalue + "%'";	
       }
-    } else if(where->ct == ALL) {
-      switch(where->type) {
-      case ISNULL:
-        swhere = (isnot) ? "IS NOT NULL" : "IS NULL";
-        break;
-      }
     }
   };
   
