@@ -99,7 +99,6 @@ int main(int argc, char* argv[]) {
   assert(ogtthree.size() == 2, "testing nisnull()");
 
   ogtthree = Record::find<TestThree>(Q("two", isnull()));
-  ogtthree.get_ids().dump();
   assert(ogtthree.size() == 1 && ogtthree[0].id == another_tthree.id, "testing isnull()");
 
   delete Sar_Dbi::dbi;

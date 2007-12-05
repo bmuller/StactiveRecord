@@ -13,6 +13,7 @@
 #include <iostream>
 #include <map>
 #include <exception>
+#include <time.h>
 
 /// \namespace stactiverecord The project's namespace
 namespace stactiverecord {
@@ -26,6 +27,7 @@ namespace stactiverecord {
 };
 
 #include "config.h"
+#include "datetime.h"
 #include "where.h"
 #include "utils.h"
 #include "types.h"

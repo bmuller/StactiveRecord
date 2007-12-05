@@ -350,30 +350,29 @@ namespace stactiverecord {
 	cols << KVT("id", INTEGER);
 	if(where->isnot) {
 	  tablename = table_prefix + classname + "_s";
-	  rows = select(tablename, cols, Q("keyname", key));
+	  rows = select(tablename, cols, Q("keyname", key), true);
 	  tablename = table_prefix + classname + "_i";
-	  rows.unionize(select(tablename, cols, Q("keyname", key)));
+	  rows.unionize(select(tablename, cols, Q("keyname", key), true));
 	} else {
 	  // terribly inefficient 
 	  tablename = table_prefix + classname + "_s";
-	  rows = select(tablename, cols, Q("keyname", key));
+	  rows = select(tablename, cols, Q("keyname", key), true);
 	  SarVector<int> ids;
 	  for(unsigned int i=0; i<rows.size(); i++)
 	    ids << rows[i].get_int(0);
 
 	  tablename = table_prefix + classname + "_e";
-	  rows = (ids.size() > 0) ? select(tablename, cols) : select(tablename, cols, Q("id", nin(ids)));
+	  rows = (ids.size() > 0) ? select(tablename, cols, Q("id", nin(ids))) : select(tablename, cols);
 
 	  tablename = table_prefix + classname + "_i";
-	  SarVector<Row> tmp = select(tablename, cols, Q("keyname", key));
+	  SarVector<Row> tmp = select(tablename, cols, Q("keyname", key), true);
 	  ids.clear();
 	  for(unsigned int i=0; i<tmp.size(); i++)
 	    ids << tmp[i].get_int(0);
 
 	  tablename = table_prefix + classname + "_e";
-	  SarVector<Row> otherrows = (ids.size() > 0) ? select(tablename, cols) : select(tablename, cols, Q("id", nin(ids)));
-	  rows.intersects(otherrows);
-	  rows.dumpeach();
+	  SarVector<Row> otherrows = (ids.size() > 0) ? select(tablename, cols, Q("id", nin(ids))) : select(tablename, cols);
+	  rows = rows.intersects(otherrows);
 	}
       }
     } else { //RECORD
