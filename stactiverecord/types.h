@@ -42,8 +42,12 @@ namespace stactiverecord {
     };
     void dump() {
       for(unsigned int i=0; i < this->size(); i++)
-        std::cout << this->at(i) << ", ";
+	  std::cout << this->at(i) << ", ";
       std::cout << "\n";
+    };
+    void dumpeach() {
+      for(unsigned int i=0; i < this->size(); i++)
+	this->at(i).dump();
     };
     void remove(T value) {
       // terribly inefficient ... fix this later

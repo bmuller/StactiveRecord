@@ -59,6 +59,12 @@ namespace stactiverecord {
 	throw Sar_ColumnNotFoundException("Int column not found.");
       return ints[position];
     };    
+    void dump() {
+      std::cout << "Ints:\n";
+      ints.dump();
+      std::cout << "Strings:\n";
+      strings.dump();
+    };
   };
 
 

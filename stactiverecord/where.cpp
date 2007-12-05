@@ -118,11 +118,11 @@ namespace stactiverecord {
   };
 
   Where * nin(std::vector<int> values) {
-    return new Where(values, IN, false);
+    return new Where(values, IN, true);
   };
 
   Where * nisnull() {
-    return new Where(ISNULL, false);
+    return new Where(ISNULL, true);
   };
 
 };

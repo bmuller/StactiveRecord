@@ -22,6 +22,12 @@ public:
   TestTwo(int id) : Record("testtwo", id) {};
 };
 
+class TestThree : public Record {
+public:
+  TestThree() : Record("testthree") {};
+  TestThree(int id) : Record("testthree", id) {};
+};
+
 int main(int argc, char* argv[]) {
   if(argc != 2) {
     std::cout << "Usage: ./object_test <db config string>\n";
@@ -82,8 +88,19 @@ int main(int argc, char* argv[]) {
   ogtt = popular.getMany<TestTwo>();
   assert(ogtt.size() == number, "testing object relationship with lots of objects");
 
-  og = Record::find<Test>(Q("asdf", isnull()));
-  std::cout << "number: " << og.size() << "\n";
+  TestThree tthree;
+  tthree.set("one", "one");
+  tthree.set("two", 2);
+  tthree.save();
+  TestThree another_tthree;
+  another_tthree.set("one", 1);
+  another_tthree.save();
+  ObjGroup<TestThree> ogtthree = Record::find<TestThree>(Q("one", nisnull()));
+  assert(ogtthree.size() == 2, "testing nisnull()");
+
+  ogtthree = Record::find<TestThree>(Q("two", isnull()));
+  ogtthree.get_ids().dump();
+  assert(ogtthree.size() == 1 && ogtthree[0].id == another_tthree.id, "testing isnull()");
 
   delete Sar_Dbi::dbi;
   cout << "No errors were found.\n";
