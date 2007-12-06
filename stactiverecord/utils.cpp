@@ -80,7 +80,6 @@ namespace stactiverecord {
     for(unsigned int i=0; i<parts.size()-1; i++)
       cleaned_s += parts[i] + "%%";
     cleaned_s += parts[parts.size()-1];
-    // stderr is redirected by apache to apache's error log
     fprintf(stderr, cleaned_s.c_str());
     fflush(stderr);
 #endif

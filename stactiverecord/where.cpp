@@ -46,7 +46,7 @@ namespace stactiverecord {
   };
 
   Where * greaterthan(DateTime value) {
-    return new Where(value.to_int(), GREATERTHAN);
+    return new Where(value, GREATERTHAN);
   };
 
   Where * lessthan(int value) {
@@ -54,7 +54,7 @@ namespace stactiverecord {
   };
 
   Where * lessthan(DateTime value) {
-    return new Where(value.to_int(), LESSTHAN);
+    return new Where(value, LESSTHAN);
   };
 
   Where * between(int value, int valuetwo) {
@@ -62,7 +62,7 @@ namespace stactiverecord {
   };
 
   Where * between(DateTime value, DateTime valuetwo) {
-    return new Where(value.to_int(), valuetwo.to_int(), BETWEEN);
+    return new Where(value, valuetwo, BETWEEN);
   };
 
   Where * equals(int value) {
@@ -70,7 +70,7 @@ namespace stactiverecord {
   };
 
   Where * equals(DateTime value) {
-    return new Where(value.to_int(), EQUALS);
+    return new Where(value, EQUALS);
   };
 
   Where * equals(std::string value) {
@@ -114,7 +114,7 @@ namespace stactiverecord {
   };
 
   Where * ngreaterthan(DateTime value) {
-    return new Where(value.to_int(), GREATERTHAN, true);
+    return new Where(value, GREATERTHAN, true);
   };
 
   Where * nlessthan(int value) {
@@ -122,7 +122,7 @@ namespace stactiverecord {
   };
 
   Where * nlessthan(DateTime value) {
-    return new Where(value.to_int(), LESSTHAN, true);
+    return new Where(value, LESSTHAN, true);
   };
 
   Where * nbetween(int value, int valuetwo) {
@@ -130,7 +130,7 @@ namespace stactiverecord {
   };
 
   Where * nbetween(DateTime value, DateTime valuetwo) {
-    return new Where(value.to_int(), valuetwo.to_int(), BETWEEN, true);
+    return new Where(value, valuetwo, BETWEEN, true);
   };
 
   Where * nequals(int value) {
@@ -138,7 +138,7 @@ namespace stactiverecord {
   };
 
   Where * nequals(DateTime value) {
-    return new Where(value.to_int(), EQUALS, true);
+    return new Where(value, EQUALS, true);
   };
 
   Where * nequals(std::string value) {

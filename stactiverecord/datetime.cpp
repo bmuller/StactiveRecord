@@ -29,32 +29,49 @@ Created by bmuller <bmuller@butterfat.net>
 
 namespace stactiverecord {
   
-  DateTime::DateTime(int day, int month, int year, int hour, int minute, int second) {
+  DateTime::DateTime(int month, int day, int year, int hour, int minute, int second) {
     set(day, month, year, hour, minute, second);
   };
 
-  void DateTime::set(int day, int month, int year, int hour, int minute, int second) {
-    t.tm_year = (year==0) ? 0 : year-1900;
-    t.tm_mon = (month==0) ? 0 : month-1;
-    t.tm_mday = day;
-    t.tm_hour = hour;
-    t.tm_min = minute;
-    t.tm_sec = second;
+  void DateTime::set(int month, int day, int year, int hour, int minute, int second) {
+    // init this->t
+    time_t rawtime;
+    time ( &rawtime );
+    t = localtime ( &rawtime );
+    // set to given values
+    //t->tm_year = (year==0 || year <= 1900) ? 0 : year-1900;
+    t->tm_year = 1984 - 1900;
+    t->tm_mon = (month==0) ? 0 : month-1;
+    t->tm_mday = day;
+    t->tm_hour = hour;
+    t->tm_min = minute;
+    t->tm_sec = second;
+
+    // normalize t
+    int r = mktime(t);
+    if(r == -1)
+      std::cout << "\n\n\nCould not mktime\n\n\n";
   };
 
   void DateTime::to_string(std::string& s) {
-    s = std::string(asctime(&t));
+    s = std::string(asctime(t));
   };
 
   int DateTime::to_int() {
-    time_t tt = mktime(&t);
+    time_t tt = mktime(t);
     return (int) tt;
   };
 
+  void DateTime::from_int(int i) {
+    time_t rawtime;
+    rawtime = (time_t) i;
+    t = localtime(&rawtime);
+  };
+
   bool DateTime::operator==(DateTime& other) {
-    return (t.tm_year == other.t.tm_year && t.tm_mon == other.t.tm_mon &&
-    	    t.tm_mday == other.t.tm_mday && t.tm_hour == other.t.tm_hour &&
-	    t.tm_min == other.t.tm_min && t.tm_sec == other.t.tm_sec);
+    return (t->tm_year == other.t->tm_year && t->tm_mon == other.t->tm_mon &&
+	    t->tm_mday == other.t->tm_mday && t->tm_hour == other.t->tm_hour &&
+    	    t->tm_min == other.t->tm_min && t->tm_sec == other.t->tm_sec);
   };
   bool DateTime::operator!=(DateTime& other) {
     return !(*this == other);

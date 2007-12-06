@@ -160,7 +160,9 @@ namespace stactiverecord {
     std::string key;
     for (unsigned int i = 0; i < rows.size(); i++) {
       rows[i].get_string(0, key);
-      values[key] = DateTime(rows[i].get_int(0));
+      DateTime dt;
+      dt.from_int(rows[i].get_int(0));
+      values[key] = dt;
     }
   };
 
@@ -422,7 +424,7 @@ namespace stactiverecord {
   /** Most SQL db's will use the following - kids can overwrite if necessary (like postgres) **/
   void Sar_Dbi::where_to_string(Where * where, std::string& swhere) {
     bool isnot = where->isnot;
-    if(where->ct == INTEGER) {
+    if(where->ct == INTEGER || where->ct == DATETIME) {
       std::string sint, second_sint;
       int_to_string(where->ivalue, sint);
       switch(where->type) {

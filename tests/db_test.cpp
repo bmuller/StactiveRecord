@@ -68,16 +68,21 @@ int main(int argc, char* argv[]) {
   svalues["baz"] = "foo";
   ivalues["bar"] = 998;
   ivalues["zoop"] = 5364;
+  dtvalues["shebang"] = DateTime(2,2,2002);
 
   db->set(id, classname, svalues, false);
   db->set(id, classname, ivalues, false);
+  db->set(id, classname, dtvalues, false);
 
   sresults.clear();
   iresults.clear();
+  dtresults.clear();
   db->get(id, classname, sresults);
   db->get(id, classname, iresults);
+  db->get(id, classname, dtresults);
   assert(sresults == svalues, "updating/retrieving string values");
   assert(iresults == ivalues, "updating/retrieving int values");
+  assert(dtresults == dtvalues, "updating/retrieving DateTime values");
 
   // now test record relations
   debug("testing record relations");

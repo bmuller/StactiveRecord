@@ -38,10 +38,11 @@ int main(int argc, char* argv[]) {
   Test t;
   t.set("number", 40);
   t.set("boolean", true);
+  t.set("dob", DateTime(5, 29, 1984));
   t.save();
 
   // test some queries
-  ObjGroup<Test> og = Record::find<Test>(Q("number", between(30,50)) && Q("boolean", true));
+  ObjGroup<Test> og = Record::find<Test>(Q("number", between(30,50)) && Q("boolean", true) && Q("dob", greaterthan(DateTime(5,1,1984))));
   assert(og.size() == 1 && og[0].id == t.id, "performing find query");
   og = Record::find<Test>(Q("number", nequals(40)));
   assert(og.size() == 0, "performing find query with no results");

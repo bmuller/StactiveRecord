@@ -37,10 +37,14 @@ namespace stactiverecord {
     bool isnot;
     Where(int _ivalue, wheretype _wt, bool _isnot=false) : 
       ivalue(_ivalue), type(_wt), ct(INTEGER), isnot(_isnot) {};
+    Where(DateTime _dtvalue, wheretype _wt, bool _isnot=false) : 
+      ivalue(_dtvalue.to_int()), type(_wt), ct(DATETIME), isnot(_isnot) {};
     Where(std::vector<int> _ivalues, wheretype _wt, bool _isnot=false) : 
       ivalues(_ivalues), type(_wt), ct(INTEGER), isnot(_isnot) {};
     Where(int _ivalue, int _valuetwo, wheretype _wt, bool _isnot=false) :
       ivalue(_ivalue), ivaluetwo(_valuetwo), type(_wt), ct(INTEGER), isnot(_isnot) {};
+    Where(DateTime _dtvalue, DateTime _dtvaluetwo, wheretype _wt, bool _isnot=false) :
+      ivalue(_dtvalue.to_int()), ivaluetwo(_dtvaluetwo.to_int()), type(_wt), ct(DATETIME), isnot(_isnot) {};
     Where(std::string _svalue, wheretype _wt, bool _isnot=false) :
       svalue(_svalue), type(_wt), ct(STRING), isnot(_isnot) {};
     // in the case of a record search - i.e., Q(hasobject(someobject))
