@@ -34,6 +34,7 @@ namespace stactiverecord {
     SarMap<std::string> svalues;
     SarMap<int> ivalues;    
     SarMap< SarVector<int> > rvalues;
+    SarMap<DateTime> dtvalues;
     coltype clear_other_values(std::string colname, coltype ct);
   protected:
     Record(std::string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
@@ -80,11 +81,20 @@ namespace stactiverecord {
     /** Set a property with a value */
     void set(std::string key, bool value);
 
+    /** Set a property with a value */
+    void set(std::string key, DateTime value);
+
     /** Get a property's value throw exception if not set*/
     void get(std::string key, std::string& value);
 
     /** Get a property's value, set to default if not yet set */
     void get(std::string key, std::string& value, std::string alt);
+
+    /** Get a property's value throw exception if not set*/
+    void get(std::string key, DateTime& value);
+
+    /** Get a property's value, set to default if not yet set */
+    void get(std::string key, DateTime& value, DateTime alt);
 
     /** Get a property's value, throw exception if not set */
     void get(std::string key, int& value);

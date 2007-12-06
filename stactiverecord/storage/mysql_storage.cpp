@@ -86,8 +86,16 @@ namespace stactiverecord {
       initialized_tables.push_back(tablename);
     }
 
-    // make table for string values
+    // make table for int values
     tablename = table_prefix + classname + "_i";
+    if(!table_is_initialized(tablename)) {
+      debug("initializing table " + tablename);
+      execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT)");
+      initialized_tables.push_back(tablename);
+    }
+
+    // make table for int values
+    tablename = table_prefix + classname + "_dt";
     if(!table_is_initialized(tablename)) {
       debug("initializing table " + tablename);
       execute("CREATE TABLE IF NOT EXISTS " + tablename + " (id INT, keyname VARCHAR(255), value INT)");

@@ -30,7 +30,7 @@ public:
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
-    std::cout << "Usage: ./object_test <db config string>\n";
+    std::cout << "Usage: ./object_test <scheme://[user[:password]@host[:port]/]database>\n";
     return 1;
   }
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));

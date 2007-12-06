@@ -38,6 +38,7 @@ namespace stactiverecord {
       _db->get(id, classname, svalues);
       _db->get(id, classname, ivalues);
       _db->get(id, classname, rvalues);
+      _db->get(id, classname, dtvalues);
     }
   };
 
@@ -61,6 +62,7 @@ namespace stactiverecord {
       SarVector<std::string> propkeys;
       SarMap<std::string> spropvalues;
       SarMap<int> ipropvalues;
+      SarMap<DateTime> dtpropvalues;
 
       // new strings
       get_new(propkeys, STRING);
@@ -94,6 +96,23 @@ namespace stactiverecord {
       propkeys.clear();
       get_deleted(propkeys, INTEGER);
       _db->del(id, classname, propkeys, STRING);
+
+      // new datetimes
+      propkeys.clear();
+      get_new(propkeys, DATETIME);
+      dtvalues.submap(propkeys, dtpropvalues);
+      _db->set(id, classname, dtpropvalues, true);
+
+      // changed datetimes
+      propkeys.clear();
+      get_changed(propkeys, DATETIME);
+      dtvalues.submap(propkeys, dtpropvalues);
+      _db->set(id, classname, dtpropvalues, false);      
+
+      // deleted datetimes
+      propkeys.clear();
+      get_deleted(propkeys, DATETIME);
+      _db->del(id, classname, propkeys, DATETIME);
 
       // added / deleted related records
       propkeys.clear();
@@ -154,6 +173,25 @@ namespace stactiverecord {
     dirty = true;
   };
 
+  void Record::set(std::string key, DateTime value) {   
+    // no change
+    if(dtvalues.has_key(key) && dtvalues[key] == value)
+      return;
+
+    if(dtvalues.has_key(key)) {
+      register_change(key, DATETIME);
+    } else if(is_registered_deleted(key, DATETIME)) {
+      // in this case it's now a modify
+      unregister_delete(key, DATETIME);
+      register_change(key, DATETIME);
+    } else {
+      clear_other_values(key, DATETIME);
+      register_new(key, DATETIME);
+    }
+    dtvalues[key] = value;
+    dirty = true;
+  };
+
   void Record::set(std::string key, bool value) {
     set(key, ((value) ? 1 : 0));
   };
@@ -197,6 +235,19 @@ namespace stactiverecord {
     else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
   };  
 
+  void Record::get(std::string key, DateTime& value, DateTime alt) {
+    if(dtvalues.has_key(key))
+      value = dtvalues[key];
+    else
+      value = alt;
+  };
+
+  void Record::get(std::string key, DateTime& value) {
+    if(dtvalues.has_key(key))
+      value = dtvalues[key];
+    else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+  };  
+
   void Record::del(std::string key) {
     coltype ct = type(key);
     if(ct == NONE) return;
@@ -209,12 +260,15 @@ namespace stactiverecord {
     }
 
     switch(ct) {
-      case INTEGER:
-	ivalues.remove(key);
-	break;
-      case STRING:
-	svalues.remove(key);
-	break;
+    case INTEGER:
+      ivalues.remove(key);
+      break;
+    case STRING:
+      svalues.remove(key);
+      break;
+    case DATETIME:
+      dtvalues.remove(key);
+      break;
     };
   };
 
@@ -228,6 +282,8 @@ namespace stactiverecord {
       return STRING;
     if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
       return INTEGER;
+    if(dtvalues.has_key(colname) || is_registered_new(colname, DATETIME))
+      return DATETIME;
     return NONE;
   };
 
@@ -251,12 +307,15 @@ namespace stactiverecord {
       }
       register_delete(colname, existing_ct);
       switch(ct) {
-        case INTEGER:
-	  ivalues.remove(colname);
-	  break;
-        case STRING:
-	  svalues.remove(colname);
-	  break;
+      case INTEGER:
+	ivalues.remove(colname);
+	break;
+      case STRING:
+	svalues.remove(colname);
+	break;
+      case DATETIME:
+	dtvalues.remove(colname);
+	break;
       };
     }
   };

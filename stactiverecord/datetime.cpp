@@ -30,21 +30,33 @@ Created by bmuller <bmuller@butterfat.net>
 namespace stactiverecord {
   
   DateTime::DateTime(int day, int month, int year, int hour, int minute, int second) {
-    t->tm_year = (year==0) ? 0 : year-1900;
-    t->tm_mon = (month==0) ? 0 : month-1;
-    t->tm_mday = day;
-    t->tm_hour = hour;
-    t->tm_min = minute;
-    t->tm_sec = second;
+    set(day, month, year, hour, minute, second);
+  };
+
+  void DateTime::set(int day, int month, int year, int hour, int minute, int second) {
+    t.tm_year = (year==0) ? 0 : year-1900;
+    t.tm_mon = (month==0) ? 0 : month-1;
+    t.tm_mday = day;
+    t.tm_hour = hour;
+    t.tm_min = minute;
+    t.tm_sec = second;
   };
 
   void DateTime::to_string(std::string& s) {
-    s = std::string(asctime(t));
+    s = std::string(asctime(&t));
   };
 
   int DateTime::to_int() {
-    time_t tt = mktime(t);
+    time_t tt = mktime(&t);
     return (int) tt;
   };
 
+  bool DateTime::operator==(DateTime& other) {
+    return (t.tm_year == other.t.tm_year && t.tm_mon == other.t.tm_mon &&
+    	    t.tm_mday == other.t.tm_mday && t.tm_hour == other.t.tm_hour &&
+	    t.tm_min == other.t.tm_min && t.tm_sec == other.t.tm_sec);
+  };
+  bool DateTime::operator!=(DateTime& other) {
+    return !(*this == other);
+  };
 };

@@ -28,12 +28,15 @@ Created by bmuller <bmuller@butterfat.net>
 namespace stactiverecord {
   
   class DateTime {
-  private:
-    tm * t;
   public:
-    DateTime(tm * _t) : t(_t) {};
+    tm t;
+    //DateTime(tm& _t) : t(_t) {};
     DateTime(int day=0, int month=0, int year=0, int hour=0, int minute=0, int second=0);
+    void set(int day=0, int month=0, int year=0, int hour=0, int minute=0, int second=0);
     void to_string(std::string& s);
     int to_int();
+    bool operator==(DateTime& other);
+    bool operator!=(DateTime& other);
+    void dump() { std::string s; to_string(s); std::cout << s << "\n"; };
   };
 };

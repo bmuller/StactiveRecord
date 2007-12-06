@@ -22,7 +22,7 @@ namespace stactiverecord {
    * editing coltype_to_name in utils too.
    * \enum wheretype The possible specific types/relationships a Where class can represent. 
    */
-  enum coltype { NONE, INTEGER, STRING, RECORD, ALL };
+  enum coltype { NONE, INTEGER, STRING, RECORD, DATETIME, ALL };
   enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS, OBJECTRELATION, IN, ISNULL };
 };
 

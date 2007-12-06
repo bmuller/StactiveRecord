@@ -151,6 +151,19 @@ namespace stactiverecord {
     }
   };
 
+  void Sar_Dbi::get(int id, std::string classname, SarMap<DateTime>& values) {
+    std::string tablename = table_prefix + classname + "_dt";
+    SarVector<KVT> cols;
+    cols << KVT("keyname", STRING);
+    cols << KVT("value", INTEGER);
+    SarVector<Row> rows = select(tablename, cols, Q("id", id));
+    std::string key;
+    for (unsigned int i = 0; i < rows.size(); i++) {
+      rows[i].get_string(0, key);
+      values[key] = DateTime(rows[i].get_int(0));
+    }
+  };
+
   void Sar_Dbi::set(int id, std::string classname, SarMap<std::string> values, bool isinsert) {
     std::string tablename = table_prefix + classname + "_s";
     for(std::map<std::string,std::string>::iterator i=values.begin(); i!=values.end(); ++i) {
@@ -171,6 +184,21 @@ namespace stactiverecord {
     for(std::map<std::string,int>::iterator i=values.begin(); i!=values.end(); ++i) {
       SarVector<KVT> values;
       values << KVT("value", (*i).second);
+      if(isinsert) {
+        values << KVT("id", id);
+	values << KVT("keyname", std::string((*i).first));
+        insert(tablename, values);
+      } else {
+	update(tablename, values, Q("id", id) && Q("keyname", std::string((*i).first)));
+      }
+    }
+  };
+
+  void Sar_Dbi::set(int id, std::string classname, SarMap<DateTime> values, bool isinsert) {
+    std::string tablename = table_prefix + classname + "_dt";
+    for(std::map<std::string,DateTime>::iterator i=values.begin(); i!=values.end(); ++i) {
+      SarVector<KVT> values;
+      values << KVT("value", ((*i).second).to_int());
       if(isinsert) {
         values << KVT("id", id);
 	values << KVT("keyname", std::string((*i).first));

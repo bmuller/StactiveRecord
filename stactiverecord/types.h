@@ -122,6 +122,13 @@ namespace stactiverecord {
       for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) 
 	std::cout << (*i).first << ": " << (*i).second << "\n";
     };
+    void dumpeach() {
+      for(typename SarMap<T>::iterator i=this->begin(); i!=this->end(); ++i) {
+	std::cout << (*i).first << ": ";
+	((*i).second).dump();
+	std::cout << "\n";
+      }
+    };    
     void submap(SarVector<std::string> keys, SarMap<T>& submap) {
       // clear the submap first...
       submap.clear();

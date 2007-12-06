@@ -12,7 +12,7 @@ void assert(bool v, string msg) {
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
-    std::cout << "Usage: ./db_test <db config string>\n";
+    std::cout << "Usage: ./db_test <scheme://[user[:password]@host[:port]/]database>\n";
     return 1;
   }
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
@@ -33,8 +33,10 @@ int main(int argc, char* argv[]) {
   int id = 2;
   SarMap<string> svalues;
   SarMap<int> ivalues;
+  SarMap<DateTime> dtvalues;
   SarMap<string> sresults;
   SarMap<int> iresults;
+  SarMap<DateTime> dtresults;
   SarVector<int> ovalues;
   SarVector<int> oresults;
   SarMap< SarVector<int> > all_relationships;
@@ -45,14 +47,20 @@ int main(int argc, char* argv[]) {
   svalues["baz"] = "bang";
   ivalues["bar"] = 55;
   ivalues["zoop"] = 1234;
+  dtvalues["shebang"] = DateTime(1,1,2001);
 
   db->set(id, classname, svalues, true);
   db->set(id, classname, ivalues, true);
+  db->set(id, classname, dtvalues, true);
 
   db->get(id, classname, sresults);
   db->get(id, classname, iresults);
+  db->get(id, classname, dtresults);
   assert(sresults == svalues, "storing/retrieving string values");
   assert(iresults == ivalues, "storing/retrieving int values");
+  dtresults.dumpeach();
+  dtvalues.dumpeach();
+  assert(dtresults == dtvalues, "storing/retrieving datetime values");
 
   // now test updates
   debug("testing updates");

@@ -41,24 +41,25 @@ namespace stactiverecord {
   public:
     SarVector<int> ints;
     SarVector<std::string> strings;
+    SarVector<DateTime> dts;
     void operator<<(int i) { ints << i; };
     void operator<<(std::string s) { strings << s; };
     bool operator!=(Row& other) {
       return !(*this == other);
     };
     bool operator==(Row& other) {
-      return ints == other.ints && strings == other.strings;
+      return ints == other.ints && strings == other.strings && dts == other.dts;
     };
     void get_string(int position, std::string& s) { 
       if(position > strings.size() - 1) 
 	throw Sar_ColumnNotFoundException("String column not found.");
       s = strings[position];
-    };
+    }; 
     int get_int(int position) { 
       if(position > ints.size() - 1) 
 	throw Sar_ColumnNotFoundException("Int column not found.");
       return ints[position];
-    };    
+    }; 
     void dump() {
       std::cout << "Ints:\n";
       ints.dump();
@@ -90,6 +91,8 @@ namespace stactiverecord {
     void get(int id, std::string classname, SarMap<std::string>& values);
     // get int values
     void get(int id, std::string classname, SarMap<int>& values);
+    // get datetime values
+    void get(int id, std::string classname, SarMap<DateTime>& values);
     // get record relations (of a specific class)
     void get(int id, std::string classname, std::string related_classname, SarVector<int>& related);
     // get all related classes
@@ -99,10 +102,12 @@ namespace stactiverecord {
     void set(int id, std::string classname, SarMap<std::string> values, bool isinsert);
     // insert/modify int values
     void set(int id, std::string classname, SarMap<int> values, bool isinsert);
+    // insert/modify datetime values
+    void set(int id, std::string classname, SarMap<DateTime> values, bool isinsert);
     // insert record relations
     void set(int id, std::string classname, SarVector<int> related, std::string related_classname);
 
-    // delete std::string / int value
+    // delete std::string / int / datetime value 
     void del(int id, std::string classname, SarVector<std::string> keys, coltype ct);
     // delete record relations
     void del(int id, std::string classname, SarVector<int> related, std::string related_classname);

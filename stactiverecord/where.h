@@ -57,6 +57,10 @@ namespace stactiverecord {
   Where * greaterthan(int value);
   Where * between(int value, int valuetwo);
   Where * equals(int value);
+  Where * lessthan(DateTime value);
+  Where * greaterthan(DateTime value);
+  Where * between(DateTime value, DateTime valuetwo);
+  Where * equals(DateTime value);
   Where * equals(std::string value);
   Where * equals(bool value);
   Where * in(std::vector<int> values);
@@ -70,6 +74,10 @@ namespace stactiverecord {
   Where * ngreaterthan(int value);
   Where * nbetween(int value, int valuetwo);
   Where * nequals(int value);
+  Where * nlessthan(DateTime value);
+  Where * ngreaterthan(DateTime value);
+  Where * nbetween(DateTime value, DateTime valuetwo);
+  Where * nequals(DateTime value);
   Where * nequals(std::string value);
   Where * nequals(bool value);
   Where * nin(std::vector<int> values);
