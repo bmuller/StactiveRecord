@@ -188,16 +188,7 @@ namespace stactiverecord {
       clear_other_values(key, DATETIME);
       register_new(key, DATETIME);
     }
-    DateTime dt;
-    int i = value.to_int();
-    std::cout << "i is: " << i << "\n\n\n";
-    std::cout << "and thre: " << value.to_int() << "\n\n\n";
-    dt.from_int(i);
-    std::cout << "and thre: " << dt.to_int() << "\n\n\n";
-    dtvalues[key] = dt;
-    std::cout << value.to_int() << "\n\n\n";
-    std::cout << dt.to_int() << "\n\n\n";
-    std::cout << dtvalues[key].to_int() << "\n\n\n";
+    dtvalues[key] = value;
     dirty = true;
   };
 

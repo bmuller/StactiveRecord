@@ -30,7 +30,7 @@ Created by bmuller <bmuller@butterfat.net>
 namespace stactiverecord {
   
   DateTime::DateTime(int month, int day, int year, int hour, int minute, int second) {
-    set(day, month, year, hour, minute, second);
+    set(month, day, year, hour, minute, second);
   };
 
   void DateTime::set(int month, int day, int year, int hour, int minute, int second) {
@@ -39,18 +39,14 @@ namespace stactiverecord {
     time ( &rawtime );
     t = localtime ( &rawtime );
     // set to given values
-    //t->tm_year = (year==0 || year <= 1900) ? 0 : year-1900;
-    t->tm_year = 1984 - 1900;
+    t->tm_year = (year==0 || year <= 1970) ? 70 : year-1900;
     t->tm_mon = (month==0) ? 0 : month-1;
     t->tm_mday = day;
     t->tm_hour = hour;
     t->tm_min = minute;
     t->tm_sec = second;
-
     // normalize t
-    int r = mktime(t);
-    if(r == -1)
-      std::cout << "\n\n\nCould not mktime\n\n\n";
+    mktime(t);
   };
 
   void DateTime::to_string(std::string& s) {
@@ -58,6 +54,7 @@ namespace stactiverecord {
   };
 
   int DateTime::to_int() {
+    std::cout << "To inting a time of: " << std::string(asctime(t)) << "\n";
     time_t tt = mktime(t);
     return (int) tt;
   };
