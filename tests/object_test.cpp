@@ -35,6 +35,8 @@ int main(int argc, char* argv[]) {
   }
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
 
+  //std::cout << "datetime int is: " << DateTime(5, 29, 1984).to_int() << "\n";
+
   Test t;
   t.set("number", 40);
   t.set("boolean", true);
@@ -46,6 +48,8 @@ int main(int argc, char* argv[]) {
   assert(og.size() == 1 && og[0].id == t.id, "performing find query");
   og = Record::find<Test>(Q("number", nequals(40)));
   assert(og.size() == 0, "performing find query with no results");
+  og = Record::find<Test>(Q("dob", DateTime(5, 29, 1984)));
+  assert(og.size() == 1, "performing find query with exact DateTime value");
     
   TestTwo tt;
   tt.set("number", 10);

@@ -34,41 +34,36 @@ namespace stactiverecord {
   };
 
   void DateTime::set(int month, int day, int year, int hour, int minute, int second) {
-    // init this->t
-    time_t rawtime;
-    time ( &rawtime );
-    t = localtime ( &rawtime );
-    // set to given values
-    t->tm_year = (year==0 || year <= 1970) ? 70 : year-1900;
-    t->tm_mon = (month==0) ? 0 : month-1;
-    t->tm_mday = day;
-    t->tm_hour = hour;
-    t->tm_min = minute;
-    t->tm_sec = second;
+    t.tm_year = (year==0 || year <= 1970) ? 70 : year-1900;
+    t.tm_mon = (month==0) ? 0 : month-1;
+    t.tm_mday = day;
+    t.tm_hour = hour;
+    t.tm_min = minute;
+    t.tm_sec = second;
     // normalize t
-    mktime(t);
+    mktime(&t);
   };
 
   void DateTime::to_string(std::string& s) {
-    s = std::string(asctime(t));
+    s = std::string(asctime(&t));
   };
 
   int DateTime::to_int() {
-    std::cout << "To inting a time of: " << std::string(asctime(t)) << "\n";
-    time_t tt = mktime(t);
+    time_t tt = mktime(&t);
     return (int) tt;
   };
 
   void DateTime::from_int(int i) {
     time_t rawtime;
     rawtime = (time_t) i;
-    t = localtime(&rawtime);
+    struct tm * tp = localtime(&rawtime);
+    set(tp->tm_mon, tp->tm_mday, tp->tm_year, tp->tm_hour, tp->tm_min, tp->tm_sec);
   };
 
   bool DateTime::operator==(DateTime& other) {
-    return (t->tm_year == other.t->tm_year && t->tm_mon == other.t->tm_mon &&
-	    t->tm_mday == other.t->tm_mday && t->tm_hour == other.t->tm_hour &&
-    	    t->tm_min == other.t->tm_min && t->tm_sec == other.t->tm_sec);
+    return (t.tm_year == other.t.tm_year && t.tm_mon == other.t.tm_mon &&
+	    t.tm_mday == other.t.tm_mday && t.tm_hour == other.t.tm_hour &&
+    	    t.tm_min == other.t.tm_min && t.tm_sec == other.t.tm_sec);
   };
   bool DateTime::operator!=(DateTime& other) {
     return !(*this == other);

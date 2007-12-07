@@ -29,7 +29,8 @@ namespace stactiverecord {
   
   class DateTime {
   public:
-    struct tm * t;
+    //struct tm * t;
+    struct tm t;
     //DateTime(tm& _t) : t(_t) {};
     DateTime(int month=0, int day=1, int year=0, int hour=0, int minute=0, int second=0);
     void set(int month=0, int day=1, int year=0, int hour=0, int minute=0, int second=0);

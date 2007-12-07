@@ -37,6 +37,7 @@ namespace stactiverecord {
     std::string key;
     std::string value;
     int ivalue;
+    DateTime dtvalue;
     SarVector<Q> ored;
     SarVector<Q> anded;
     coltype ct;
@@ -60,6 +61,12 @@ namespace stactiverecord {
      * @param _value The exact value to match for the given key.
      */
     Q(std::string _key, int _ivalue) : key(_key), ivalue(_ivalue) { ct = INTEGER; where = equals(_ivalue); };
+
+    /** Create query object 
+     * @param _key The key being queried
+     * @param _value The exact value to match for the given key.
+     */
+    Q(std::string _key, DateTime _dtvalue) : key(_key), dtvalue(_dtvalue) { ct = DATETIME; where = equals(_dtvalue); };
 
     /** Create query object.
      * @param _key The key being queried

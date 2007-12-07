@@ -370,6 +370,10 @@ namespace stactiverecord {
       tablename = table_prefix + classname + "_i";
       cols << KVT("id", INTEGER);
       rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
+    } else if(where->ct == DATETIME) {
+      tablename = table_prefix + classname + "_dt";
+      cols << KVT("id", INTEGER);
+      rows = select(tablename, cols, Q("keyname", key) && Q("value", where));
     } else if(where->ct == STRING) {
       tablename = table_prefix + classname + "_s";
       cols << KVT("id", INTEGER);
