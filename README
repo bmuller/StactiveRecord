@@ -1,1 +1,4 @@
-See http://www.butterfat.net/wiki/Projects/StactiveRecord
+For installation instructions, see the INSTALL file.  For more information/docs,
+see http://www.butterfat.net/wiki/Projects/StactiveRecord.  If you have doxygen,
+you can run it with the doxygen.conf file in the top level directory to create
+an html version of the API in the docs/api directory.

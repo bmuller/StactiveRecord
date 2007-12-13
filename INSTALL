@@ -1,1 +1,26 @@
+Installation:
+ - Prerequisites
+   1. One or more of the following databases and their dev components:
+    * libsqlite: SQLite C libs - http://www.sqlite.org
+    * mysql c libs: distributed with the mysql client program - http://dev.mysql.com/downloads/mysql/
+    * postgres c libs: come with PostgreSQL core - http://www.postgresql.org/download/
+   2. GNU c++ compiler (g++)
+   3. You will need the autotools (autoconf, automake, etc.) from http://directory.fsf.org/GNU/
+      if you're installing the development version (if you got it via SVN).
 
+ - If you're installing the development version, use:
+	$> ./autogen.sh <options>
+   otherwise, use:
+	$> ./configure <options>
+   Then:
+	$> make
+	$> su
+	$> make install
+
+Examples: 
+ - Can be found in the examples directory.
+
+More Documentation:
+ - Can be found at http://butterfat.net/wiki/Projects/StactiveRecord
+ - If you have doxygen, you can run it with the doxygen.conf file in the top level directory 
+   to create an html version of the API in the docs/api directory.
