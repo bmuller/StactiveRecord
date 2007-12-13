@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
   og = Record::find<Test>(Q("number", nequals(40)));
   assert(og.size() == 0, "performing find query with no results");
   og = Record::find<Test>(Q("dob", DateTime(5, 29, 1984)));
-  assert(og.size() == 1, "performing find query with exact DateTime value");
-    
+  assert(og.size() == 1, "find query with exact DateTime value");
+
   TestTwo tt;
   tt.set("number", 10);
   tt.save();
