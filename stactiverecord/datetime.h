@@ -29,16 +29,17 @@ namespace stactiverecord {
   
   class DateTime {
   public:
-    //struct tm * t;
     struct tm t;
-    //DateTime(tm& _t) : t(_t) {};
+    DateTime(tm * _t) { from_tm(_t); };
     DateTime(int month=0, int day=1, int year=0, int hour=0, int minute=0, int second=0);
     void set(int month=0, int day=1, int year=0, int hour=0, int minute=0, int second=0);
     void to_string(std::string& s);
     int to_int();
     void from_int(int i);
+    void from_tm(tm * tm);
     bool operator==(DateTime& other);
     bool operator!=(DateTime& other);
     void dump() { std::string s; to_string(s); std::cout << s << "\n"; };
+    static int now() { time_t rawtime; time(&rawtime); return (int) rawtime; };
   };
 };

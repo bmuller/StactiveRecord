@@ -36,6 +36,8 @@ AM_CONDITIONAL([POSTGRESQL], [test "$POSTGRESQL_VERSION" != ""])
 AC_CONFIG_FILES([
  Makefile
  stactiverecord/Makefile
+ examples/Makefile
+ tests/Makefile
 ])
 AC_OUTPUT
 

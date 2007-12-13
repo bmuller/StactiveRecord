@@ -1,8 +1,7 @@
 #include "stactive_record.h"
-
 using namespace stactiverecord;
-
-Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("postgres://stactiverecord:stactiverecord@127.0.0.1/stactiverecord");
+using namespace std;
+Sar_Dbi * Sar_Dbi::dbi;
 
 class Person : public Record {
 public:
@@ -10,6 +9,7 @@ public:
   std::string lastname;
   int age;
   bool iscool;
+  DateTime dob;
   Person() : Record("person") { init(); };
   Person(int id) : Record("person", id) { init(); }
   void init() {
@@ -17,12 +17,14 @@ public:
     get("lastname", lastname, "Unkown");
     get("age", age, 0);
     get("iscool", iscool, false);
+    get("dob", dob, DateTime(1,1,2000));
   };
   void save() {
     set("firstname", firstname);
     set("lastname", lastname);
     set("age", age);
     set("iscool", iscool);
+    set("dob", dob);
     Record::save();
   };
   void setBuddy(Person p) { 
@@ -45,7 +47,13 @@ public:
   TestTwo(int id) : Record("testtwo", id) {};
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+  if(argc != 2) {
+    std::cout << "Usage: ./db_test <scheme://[user[:password]@host[:port]/]database>\n";
+    return 1;
+  }
+  Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
+
   Person p;
   p.age = 23;
   p.firstname = "bob";

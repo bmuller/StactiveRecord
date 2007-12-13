@@ -1,1 +1,1 @@
-SUBDIRS = stactiverecord tests
+SUBDIRS = stactiverecord tests examples

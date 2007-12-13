@@ -99,4 +99,9 @@ namespace stactiverecord {
   public:
     Sar_ColumnNotFoundException(std::string s) : Sar_Exception(s) {};
   };  
+
+  class Sar_InvalidDateException : public Sar_Exception {
+  public:
+    Sar_InvalidDateException(std::string s) : Sar_Exception(s) {};
+  };  
 };

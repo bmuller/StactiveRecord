@@ -34,6 +34,9 @@ namespace stactiverecord {
   };
 
   void DateTime::set(int month, int day, int year, int hour, int minute, int second) {
+    if(year != 0 && year < 1970)
+      Sar_InvalidDateException("Date year cannot be before 1970.  I know this is crappy, will be fixed later.");
+
     t.tm_year = (year==0 || year <= 1970) ? 70 : year-1900;
     t.tm_mon = (month==0) ? 0 : month-1;
     t.tm_mday = day;
@@ -55,10 +58,14 @@ namespace stactiverecord {
   };
 
   void DateTime::from_int(int i) {
-    time_t rawtime;
-    rawtime = (time_t) i;
+    const time_t rawtime = (time_t) i;
     struct tm * tp = localtime(&rawtime);
-    set(tp->tm_mon, tp->tm_mday, tp->tm_year, tp->tm_hour, tp->tm_min, tp->tm_sec);
+    from_tm(tp);
+  };
+
+  void DateTime::from_tm(tm* tp) {
+    // add a day to month and 1900 to year, cause those will be subtracted in set()
+    set((tp->tm_mon+1), tp->tm_mday, (tp->tm_year+1900), tp->tm_hour, tp->tm_min, tp->tm_sec);    
   };
 
   bool DateTime::operator==(DateTime& other) {
