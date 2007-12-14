@@ -1,0 +1,10 @@
+These example files will show:
+ simple.cpp:       A very simple example to get you started
+ many_to_many.cpp: A many to many object relationship
+ one_to_many.cpp:  A one to many object relationship
+ one_to_one.cpp:   A one to one object relationship
+ querying.cpp:     Some examples of complicated queries
+ dbs.cpp:          Examples of how to connect to the different database types,
+                   as well as examples of how you can interact directly with
+                   the database.
+                   
