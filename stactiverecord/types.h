@@ -183,6 +183,15 @@ namespace stactiverecord {
 	sv.push_back(this->at(i).id);
       return sv;
     };
+    template <T> SarVector<T> get_property(std::string name) {
+      SarVector<T> sv;
+      T value;
+      for(unsigned int i=0; i < this->size(); i++) {
+	this->at(i).get(name, value);
+	sv << value;
+      }
+      return sv;
+    };
     bool has_id(int id) {
       return get_ids().includes(id);
     };

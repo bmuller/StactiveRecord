@@ -48,10 +48,12 @@ namespace stactiverecord {
       // if id doesn't exist error will be thrown in update
       update(); 
     };
-    void update();
   public:
     int id;
     std::string classname;
+
+    /** Update properties of an object.  Will overwrite any changes made since the object was created. **/
+    void update();
     
     /** Save record changes to DB.  If there are no changes, nothing will be done. */
     void save();
