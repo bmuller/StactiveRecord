@@ -10,27 +10,29 @@ using namespace std;
 
 Sar_Dbi * Sar_Dbi::dbi;
 
-class Person : public Record {
+class Person : public Record<Person> {
 public:
+  static string classname;
   int age;
   string fullname;
-  Person() : Record("person") { 
+  Person() : Record<Person>() { 
     age = 0; 
     fullname = "Unknown"; 
   };
-  Person(int id) : Record("person", id) { 
+  Person(int id) : Record<Person>(id) { 
     get("age", age, 0); 
     get("fullname", fullname, "Unknown"); 
   };
   void save() { 
     set("age", age); 
     set("fullname", fullname); 
-    Record::save(); 
+    Record<Person>::save(); 
   };
   void sayage() { 
     std::cout << "I'm " << fullname << " and I'm " << age << " years old.\n"; 
   };
 };
+string Person::classname = "person";
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
@@ -44,7 +46,7 @@ int main(int argc, char* argv[]) {
   bob.age = 50;
   bob.save();
 
-  ObjGroup<Person> people = Record::find<Person>(Q("age", between(40, 100)) && Q("fullname", startswith("Robert")));
+  ObjGroup<Person> people = Person::find(Q("age", between(40, 100)) && Q("fullname", startswith("Robert")));
   people[0].sayage();
   cout << "Name is: " << people[0].fullname << "\n";
   delete Sar_Dbi::dbi; // only cleanup necessary

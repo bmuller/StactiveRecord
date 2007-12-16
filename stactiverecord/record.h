@@ -26,7 +26,7 @@ Created by bmuller <bmuller@butterfat.net>
 */
 
 namespace stactiverecord {
-
+  template <class Klass>
   class Record : public CUDPropertyRegister {
   private:
     Sar_Dbi *_db;
@@ -35,101 +35,346 @@ namespace stactiverecord {
     SarMap<int> ivalues;    
     SarMap< SarVector<int> > rvalues;
     SarMap<DateTime> dtvalues;
-    coltype clear_other_values(std::string colname, coltype ct);
+    // lazy updates mean we only initialize values if necessary
+    bool initial_update;
+    // Delete any previous values for key that isn't coltype ct
+    // this is done to prevent two concurrent types for any key value
+    coltype clear_other_values(std::string colname, coltype ct) {
+      coltype existing_ct = type(colname);
+      if(existing_ct != NONE && existing_ct != ct) {
+	std::string coltypename;
+	coltype_to_name(existing_ct, coltypename);
+	debug("getting rid of old value for " + colname + " and type " + coltypename);
+	if(is_registered_new(colname, existing_ct)) {
+	  unregister_new(colname, ct);
+	} else if(is_registered_changed(colname, existing_ct)) {
+	  unregister_change(colname, existing_ct);
+	}
+	register_delete(colname, existing_ct);
+	switch(ct) {
+	case INTEGER:
+	  ivalues.remove(colname);
+	  break;
+	case STRING:
+	  svalues.remove(colname);
+	  break;
+	case DATETIME:
+	  dtvalues.remove(colname);
+	  break;
+	};
+      }
+    };
   protected:
-    Record(std::string _classname) : CUDPropertyRegister(), classname(_classname), id(-1), _db(Sar_Dbi::dbi) { 
+    Record() : CUDPropertyRegister(), classname(Klass::classname), id(-1), _db(Sar_Dbi::dbi), initial_update(false) { 
       check_classname(classname);
       _db->initialize_tables(classname); 
       dirty = true; 
     };
-    Record(std::string _classname, int _id) : CUDPropertyRegister(), classname(_classname), id(_id), _db(Sar_Dbi::dbi) { 
+    Record(int _id) : CUDPropertyRegister(), classname(Klass::classname), id(_id), _db(Sar_Dbi::dbi), initial_update(false) { 
       check_classname(classname);
       _db->initialize_tables(classname); 
-      // if id doesn't exist error will be thrown in update
-      update(); 
+      if(!_db->exists(classname, id)) 
+	throw Sar_NoSuchObjectException("There is no " + classname + " with given id.");
     };
   public:
     int id;
     std::string classname;
 
     /** Update properties of an object.  Will overwrite any changes made since the object was created. **/
-    void update();
-    
-    /** Save record changes to DB.  If there are no changes, nothing will be done. */
-    void save();
-
-    /** Determine the column type for the given column. */
-    coltype type(std::string colname);
-    
-    /** Determine whether or not any value is set for the given column. */
-    bool isset(std::string colname);
-
-    /** Comparison between two records - will look at classname and id */
-    bool operator==(const Record& other) const;
-
-    /** Comparison between two records - will look at classname and id */
-    bool operator!=(const Record& other) const;
-
-    /** Set a property with a value */
-    void set(std::string key, std::string value);
-
-    /** Set a property with a value - this is done if folk don't use namespacd std and use 
-     quoted string */
-    void set(std::string key, const char * s) { set(key, std::string(s)); };
-
-    /** Set a property with a value */
-    void set(std::string key, int value);
-
-    /** Set a property with a value */
-    void set(std::string key, bool value);
-
-    /** Set a property with a value */
-    void set(std::string key, DateTime value);
-
-    /** Get a property's value throw exception if not set*/
-    void get(std::string key, std::string& value);
-
-    /** Get a property's value, set to default if not yet set */
-    void get(std::string key, std::string& value, std::string alt);
-
-    /** Get a property's value throw exception if not set*/
-    void get(std::string key, DateTime& value);
-
-    /** Get a property's value, set to default if not yet set */
-    void get(std::string key, DateTime& value, DateTime alt);
-
-    /** Get a property's value, throw exception if not set */
-    void get(std::string key, int& value);
-
-    /** Get a property's value, set to default if not yet set */
-    void get(std::string key, int& value, int alt);
-
-    /** Get a property's value, throw exception if not set */
-    void get(std::string key, bool& value);
-
-    /** Get a property's value, set to default if not yet set */
-    void get(std::string key, bool& value, bool alt);
-
-    /** Delete a property */
-    void del(std::string key);
-
-    /** Delete a record */
-    void del();
-
-    template<class T> static bool exists(int id) {
-      std::string classname = T().classname;
-      return Sar_Dbi::dbi->exists(classname, id);      
+    void update() {
+      if(id == -1) 
+	throw Sar_NoSuchObjectException("Cannot update an object with id of -1");
+      else if(!_db->exists(classname, id)) 
+	throw Sar_NoSuchObjectException("The object id given does not exist.");
+      else {
+	_db->get(id, classname, svalues);
+	_db->get(id, classname, ivalues);
+	_db->get(id, classname, rvalues);
+	_db->get(id, classname, dtvalues);
+	initial_update = true;
+      }     
     };
 
-    /** Delete all records of type T */
-    template <class T> static void delete_all() {
-      std::string classname = T().classname;
-      Sar_Dbi::dbi->delete_records(classname);
+    bool operator==(const Record& other) const {
+      return (this->id == other.id && this->classname == other.classname);
+    };
+
+    bool operator!=(const Record &other) const {
+      return !(*this == other);
+    }
+
+    /** Save record changes to DB.  If there are no changes, nothing will be done. */
+    void save() {
+      // only save if a value was changed, or if this object has never 
+      // been saved before (if the id is -1)
+      if(dirty || id == -1) {
+	if(id == -1) {
+	  id = _db->next_id(classname);
+	  _db->make_existing(classname, id);
+	} else if (!initial_update) {
+	  update();
+	}
+	
+	SarVector<std::string> propkeys;
+	SarMap<std::string> spropvalues;
+	SarMap<int> ipropvalues;
+	SarMap<DateTime> dtpropvalues;
+
+	// new strings
+	get_new(propkeys, STRING);
+	svalues.submap(propkeys, spropvalues);
+	_db->set(id, classname, spropvalues, true);
+
+	// changed strings
+	propkeys.clear();
+	get_changed(propkeys, STRING);
+	svalues.submap(propkeys, spropvalues);
+	_db->set(id, classname, spropvalues, false);      
+	
+	// deleted strings
+	propkeys.clear();
+	get_deleted(propkeys, STRING);
+	_db->del(id, classname, propkeys, STRING);
+	
+	// new ints
+	propkeys.clear();
+	get_new(propkeys, INTEGER);
+	ivalues.submap(propkeys, ipropvalues);
+	_db->set(id, classname, ipropvalues, true);
+
+	// changed ints
+	propkeys.clear();
+	get_changed(propkeys, INTEGER);
+	ivalues.submap(propkeys, ipropvalues);
+	_db->set(id, classname, ipropvalues, false);      
+
+	// deleted ints
+	propkeys.clear();
+	get_deleted(propkeys, INTEGER);
+	_db->del(id, classname, propkeys, STRING);
+
+	// new datetimes
+	propkeys.clear();
+	get_new(propkeys, DATETIME);
+	dtvalues.submap(propkeys, dtpropvalues);
+	_db->set(id, classname, dtpropvalues, true);
+	
+	// changed datetimes
+	propkeys.clear();
+	get_changed(propkeys, DATETIME);
+	dtvalues.submap(propkeys, dtpropvalues);
+	_db->set(id, classname, dtpropvalues, false);      
+	
+	// deleted datetimes
+	propkeys.clear();
+	get_deleted(propkeys, DATETIME);
+	_db->del(id, classname, propkeys, DATETIME);
+
+	// added / deleted related records
+	propkeys.clear();
+	get_changed(propkeys, RECORD);
+	SarVector<int> related_ids;
+	std::string related_classname;
+	for(unsigned int i=0; i<propkeys.size(); i++) {
+	  related_ids.clear();
+	  related_classname = propkeys[i];
+	  _db->get(id, classname, related_classname, related_ids);
+	  SarVector<int> new_ids = related_ids.get_new(rvalues[related_classname]);
+	  SarVector<int> deleted_ids = rvalues[related_classname].get_new(related_ids);
+	  _db->set(id, classname, new_ids, related_classname);
+	  _db->del(id, classname, deleted_ids, related_classname);	
+	}
+
+	// reset registers and make ourselves clean
+	clear_registers();
+	dirty = false;
+      }
+    };
+
+    void set(std::string key, const char * s) { 
+      if(!initial_update && id!=-1) update();
+      set(key, std::string(s)); 
+    };
+
+    void set(std::string key, std::string value) {
+      if(!initial_update && id!=-1) update();
+      // no change    
+      if(svalues.has_key(key) && svalues[key] == value)
+	return;
+      
+      if(svalues.has_key(key)) {
+	register_change(key, STRING);
+      } else if(is_registered_deleted(key, STRING)) {
+	// in this case it's now a modify
+	unregister_delete(key, STRING);
+	register_change(key, STRING);
+      } else {
+	clear_other_values(key, STRING);
+	register_new(key, STRING);
+      }
+      svalues[key] = value;
+      dirty = true;
+    };
+
+    void set(std::string key, int value) {   
+      if(!initial_update && id!=-1) update();
+      // no change
+      if(ivalues.has_key(key) && ivalues[key] == value)
+	return;
+      
+      if(ivalues.has_key(key)) {
+	register_change(key, INTEGER);
+      } else if(is_registered_deleted(key, INTEGER)) {
+	// in this case it's now a modify
+	unregister_delete(key, INTEGER);
+	register_change(key, INTEGER);
+      } else {
+	clear_other_values(key, INTEGER);
+	register_new(key, INTEGER);
+      }
+      ivalues[key] = value;
+      dirty = true;
+    };
+
+    void set(std::string key, DateTime value) {   
+      if(!initial_update && id!=-1) update();
+      // no change
+      if(dtvalues.has_key(key) && dtvalues[key] == value)
+	return;
+      
+      if(dtvalues.has_key(key)) {
+	register_change(key, DATETIME);
+      } else if(is_registered_deleted(key, DATETIME)) {
+	// in this case it's now a modify
+	unregister_delete(key, DATETIME);
+	register_change(key, DATETIME);
+      } else {
+	clear_other_values(key, DATETIME);
+	register_new(key, DATETIME);
+      }
+      dtvalues[key] = value;
+      dirty = true;
+    };
+    
+    void set(std::string key, bool value) {
+      if(!initial_update && id!=-1) update();
+      set(key, ((value) ? 1 : 0));
+    };
+
+    void get(std::string key, std::string& value, std::string alt) {
+      if(!initial_update && id!=-1) update();
+      if(svalues.has_key(key))
+	value = svalues[key];
+      else 
+	value = alt;
+    };
+
+    void get(std::string key, std::string& value) {
+      if(!initial_update && id!=-1) update();
+      if(svalues.has_key(key))
+	value = svalues[key];
+      else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+    };
+
+    void get(std::string key, int& value, int alt) {
+      if(!initial_update && id!=-1) update();
+      if(ivalues.has_key(key))
+	value = ivalues[key];
+      else
+	value = alt;
+    };
+
+    void get(std::string key, int& value) {
+      if(!initial_update && id!=-1) update();
+      if(ivalues.has_key(key))
+	value = ivalues[key];
+      else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+    };
+    
+    void get(std::string key, bool& value, bool alt) {
+      if(!initial_update && id!=-1) update();
+      if(ivalues.has_key(key))
+	value = (ivalues[key]==0) ? false : true;
+      else
+	value = alt;
+    };
+
+    void get(std::string key, bool& value) {
+      if(!initial_update) update();
+      if(ivalues.has_key(key))
+	value = (ivalues[key]==0) ? false : true;
+      else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+    };  
+    
+    void get(std::string key, DateTime& value, DateTime alt) {
+      if(!initial_update && id!=-1) update();
+      if(dtvalues.has_key(key))
+	value = dtvalues[key];
+      else
+	value = alt;
+    };
+
+    void get(std::string key, DateTime& value) {
+      if(!initial_update && id!=-1) update();
+      if(dtvalues.has_key(key))
+	value = dtvalues[key];
+      else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
+    };  
+    
+    void del(std::string key) {
+      if(!initial_update && id!=-1) update();
+      coltype ct = type(key);
+      if(ct == NONE) return;
+      
+      if(is_registered_new(key, ct))
+	unregister_new(key, ct);
+      else {// preexisting
+	unregister_change(key, ct);
+	register_delete(key, ct);
+      }
+
+      switch(ct) {
+      case INTEGER:
+	ivalues.remove(key);
+	break;
+      case STRING:
+	svalues.remove(key);
+	break;
+      case DATETIME:
+	dtvalues.remove(key);
+	break;
+      };
+    };
+
+    bool isset(std::string colname) {
+      if(!initial_update && id!=-1) update();
+      return (type(colname) == NONE);
+    };
+
+    /** Determine the column type for the given column. 
+	Return coltype if found, NONE if not found
+    **/
+    coltype type(std::string colname) {
+      if(!initial_update && id!=-1) update();
+      if(svalues.has_key(colname) || is_registered_new(colname, STRING))
+	return STRING;
+      if(ivalues.has_key(colname) || is_registered_new(colname, INTEGER))
+	return INTEGER;
+      if(dtvalues.has_key(colname) || is_registered_new(colname, DATETIME))
+	return DATETIME;
+      return NONE;
+    };
+
+    void del() {
+      if(!initial_update && id!=-1) update();
+      if(id != -1)
+	_db->delete_record(id, classname);
     };
 
     /** Assuming here that r is of type T, set record relationship (one->one) */
-    template <class T> void setOne(Record r) {
-      if(r.id == -1 || !exists<T>(r.id)) {
+    template <class T> void setOne(Record<T>& r) {
+      if(!initial_update && id!=-1) update();
+      if(r.id == -1 || !T::exists(r.id)) {
 	std::string msg = "You cannot set an object relation with an object ";
 	msg += "that either has not yet been saved or has been deleted.";
 	throw Sar_NoSuchObjectException(msg);
@@ -149,6 +394,7 @@ namespace stactiverecord {
 
     /** Assuming here that each member of og is of type T, set record relationship (one->many) */
     template <class T> void setMany(ObjGroup<T> og) {
+      if(!initial_update && id!=-1) update();
       // Set each one individuall, and make list of ids
       SarVector<int> og_ids;
       for(unsigned int i=0; i<og.size(); i++) {
@@ -157,7 +403,7 @@ namespace stactiverecord {
       }
 
       // Determine which should be removed, and remove them
-      std::string classname = T().classname;
+      std::string classname = T::classname;
       SarVector<int> to_delete = og_ids.get_new(rvalues[classname]);
       for(unsigned int i=0; i<to_delete.size(); i++) {
 	rvalues[classname].remove(to_delete[i]);
@@ -168,7 +414,8 @@ namespace stactiverecord {
 
     /** Delete related record (one->one) */
     template <class T> void del() {
-      std::string related_classname = T().classname;
+      if(!initial_update && id!=-1) update();
+      std::string related_classname = T::classname;
       if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
 	rvalues[related_classname] = SarVector<int>();
 	register_change(related_classname, RECORD);
@@ -178,7 +425,8 @@ namespace stactiverecord {
 
     /** Get related record (one->one) */
     template <class T> void getOne(T& record) {
-      std::string related_classname = T().classname;
+      if(!initial_update && id!=-1) update();
+      std::string related_classname = T::classname;
       if(rvalues.has_key(related_classname) && rvalues[related_classname].size() > 0) {
 	record = T(rvalues[related_classname][0]);
       } else throw Sar_RecordNotFoundException("Could not find related record \"" + related_classname + "\"");
@@ -186,8 +434,9 @@ namespace stactiverecord {
 
     /** Get related records (one->many) */
     template <class T> ObjGroup<T> getMany() {
+      if(!initial_update && id!=-1) update();
       ObjGroup<T> og;
-      std::string related_classname = T().classname;
+      std::string related_classname = T::classname;
       if(rvalues.has_key(related_classname)) {
 	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
 	  og << T(rvalues[related_classname][i]);
@@ -196,22 +445,28 @@ namespace stactiverecord {
     };
 
     /** Find all objects of type T that match a given query Q */
-    template <class T> static ObjGroup<T> find(Q query) {
-      std::string classname = T().classname;
-      SarVector<int> results = query.test(classname);
+    static ObjGroup<Klass> find(Q query) {
+      SarVector<int> results = query.test(Klass::classname);
       // free pointers in query
       query.free();
-      return ObjGroup<T>::from_ids(results);      
+      return ObjGroup<Klass>::from_ids(results);      
     };
 
     /** Get all objects of type T */
-    template <class T> static ObjGroup<T> all() {
-      std::string classname = T().classname;
+    static ObjGroup<Klass> all() {
       SarVector<int> results;
-      Sar_Dbi::dbi->get(classname, results);
-      return ObjGroup<T>::from_ids(results);
+      Sar_Dbi::dbi->get(Klass::classname, results);
+      return ObjGroup<Klass>::from_ids(results);
     }
 
+    static bool exists(int id) {
+      return Sar_Dbi::dbi->exists(Klass::classname, id);      
+    };
+
+    /** Delete all records of type T */
+    static void delete_all() {
+      Sar_Dbi::dbi->delete_records(Klass::classname);
+    };
   };
 
 };

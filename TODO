@@ -1,1 +1,4 @@
 fix datetime support so you can have dates before 1970
+do something with VALUE_MAX_SIZE
+types.h get_property
+test has_object

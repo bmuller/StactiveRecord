@@ -31,11 +31,12 @@ namespace stactiverecord {
   
   /** Determind if classname is valid - throws exception if not */
   void check_classname(std::string classname) {
-    char chars[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+    char chars[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+		    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     bool found;
     for(std::string::size_type i=0; i<classname.size(); i++) {
       found = false;
-      for(int z=0; z<26; z++) 
+      for(int z=0; z<52; z++) 
 	if(classname[i] == chars[z] || classname[i] == '_')
 	  found = true;
       if(!found) throw Sar_InvalidClassnameException("\"" + classname + "\" is an invalid classname.");

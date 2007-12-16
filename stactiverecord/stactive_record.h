@@ -40,7 +40,7 @@ namespace stactiverecord {
 namespace stactiverecord {
   // Due to the fracking limitations of C++, this definition can't go in where.h
   // or a circular dependency is introduced.  Gack!
-  Where * hasobject(Record r);
+  Where * hasobject(Record<CUDPropertyRegister>& r);
 };
 
 #define VALUE_MAX_SIZE 255

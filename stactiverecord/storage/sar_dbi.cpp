@@ -123,6 +123,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap<std::string>& values) {
+    values.clear();
     std::string tablename = table_prefix + classname + "_s";
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
@@ -137,6 +138,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap<int>& values) {
+    values.clear();
     std::string tablename = table_prefix + classname + "_i";
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
@@ -152,6 +154,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap<DateTime>& values) {
+    values.clear();
     std::string tablename = table_prefix + classname + "_dt";
     SarVector<KVT> cols;
     cols << KVT("keyname", STRING);
@@ -280,6 +283,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, std::string related_classname, SarVector<int>& related) {
+    related.clear();
     std::string tablename = table_prefix + "relationships";
     debug("Getting related " + related_classname + "s to a " + classname);
     bool swap = (strcmp(classname.c_str(), related_classname.c_str()) > 0) ? true : false;
@@ -299,6 +303,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(int id, std::string classname, SarMap< SarVector<int> >& sm) {
+    sm.clear();
     debug("Getting all related objects to a " + classname);
     std::string tablename = table_prefix + "relationships";
     SarVector<KVT> cols;
@@ -339,6 +344,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get(std::string classname, SarVector<int>& results) {
+    results.clear();
     std::string tablename = table_prefix + classname + "_s";
     debug("Getting all objects of type " + classname);
     SarVector<KVT> cols;
@@ -362,6 +368,7 @@ namespace stactiverecord {
   };
 
   void Sar_Dbi::get_where(std::string classname, std::string key, Where * where, SarVector<int>& results) {
+    results.clear();
     bool isnot = where->isnot;
     SarVector<Row> rows;
     SarVector<KVT> cols;

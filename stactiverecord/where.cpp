@@ -83,7 +83,7 @@ namespace stactiverecord {
     return new Where(0, EQUALS);
   };
 
-  Where * hasobject(Record r) {
+  Where * hasobject(Record<CUDPropertyRegister>& r) {
     return new Where(r.classname, r.id, OBJECTRELATION);
   };
 

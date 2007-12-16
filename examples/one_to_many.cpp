@@ -2,7 +2,7 @@
 using namespace stactiverecord;
 using namespace std;
 Sar_Dbi * Sar_Dbi::dbi;
-
+/*
 class Person : public Record {
 public:
   std::string firstname;
@@ -46,14 +46,14 @@ public:
   TestTwo() : Record("testtwo") {};
   TestTwo(int id) : Record("testtwo", id) {};
 };
-
+*/
 int main(int argc, char* argv[]) {
   if(argc != 2) {
     std::cout << "Usage: ./db_test <scheme://[user[:password]@host[:port]/]database>\n";
     return 1;
   }
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
-
+  /*
   Person p;
   p.age = 23;
   p.firstname = "bob";
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
   Person z;
   qq.getBuddy(z);
   std::cout << z.firstname << "\n";
-  
+  */  
   /*
   Person qq(q.id);
   Person z;
@@ -171,3 +171,4 @@ int main(int argc, char* argv[]) {
   delete Sar_Dbi::dbi;
   return 0;
 };
+

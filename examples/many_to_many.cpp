@@ -6,12 +6,13 @@ Sar_Dbi * Sar_Dbi::dbi;
 // forward declaration of Reader
 class Reader;
 
-class Book : public Record {
+class Book : public Record<Book> {
 public:
+  static string classname;
   string name;
   ObjGroup<Reader> readers;
-  Book() : Record("book") { init(); };
-  Book(int id) : Record("book", id) { init(); };
+  Book() : Record<Book>() { init(); };
+  Book(int id) : Record<Book>(id) { init(); };
   void init() {
     get("name", name, "Unknown"); 
     readers = getMany<Reader>();
@@ -19,16 +20,18 @@ public:
   void save() {
     set("name", name);
     setMany<Reader>(readers);
-    Record::save();
+    Record<Book>::save();
   };
 };
+string Book::classname = "book";
 
-class Reader : public Record {
+class Reader : public Record<Reader> {
 public:
+  static string classname;
   string name;
   ObjGroup<Book> books;
-  Reader() : Record("reader") { init();  };
-  Reader(int id) : Record("reader", id) { init(); };
+  Reader() : Record<Reader>() { init();  };
+  Reader(int id) : Record<Reader>(id) { init(); };
   void init() {
     get("name", name, "Unknown"); 
     books = getMany<Book>();
@@ -36,9 +39,10 @@ public:
   void save() {
     set("name", name);
     setMany<Book>(books);
-    Record::save();
+    Record<Reader>::save();
   };
 };
+string Reader::classname = "reader";
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
@@ -46,8 +50,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
-
-  return 0;
 
   Reader bob;
   bob.name = "Robert";
