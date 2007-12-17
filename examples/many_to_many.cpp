@@ -3,7 +3,14 @@ using namespace stactiverecord;
 using namespace std;
 Sar_Dbi * Sar_Dbi::dbi;
 
-// forward declaration of Reader
+/**
+   This is an example of a many to many object relationship.  Books have many readers, and readers 
+   have many books.  The example shows that you can do something like "book.readers[0].books" to 
+   get all the books some reader likes in addition to some given book.  The class definitions are 
+   more complicated than they need to be - this is just a typical situation.
+**/
+
+// forward declaration of Reader.
 class Reader;
 
 class Book : public Record<Book> {
@@ -21,6 +28,10 @@ public:
     set("name", name);
     setMany<Reader>(readers);
     Record<Book>::save();
+  };
+  void update() {
+    Record<Book>::update();
+    init();
   };
 };
 string Book::classname = "book";
@@ -41,8 +52,13 @@ public:
     setMany<Book>(books);
     Record<Reader>::save();
   };
+  void update() {
+    Record<Reader>::update();
+    init();
+  };
 };
 string Reader::classname = "reader";
+
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
@@ -60,10 +76,10 @@ int main(int argc, char* argv[]) {
 
   bob.books << tale;
   bob.save();
-
   Reader new_bob(bob.id);
-  cout << new_bob.name << "'s favorite book is: " << new_bob.books[0].name << "\n";
-  
+  cout << new_bob.name << "'s first book is: " << new_bob.books[0].name << "\n";
+
+  // this tales' readers array should be updated
   tale.update();
   cout << "The reader for " << tale.name << " is " << tale.readers[0].name << "\n";
 

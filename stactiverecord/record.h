@@ -435,13 +435,10 @@ namespace stactiverecord {
     /** Get related records (one->many) */
     template <class T> ObjGroup<T> getMany() {
       if(!initial_update && id!=-1) update();
-      ObjGroup<T> og;
       std::string related_classname = T::classname;
-      if(rvalues.has_key(related_classname)) {
-	for(unsigned int i=0; i<rvalues[related_classname].size(); i++)
-	  og << T(rvalues[related_classname][i]);
-      }
-      return og;
+      if(rvalues.has_key(related_classname))
+	return ObjGroup<T>(rvalues[related_classname]);
+      return ObjGroup<T>();
     };
 
     /** Find all objects of type T that match a given query Q */
@@ -449,14 +446,14 @@ namespace stactiverecord {
       SarVector<int> results = query.test(Klass::classname);
       // free pointers in query
       query.free();
-      return ObjGroup<Klass>::from_ids(results);      
+      return ObjGroup<Klass>(results);      
     };
 
     /** Get all objects of type T */
     static ObjGroup<Klass> all() {
       SarVector<int> results;
       Sar_Dbi::dbi->get(Klass::classname, results);
-      return ObjGroup<Klass>::from_ids(results);
+      return ObjGroup<Klass>(results);
     }
 
     static bool exists(int id) {

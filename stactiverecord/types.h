@@ -165,19 +165,29 @@ namespace stactiverecord {
 
   template <class T>
   class ObjGroup : public SarVector<T> {
+  private:
+    SarVector<int> ids;
+    bool slow_inits;
+    void ids_to_objs() {
+      for(unsigned int i=0; i < ids.size(); i++)
+	this->push_back(T(ids[i]));
+      slow_inits = false;
+    };
   public:
-    ObjGroup() : SarVector<T>() {};
-    ObjGroup(SarVector<T>& sr) : SarVector<T>() {
+    ObjGroup() : SarVector<T>(), slow_inits(false) {};
+    ObjGroup(SarVector<T>& sr) : SarVector<T>(), slow_inits(false) {
       for(unsigned int i=0; i<sr.size(); i++)
 	push_back(sr[i]);
     };
-    static ObjGroup<T> from_ids(SarVector<int> ids) {
-      ObjGroup<T> og;
-      for(unsigned int i=0; i<ids.size(); i++)
-	og << T(ids[i]);
-      return og;
+    ObjGroup(SarVector<int> _ids) : SarVector<T>(), slow_inits(true) { ids = _ids; };
+    int size() {
+      if(slow_inits)
+	return ids.size();
+      return SarVector<T>::size();
     };
     SarVector<int> get_ids() {
+      if(slow_inits)
+	return ids;
       SarVector<int> sv;
       for(unsigned int i=0; i < this->size(); i++)
 	sv.push_back(this->at(i).id);
@@ -202,6 +212,13 @@ namespace stactiverecord {
 	if(this->at(i) == r)
 	  return true;
       return false;
+    };
+    T& operator[](int i) {
+      return this->at(i);
+    };
+    T& at(int i) {
+      if(slow_inits) ids_to_objs();
+      return SarVector<T>::at(i);
     };
   };
 };
