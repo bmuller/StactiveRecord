@@ -26,6 +26,11 @@ Created by bmuller <bmuller@butterfat.net>
 */
 
 namespace stactiverecord {
+/** 
+    All objects should extend Record.  See the simple example in the 
+    examples folder to get started.
+ **/
+
   template <class Klass>
   class Record : public CUDPropertyRegister {
   private:

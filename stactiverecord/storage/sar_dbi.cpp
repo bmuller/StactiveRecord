@@ -25,8 +25,8 @@ namespace stactiverecord {
     throw Sar_InvalidConfigurationException("DB type of \"" + configparts[0] + "\" not recognized.");
   };
 
-  /** parse scheme://[user[:password]@host[:port]/]database into a hashmap that can contain the following
-      keys: user, password, host, port, database
+  /** @param config The db configuration - "scheme://[user[:password]@host[:port]/]database" 
+      \returns A hashmap that can contain the following keys: user, password, host, port, database
   */
   SarMap<std::string> Sar_Dbi::parseconfig(std::string config) {
     SarMap<std::string> result;
