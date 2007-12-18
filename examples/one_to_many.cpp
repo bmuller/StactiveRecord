@@ -44,11 +44,14 @@ public:
   SchoolClass(int id) : Record<SchoolClass>(id) { init(); };
   void init() {
     get("name", name, "Unknown"); 
-    getOne<Teacher>(teacher);
+    if(isset<Teacher>())
+      getOne<Teacher>(teacher);
   };
   void save() {
     set("name", name);
-    setOne<Teacher>(teacher);
+    // if teacher variable has been set
+    if(teacher.has_been_saved())
+      setOne<Teacher>(teacher);
     Record<SchoolClass>::save();
   };
   void update() {
@@ -77,7 +80,7 @@ int main(int argc, char* argv[]) {
   SchoolClass math;
   math.name = "Math";
   math.save();
-  krabappel.classes << english;
+  krabappel.classes << math;
 
   krabappel.save();
   cout << krabappel.name << " teaches " << krabappel.classes[0].name << " and " << krabappel.classes[1].name << "\n";

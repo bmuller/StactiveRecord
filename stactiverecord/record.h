@@ -351,6 +351,11 @@ namespace stactiverecord {
       return (type(colname) == NONE);
     };
 
+    template <class T> bool isset() {
+      ObjGroup<T> others = getMany<T>();
+      return others.size() > 0;
+    };
+
     /** Determine the column type for the given column. 
 	Return coltype if found, NONE if not found
     **/
@@ -369,6 +374,10 @@ namespace stactiverecord {
       if(!initial_update && id!=-1) update();
       if(id != -1)
 	_db->delete_record(id, classname);
+    };
+
+    bool has_been_saved() {
+      return id != -1;
     };
 
     /** Assuming here that r is of type T, set record relationship (one->one) */
