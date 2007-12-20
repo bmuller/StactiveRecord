@@ -5,62 +5,22 @@ Sar_Dbi * Sar_Dbi::dbi;
 
 /**
    This is an example of a one to one object relationship.  A lock has a single key and a key fits
-   a single lock.  The class definitions are more complicated than they need to be - this is 
-   just a typical situation.
+   a single lock.
 **/
-
-// forward declaration of Key.
-class Key;
 
 class Lock : public Record<Lock> {
 public:
+  Lock() : Record<Lock>() {};
+  Lock(int id) : Record<Lock>(id) {};
   static string classname;
-  string name;
-  Key * key;
-  Lock() : Record<Lock>() { init();  };
-  Lock(int id) : Record<Lock>(id) { init(); };
-  void init() {
-    get("name", name, "Unknown"); 
-    if(isset<Key>())
-      getOne<Key>(*key);
-  };
-  void save() {
-    set("name", name);
-    // if key variable has been set
-    if(key->has_been_saved())
-      setOne<Key>(*key);
-    Record<Lock>::save();
-  };
-  void update() {
-    Record<Lock>::update();
-    init();
-  };
 };
 string Lock::classname = "lock";
 
 class Key : public Record<Key> {
 public:
+  Key() : Record<Key>() {};
+  Key(int id) : Record<Key>(id) {};
   static string classname;
-  string name;
-  Lock lock;
-  Key() : Record<Key>() { init(); };
-  Key(int id) : Record<Key>(id) { init(); };
-  void init() {
-    get("name", name, "Unknown"); 
-    if(isset<Lock>())
-      getOne<Lock>(lock);
-  };
-  void save() {
-    set("name", name);
-    // if teacher variable has been set
-    if(lock.has_been_saved())
-      setOne<Lock>(lock);
-    Record<Key>::save();
-  };
-  void update() {
-    Record<Key>::update();
-    init();
-  };
 };
 string Key::classname = "key";
 
@@ -73,16 +33,22 @@ int main(int argc, char* argv[]) {
   Sar_Dbi::dbi = Sar_Dbi::makeStorage(std::string(argv[1]));
 
   Key key;
-  key.name = "The Key";
+  key.set("name", "The Key");
   key.save();
 
   Lock lock;
-  lock.name = "The Lock";
-  lock.key = key;
-  lock.save;
+  lock.set("name", "The Lock");
+  lock.setOne<Key>(key);
+  lock.save();
 
-  key.update();
-  cout << "The lock for " << key.name << " is " << key.lock.name << "\n";
+  Key dbkey(key.id);
+  string key_name, lock_name;
+  dbkey.get("name", key_name);
+  Lock dblock;
+  dbkey.getOne<Lock>(dblock);
+  dblock.get("name", lock_name);
+
+  cout << "The lock for " << key_name << " is " << lock_name << "\n";
 
   delete Sar_Dbi::dbi;
   return 0;
