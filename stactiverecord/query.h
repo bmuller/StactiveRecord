@@ -56,6 +56,8 @@ namespace stactiverecord {
      */
     Q(std::string _key, std::string _value) : key(_key), value(_value) { ct = STRING; where = equals(_value); };
 
+    Q(std::string _key, const char * _value) : key(_key), value(std::string(_value)) { ct = STRING; where = equals(std::string(_value)); };
+
     /** Create query object 
      * @param _key The key being queried
      * @param _ivalue The exact value to match for the given key.

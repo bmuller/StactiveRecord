@@ -24,6 +24,9 @@ namespace stactiverecord {
    */
   enum coltype { NONE, INTEGER, STRING, RECORD, DATETIME, ALL };
   enum wheretype { STARTSWITH, ENDSWITH, CONTAINS, GREATERTHAN, LESSTHAN, BETWEEN, EQUALS, OBJECTRELATION, IN, ISNULL };
+
+  // Forward declaration of class Record
+  template <class T> class Record;
 };
 
 #include "config.h"
@@ -36,12 +39,6 @@ namespace stactiverecord {
 #include "query.h"
 #include "storage.h"
 #include "record.h"
-
-namespace stactiverecord {
-  // Due to the fracking limitations of C++, this definition can't go in where.h
-  // or a circular dependency is introduced.  Gack!
-  Where * hasobject(Record<CUDPropertyRegister>& r);
-};
 
 #define VALUE_MAX_SIZE 255
 #define VALUE_MAX_SIZE_S "255"

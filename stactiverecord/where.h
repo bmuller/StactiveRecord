@@ -60,15 +60,20 @@ namespace stactiverecord {
   Where * lessthan(int value);
   Where * greaterthan(int value);
   Where * between(int value, int valuetwo);
-  Where * equals(int value);
   Where * lessthan(DateTime value);
   Where * greaterthan(DateTime value);
   Where * between(DateTime value, DateTime valuetwo);
   Where * equals(DateTime value);
+  Where * equals(int value);
   Where * equals(std::string value);
   Where * equals(bool value);
+  Where * equals(const char * value);
   Where * in(std::vector<int> values);
   Where * isnull();
+  template <class T> Where * hasobject(Record<T>& r) {
+    return new Where(r.classname, r.id, OBJECTRELATION);
+  };
+
 
   // negated values
   Where * nstartswith(std::string value);
@@ -84,6 +89,7 @@ namespace stactiverecord {
   Where * nequals(DateTime value);
   Where * nequals(std::string value);
   Where * nequals(bool value);
+  Where * nequals(const char * value);
   Where * nin(std::vector<int> values);
   Where * nisnull();
 };

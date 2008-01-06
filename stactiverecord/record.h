@@ -326,6 +326,7 @@ namespace stactiverecord {
       else throw Sar_NoSuchPropertyException("property \"" + key + "\" does not exist");
     };  
     
+    /** Delete property with the given key name */
     void del(std::string key) {
       if(!initial_update && id!=-1) update();
       coltype ct = type(key);
@@ -351,11 +352,13 @@ namespace stactiverecord {
       };
     };
 
+    /** Determine if a property is set */
     bool isset(std::string colname) {
       if(!initial_update && id!=-1) update();
       return (type(colname) == NONE);
     };
 
+    /** Determine if an object relation is set */
     template <class T> bool isset() {
       ObjGroup<T> others = getMany<T>();
       return others.size() > 0;
@@ -375,6 +378,7 @@ namespace stactiverecord {
       return NONE;
     };
 
+    /** Delete Klass record */
     void del() {
       if(!initial_update && id!=-1) update();
       if(id != -1)
@@ -470,11 +474,12 @@ namespace stactiverecord {
       return ObjGroup<Klass>(results);
     }
 
+    /** Determine if a Klass with the given id exists */
     static bool exists(int id) {
       return Sar_Dbi::dbi->exists(Klass::classname, id);      
     };
 
-    /** Delete all records of type T */
+    /** Delete all records of type Klass */
     static void delete_all() {
       Sar_Dbi::dbi->delete_records(Klass::classname);
     };

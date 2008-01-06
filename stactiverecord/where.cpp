@@ -83,8 +83,8 @@ namespace stactiverecord {
     return new Where(0, EQUALS);
   };
 
-  Where * hasobject(Record<CUDPropertyRegister>& r) {
-    return new Where(r.classname, r.id, OBJECTRELATION);
+  Where * equals(const char * value) { 
+    return equals(std::string(value)); 
   };
 
   Where * in(std::vector<int> values) {
@@ -147,6 +147,10 @@ namespace stactiverecord {
 
   Where * nequals(bool value) {
     return equals(!value);
+  };
+
+  Where * nequals(const char * value) { 
+    return nequals(std::string(value)); 
   };
 
   Where * nin(std::vector<int> values) {

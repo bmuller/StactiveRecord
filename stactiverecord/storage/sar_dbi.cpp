@@ -425,6 +425,12 @@ namespace stactiverecord {
       } else {
         cols << KVT("class_one_id", INTEGER);
         rows = select(tablename, cols, Q("class_one", classname) && Q("class_two_id", where->ivalue) && Q("class_two", where->svalue));
+	// in the case in which the two classnames are the same, we need to try both (swap will be false, so try them swapped as well)
+	if(classname == where->svalue) {
+	  cols.clear();
+	  cols << KVT("class_two_id", INTEGER);
+	  rows.unionize(select(tablename, cols, Q("class_two", classname) && Q("class_one_id", where->ivalue) && Q("class_one", where->svalue)));
+	}
       }
     }
 

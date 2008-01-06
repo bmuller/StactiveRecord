@@ -193,17 +193,17 @@ namespace stactiverecord {
 	sv.push_back(this->at(i).id);
       return sv;
     };
-    /*
-    template <T> SarVector<T> get_property(std::string name) {
-      SarVector<T> sv;
-      T value;
+    /** This will return a SarVector containing the propertie values for each object
+	element in this ObjGroup **/
+    template <class K> SarVector<K> get_property(std::string name) {
+      SarVector<K> sv;
+      K value;
       for(unsigned int i=0; i < this->size(); i++) {
 	this->at(i).get(name, value);
 	sv << value;
       }
       return sv;
     };
-    */
     bool has_id(int id) {
       return get_ids().includes(id);
     };
