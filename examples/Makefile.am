@@ -1,8 +1,4 @@
-HEADERDIR = ../stactiverecord
 noinst_PROGRAMS = dbs many_to_many one_to_many one_to_one querying simple
-nobase_include_HEADERS = $(HEADERDIR)/stactive_record.h $(HEADERDIR)/config.h $(HEADERDIR)/cud_property_register.h \
-        $(HEADERDIR)/exception.h $(HEADERDIR)/query.h $(HEADERDIR)/record.h $(HEADERDIR)/stactive_record.h \
-        $(HEADERDIR)/types.h $(HEADERDIR)/utils.h $(HEADERDIR)/storage.h $(HEADERDIR)/where.h $(HEADERDIR)/datetime.h
 
 dbs_SOURCES = dbs.cpp  
 dbs_LDFLAGS = -lstactiverecord -L$(HEADERDIR)/.libs
