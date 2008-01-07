@@ -1,5 +1,6 @@
 noinst_PROGRAMS = db_test object_test
 
+HEADERDIR = ../stactiverecord
 db_test_SOURCES = db_test.cpp
 db_test_LDFLAGS = -lstactiverecord -L$(HEADERDIR)/.libs
 

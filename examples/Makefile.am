@@ -1,5 +1,7 @@
 noinst_PROGRAMS = dbs many_to_many one_to_many one_to_one querying simple
 
+HEADERDIR = ../stactiverecord
+
 dbs_SOURCES = dbs.cpp  
 dbs_LDFLAGS = -lstactiverecord -L$(HEADERDIR)/.libs
 
