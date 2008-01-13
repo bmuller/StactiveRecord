@@ -58,8 +58,6 @@ int main(int argc, char* argv[]) {
   db->get(id, classname, dtresults);
   assert(sresults == svalues, "storing/retrieving string values");
   assert(iresults == ivalues, "storing/retrieving int values");
-  dtresults.dumpeach();
-  dtvalues.dumpeach();
   assert(dtresults == dtvalues, "storing/retrieving datetime values");
 
   // now test updates

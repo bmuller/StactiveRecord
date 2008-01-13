@@ -95,7 +95,6 @@ int main(int argc, char* argv[]) {
   popular.save();
 
   ogtt = popular.getMany<TestTwo>();
-  ogtt.get_ids().dump();
   assert(ogtt.size() == number, "testing object relationship with lots of objects");
 
   TestThree tthree;
