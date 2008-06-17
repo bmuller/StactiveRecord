@@ -43,7 +43,7 @@ namespace stactiverecord {
     t.tm_hour = hour;
     t.tm_min = minute;
     t.tm_sec = second;
-    t.tm_isdst = 0;
+    t.tm_isdst = -1;
     // normalize t
     mktime(&t);
   };
