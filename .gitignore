@@ -5,6 +5,7 @@ acinclude.d/ltversion.m4
 acinclude.d/lt~obsolete.m4
 Makefile
 Makefile.in
+api
 *.o
 *.lo
 *.la

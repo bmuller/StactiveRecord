@@ -3,8 +3,8 @@
     The goal of the project is to create an implementation of the Active Record pattern for C++
 
     \section Resources
-    \li The source, docs, and more info can be found at http://butterfat.net/wiki/Projects/StactiveRecord
-    \li Bug reporting can be found at https://coop.butterfat.net/tracker/butterfat/
+    \li The source, docs, and more info can be found at http://findingscience.com/StactiveRecord
+    \li Bug reporting can be found at http://github.com/bmuller/StactiveRecord/issues
     \section Author
     Brian Muller <bmuller@butterfat.net>
 */
