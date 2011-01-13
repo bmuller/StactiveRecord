@@ -1,7 +1,9 @@
-AC_INIT([StactiveRecord], [0.0], [bmuller@butterfat.net])
-AC_DEFINE([PACKAGE_URL],["http://www.butterfat.net/wiki/Projects/StactiveRecord"],[project url])
+AC_INIT([StactiveRecord], [0.1], [bmuller@butterfat.net])
+AC_DEFINE([PACKAGE_URL],["http://findingscience.com/StactiveRecord"],[project url])
 AM_CONFIG_HEADER(stactiverecord/config.h)
 AM_INIT_AUTOMAKE()
+
+AC_CONFIG_MACRO_DIR([acinclude.d])
 
 AC_PROG_CXX
 AC_PROG_CXXCPP
@@ -73,7 +75,7 @@ echo " *** $> make"
 echo " *** $> su root"
 echo " *** $> make install"
 echo " ***"
-echo " *** Report bugs at https://www.butterfat.net/tracker/butterfat/index"
+echo " *** Report bugs at http://github.com/bmuller/StactiveRecord/issues"
 echo " *** Thanks for using free (as in speech, not beer) software."
 echo " ***"
 echo

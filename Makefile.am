@@ -1,6 +1,7 @@
 SUBDIRS = stactiverecord tests examples
 HEADERDIR = stactiverecord
 TESTDIR = tests
+ACLOCAL_AMFLAGS = -I acinclude.d
 
 nobase_include_HEADERS = $(HEADERDIR)/stactive_record.h $(HEADERDIR)/config.h $(HEADERDIR)/cud_property_register.h \
         $(HEADERDIR)/exception.h $(HEADERDIR)/query.h $(HEADERDIR)/record.h $(HEADERDIR)/stactive_record.h \
