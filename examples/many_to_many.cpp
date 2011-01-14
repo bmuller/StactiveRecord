@@ -15,7 +15,7 @@ class Reader;
 
 class Book : public Record<Book> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   ObjGroup<Reader> readers;
   Book() : Record<Book>() { init(); };
@@ -34,11 +34,11 @@ public:
     init();
   };
 };
-string Book::classname = "book";
+SAR_SET_CLASSNAME(Book, "book");
 
 class Reader : public Record<Reader> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   ObjGroup<Book> books;
   Reader() : Record<Reader>() { init();  };
@@ -57,8 +57,7 @@ public:
     init();
   };
 };
-string Reader::classname = "reader";
-
+SAR_SET_CLASSNAME(Reader, "reader");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {

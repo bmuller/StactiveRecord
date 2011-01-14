@@ -43,3 +43,5 @@ namespace stactiverecord {
 #define VALUE_MAX_SIZE 255
 #define VALUE_MAX_SIZE_S "255"
 
+#define SAR_INIT() static string classname;
+#define SAR_SET_CLASSNAME(c, n) string c::classname = n;

@@ -6,11 +6,11 @@ Sar_Dbi * Sar_Dbi::dbi;
 // First define a class that we'll be querying on
 class Person : public Record<Person> {
 public:
-  static string classname;
+  SAR_INIT();
   Person() : Record<Person>() {};
   Person(int id) : Record<Person>(id) {};
 };
-string Person::classname = "person";
+SAR_SET_CLASSNAME(Person, "Person");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {

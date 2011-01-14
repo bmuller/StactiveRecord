@@ -1,3 +1,4 @@
+libstactiverecord.pc
 acinclude.d/libtool.m4
 acinclude.d/ltoptions.m4
 acinclude.d/ltsugar.m4

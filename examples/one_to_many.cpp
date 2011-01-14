@@ -14,7 +14,7 @@ class SchoolClass;
 
 class Teacher : public Record<Teacher> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   ObjGroup<SchoolClass> classes;
   Teacher() : Record<Teacher>() { init();  };
@@ -33,11 +33,11 @@ public:
     init();
   };
 };
-string Teacher::classname = "teacher";
+SAR_SET_CLASSNAME(Teacher, "Teacher");
 
 class SchoolClass : public Record<SchoolClass> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   Teacher teacher;
   SchoolClass() : Record<SchoolClass>() { init(); };
@@ -59,8 +59,7 @@ public:
     init();
   };
 };
-string SchoolClass::classname = "schoolclass";
-
+SAR_SET_CLASSNAME(SchoolClass, "SchoolClass");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {

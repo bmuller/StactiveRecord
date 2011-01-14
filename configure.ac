@@ -11,6 +11,7 @@ AC_LANG_CPLUSPLUS
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
 AM_PROG_LIBTOOL
+PKG_PROG_PKG_CONFIG
 
 AC_HEADER_STDC
 
@@ -37,6 +38,7 @@ AM_CONDITIONAL([POSTGRESQL], [test "$POSTGRESQL_VERSION" != ""])
 
 AC_CONFIG_FILES([
  Makefile
+ libstactiverecord.pc
  stactiverecord/Makefile
  examples/Makefile
  tests/Makefile

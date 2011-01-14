@@ -12,18 +12,17 @@ class Lock : public Record<Lock> {
 public:
   Lock() : Record<Lock>() {};
   Lock(int id) : Record<Lock>(id) {};
-  static string classname;
+  SAR_INIT();
 };
-string Lock::classname = "lock";
+SAR_SET_CLASSNAME(Lock, "Lock");
 
 class Key : public Record<Key> {
 public:
   Key() : Record<Key>() {};
   Key(int id) : Record<Key>(id) {};
-  static string classname;
+  SAR_INIT();
 };
-string Key::classname = "key";
-
+SAR_SET_CLASSNAME(Key, "Key");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {

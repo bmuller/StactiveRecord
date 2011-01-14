@@ -12,7 +12,7 @@ Sar_Dbi * Sar_Dbi::dbi;
 
 class Person : public Record<Person> {
 public:
-  static string classname;
+  SAR_INIT();
   int age;
   string fullname;
   Person() : Record<Person>() { 
@@ -32,7 +32,7 @@ public:
     std::cout << "I'm " << fullname << " and I'm " << age << " years old.\n"; 
   };
 };
-string Person::classname = "person";
+SAR_SET_CLASSNAME(Person, "Person");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
