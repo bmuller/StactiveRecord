@@ -1,19 +1,21 @@
 ---
 layout: base
-title: StactiveRecord - C++ ORM
+title: StactiveRecord - A C++ ORM
 ---
 # Introduction
-**StactiveRecord** is a C++ library designed to make simple database use simple.  It was inspired by Ruby on Rail's [Active Record](http://wiki.rubyonrails.org/rails/pages/ActiveRecord), however, no similar look, feel, or performance is guaranteed.  It uses an [Object-relational mapping](http://en.wikipedia.org/wiki/Object-relational_mapping) pattern to represent records as objects.  It also provides persistent (basic) object relationships (one to many, many to many, one to one).
+**StactiveRecord** is a C++ library designed to make simple database use simple.  It was inspired by Ruby on Rail's [Active Record](http://wiki.rubyonrails.org/rails/pages/ActiveRecord), however, no similar look, feel, or performance is guaranteed.  It uses an [Object-relational mapping](http://en.wikipedia.org/wiki/Object-relational_mapping) pattern to represent records as objects.  It also provides persistent object relationships (one to many, many to many, one to one).
 
 # Quick Example For Those In A Rush 
-See the [simple example description page](exampledescription.html) for  more detailed example. 
+See the [simple example description page](exampledescription.html) for a detailed description of this example.
 {% highlight cpp %}
 #include <stactive_record.h>
 #include <iostream>
 using namespace stactiverecord;
 using namespace std;
 
+// Initialize the DB connection
 Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
+
 class Person : public Record<Person> {
 public:
   static string classname;
