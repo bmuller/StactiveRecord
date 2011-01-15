@@ -52,7 +52,7 @@ namespace stactiverecord {
   /** convert integer to string */
   void int_to_string(int i, std::string& s) {
     char c_int[100];
-    sprintf(c_int, "%ld", i);
+    sprintf(c_int, "%d", i);
     s = std::string(c_int);
   };
 
