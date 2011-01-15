@@ -79,6 +79,3 @@ In addition, each of these can be negated:
  * nisnull()
 
 You can take a look at the queries example file for more examples (this file is included in the examples directory).
-
-# API 
-The API is available by running **doxygen** in the top level directory.

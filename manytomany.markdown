@@ -2,10 +2,11 @@
 layout: base
 title: StactiveRecord - C++ ORM
 ---
-This is an example of a one to one relationship.  The file is included in the examples directory.
+# Many to Many
+This is an example of a many to many relationship.  The file is included in the examples directory.
 
 {% highlight cpp %}
-#include "stactive_record.h"
+#include "stactiverecord/stactive_record.h"
 using namespace stactiverecord;
 using namespace std;
 Sar_Dbi * Sar_Dbi::dbi;
@@ -22,7 +23,7 @@ class Reader;
 
 class Book : public Record<Book> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   ObjGroup<Reader> readers;
   Book() : Record<Book>() { init(); };
@@ -41,11 +42,11 @@ public:
     init();
   };
 };
-string Book::classname = "book";
+SAR_SET_CLASSNAME(Book, "Book");
 
 class Reader : public Record<Reader> {
 public:
-  static string classname;
+  SAR_INIT();
   string name;
   ObjGroup<Book> books;
   Reader() : Record<Reader>() { init();  };
@@ -64,7 +65,7 @@ public:
     init();
   };
 };
-string Reader::classname = "reader";
+SAR_SET_CLASSNAME(Reader, "Reader");
 
 
 int main(int argc, char* argv[]) {
@@ -93,4 +94,9 @@ int main(int argc, char* argv[]) {
   delete Sar_Dbi::dbi;
   return 0;
 };
+{% endhighlight %}
+
+To compile this example (after installing the library), use:
+{% highlight bash %}
+g++ $(pkg-config libstactiverecord --cflags --libs) many_to_many.cpp many_to_many
 {% endhighlight %}

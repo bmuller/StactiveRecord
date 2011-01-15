@@ -2,10 +2,11 @@
 layout: base
 title: StactiveRecord - C++ ORM
 ---
+# One to One
 This is an example of a one to one relationship.  The file is included in the examples directory.
 
 {% highlight cpp %}
-#include "stactive_record.h"
+#include "stactiverecord/stactive_record.h"
 using namespace stactiverecord;
 using namespace std;
 Sar_Dbi * Sar_Dbi::dbi;
@@ -19,18 +20,17 @@ class Lock : public Record<Lock> {
 public:
   Lock() : Record<Lock>() {};
   Lock(int id) : Record<Lock>(id) {};
-  static string classname;
+  SAR_INIT();
 };
-string Lock::classname = "lock";
+SAR_SET_CLASSNAME(Lock, "Lock");
 
 class Key : public Record<Key> {
 public:
   Key() : Record<Key>() {};
   Key(int id) : Record<Key>(id) {};
-  static string classname;
+  SAR_INIT();
 };
-string Key::classname = "key";
-
+SAR_SET_CLASSNAME(Key, "Key");
 
 int main(int argc, char* argv[]) {
   if(argc != 2) {
@@ -60,4 +60,9 @@ int main(int argc, char* argv[]) {
   delete Sar_Dbi::dbi;
   return 0;
 };
+{% endhighlight %}
+
+To compile this example (after installing the library), use:
+{% highlight bash %}
+g++ $(pkg-config libstactiverecord --cflags --libs) one_to_one.cpp -o one_to_one
 {% endhighlight %}

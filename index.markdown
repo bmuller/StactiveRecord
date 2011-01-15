@@ -3,7 +3,7 @@ layout: base
 title: StactiveRecord - A C++ ORM
 ---
 # Introduction
-**StactiveRecord** is a C++ library designed to make simple database use simple.  It was inspired by Ruby on Rail's [Active Record](http://wiki.rubyonrails.org/rails/pages/ActiveRecord), however, no similar look, feel, or performance is guaranteed.  It uses an [Object-relational mapping](http://en.wikipedia.org/wiki/Object-relational_mapping) pattern to represent records as objects.  It also provides persistent object relationships (one to many, many to many, one to one).
+**StactiveRecord** is a C++ library designed to make simple database use as simple as possible (in a static language).  It was inspired by Ruby on Rail's [Active Record](http://wiki.rubyonrails.org/rails/pages/ActiveRecord), however, no similar look, feel, or performance is guaranteed.  It uses an [Object-relational mapping](http://en.wikipedia.org/wiki/Object-relational_mapping) pattern to represent records as objects.  It also provides persistent object relationships (one to many, many to many, one to one).
 
 # Quick Example For Those In A Rush 
 See the [simple example description page](exampledescription.html) for a detailed description of this example.
@@ -18,14 +18,12 @@ Sar_Dbi * Sar_Dbi::dbi = Sar_Dbi::makeStorage("sqlite://:memory:");
 
 class Person : public Record<Person> {
 public:
-  static string classname;
+  SAR_INIT();
   Person() : Record<Person>() {};
   Person(int id) : Record<Person>(id) {};
-  void sayhi() {
-    cout << "Hello\n";
-  };
+  void sayhi() { cout << "Hello\n"; };
 };
-string Person::classname = "person";
+SAR_SET_CLASSNAME(Person, "Person");
 
 int main() {
   Person bob;
@@ -52,7 +50,7 @@ One or more of the following databases and their dev components:
  * postgres c libs: come with PostgreSQL core - [postgresql.org](http://www.postgresql.org/download/)
 
 ## Get The Source 
-You can download the current code using git:
+Releases can be found on the [releases](releases.html) page.  You can also download the current development code using git:
 {% highlight bash %}
 git clone git://github.com/bmuller/StactiveRecord.git
 {% endhighlight %}
@@ -78,5 +76,5 @@ make install
 
 # Docs
  * There is a [usage page](usage.html) with examples and the API in brief.
- * The full API is available by running doxygen in the root directory.
+ * The full API is available [here](apidocs/index.html) or by running doxygen in the root directory.
 
