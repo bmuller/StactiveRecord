@@ -1,4 +1,0 @@
-For installation instructions, see the INSTALL file.  For more information/docs,
-see http://findingscience.com/StactiveRecord.  If you have doxygen,
-you can run it with the doxygen.conf file in the top level directory to create
-an html version of the API in the docs/api directory.
