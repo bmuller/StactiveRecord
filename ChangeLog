@@ -1,8 +1,11 @@
-See http://butterfat.net/wiki/Projects/StactiveRecord for
-instructions on SVN access for a full ChangeLog history.
+See http://findingscience.com/StactiveRecord for
+instructions on Git access and documentation.
 
 All references to issues/bugs can be found at:
-https://tracker.butterfat.net/tracker/butterfat/issue<issue number>
+https://github.com/bmuller/StactiveRecord
 
 Version 0.0
 	First version.  Supports all primary goals of project.
+
+Version 0.1
+	Fixed some syntax issues, updated docs, more testing, bug fixes.  No new features.
